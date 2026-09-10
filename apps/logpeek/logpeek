@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no">
+
+<title>LogLens</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --bg: #090b10;
+    --panel: #12151d;
+    --panel2: #191d27;
+    --border: #272d3a;
+    --text: #f3f5f8;
+    --muted: #8d96a8;
+    --accent: #6c7cff;
+    --danger: #ff6262;
+    --warning: #ffbd5c;
+    --success: #53d68a;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+.app {
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+    padding: 14px;
+}
+
+/* HEADER */
+
+.header {
+    padding: 8px 2px 18px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    font-weight: 900;
+}
+
+h1 {
+    margin: 0;
+    font-size: 25px;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    margin: 6px 0 0 52px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* INPUT */
+
+.input-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.input-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 9px;
+}
+
+.input-title strong {
+    font-size: 14px;
+}
+
+.memory {
+    font-size: 11px;
+    color: var(--success);
+}
+
+textarea {
+    width: 100%;
+    min-height: 240px;
+    resize: vertical;
+
+    background: #0c0f15;
+    color: #e8ebf2;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    padding: 13px;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    outline: none;
+}
+
+textarea:focus {
+    border-color: var(--accent);
+}
+
+/* BUTTONS */
+
+.buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 10px;
+}
+
+button {
+    min-height: 48px;
+
+    border: 0;
+    border-radius: 12px;
+
+    color: white;
+    background: var(--panel2);
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+.analyze {
+    background: var(--accent);
+}
+
+.file {
+    position: relative;
+    overflow: hidden;
+}
+
+.file input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* STATS */
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.stat-number {
+    font-size: 25px;
+    font-weight: 800;
+    margin-top: 5px;
+}
+
+/* PANELS */
+
+.panels {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 14px;
+}
+
+.panel h2 {
+    margin: 0 0 13px;
+    font-size: 16px;
+}
+
+/* BARS */
+
+.bar-row {
+    margin: 12px 0;
+}
+
+.bar-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.bar-bg {
+    width: 100%;
+    height: 8px;
+    background: #292e39;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 20px;
+}
+
+/* LIST */
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.list-item {
+    background: var(--panel2);
+    border-radius: 9px;
+    padding: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+
+    font-family: monospace;
+    font-size: 12px;
+
+    overflow-wrap: anywhere;
+}
+
+.count {
+    flex: 0 0 auto;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+/* ERROR */
+
+.error-item {
+    background: #21171b;
+    border-left: 3px solid var(--danger);
+
+    border-radius: 8px;
+    padding: 10px;
+
+    font-family: monospace;
+    font-size: 12px;
+
+    margin-bottom: 7px;
+}
+
+.error-count {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+/* TABLE */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 280px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 9px 5px;
+    border-bottom: 1px solid var(--border);
+    font-family: monospace;
+    font-size: 12px;
+}
+
+th {
+    color: var(--muted);
+}
+
+/* EMPTY */
+
+.empty {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 8px 0;
+}
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 20px 5px;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+
+    transform: translateX(-50%);
+
+    background: #252a35;
+    color: white;
+
+    padding: 11px 17px;
+
+    border-radius: 30px;
+
+    font-size: 12px;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: .25s;
+
+    z-index: 100;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+/* DESKTOP */
+
+@media (min-width: 700px) {
+
+    .app {
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    textarea {
+        min-height: 300px;
+    }
+
+    .stats {
+        grid-template-columns:
+            repeat(4, 1fr);
+    }
+
+    .buttons {
+        grid-template-columns:
+            repeat(4, 1fr);
+    }
+
+    .panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .panel.full {
+        grid-column: 1 / -1;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ⌁
+            </div>
+
+            <h1>LogLens</h1>
+
+        </div>
+
+        <div class="subtitle">
+            Fast in-memory log analyzer
+        </div>
+
+    </header>
+
+
+    <!-- INPUT -->
+
+    <section class="input-card">
+
+        <div class="input-title">
+
+            <strong>Raw Logs</strong>
+
+            <span class="memory">
+                ● LOCAL ONLY
+            </span>
+
+        </div>
+
+        <textarea
+            id="logInput"
+            placeholder="Paste your logs here...
+
+Example:
+2026-09-09 10:20:01 INFO Server started 192.168.1.10
+2026-09-09 10:20:02 ERROR Database connection failed
+2026-09-09 10:20:03 WARN Slow request 10.0.0.5"></textarea>
+
+
+        <div class="buttons">
+
+            <button
+                class="analyze"
+                onclick="analyze()">
+                ⚡ Analyze
+            </button>
+
+            <button
+                onclick="sample()">
+                ✨ Sample
+            </button>
+
+            <button
+                class="file">
+                📁 Open Log
+
+                <input
+                    type="file"
+                    accept=".log,.txt,.csv"
+                    onchange="loadFile(event)">
+            </button>
+
+            <button
+                onclick="clearAll()">
+                🗑 Clear
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Lines
+            </div>
+
+            <div
+                class="stat-number"
+                id="lines">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Unique IPs
+            </div>
+
+            <div
+                class="stat-number"
+                id="ipsCount">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Errors
+            </div>
+
+            <div
+                class="stat-number"
+                id="errorsCount">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Warnings
+            </div>
+
+            <div
+                class="stat-number"
+                id="warningsCount">
+                0
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RESULTS -->
+
+    <section class="panels">
+
+
+        <!-- LEVELS -->
+
+        <div class="panel">
+
+            <h2>
+                📊 Log Levels
+            </h2>
+
+            <div id="levels">
+                <div class="empty">
+                    Analyze logs to see results.
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div class="panel">
+
+            <h2>
+                🌐 HTTP Status
+            </h2>
+
+            <div id="statuses">
+                <div class="empty">
+                    No data yet.
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- IPS -->
+
+        <div class="panel">
+
+            <h2>
+                📍 IP Addresses
+            </h2>
+
+            <div
+                id="ips"
+                class="list">
+
+                <div class="empty">
+                    No IP addresses detected.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ERRORS -->
+
+        <div class="panel">
+
+            <h2>
+                🚨 Top Errors
+            </h2>
+
+            <div id="errors">
+
+                <div class="empty">
+                    No errors detected.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TIMESTAMPS -->
+
+        <div class="panel full">
+
+            <h2>
+                🕐 Timestamps
+            </h2>
+
+            <div
+                id="timestamps"
+                class="table-wrap">
+
+                <div class="empty">
+                    No timestamps detected.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- REPORT -->
+
+        <div class="panel full">
+
+            <h2>
+                📋 Text Report
+            </h2>
+
+            <textarea
+                id="report"
+                readonly
+                style="min-height:220px;"
+                placeholder="Your report will appear here..."></textarea>
+
+            <button
+                style="width:100%; margin-top:9px;"
+                onclick="copyReport()">
+
+                📋 Copy Report
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <div class="footer">
+        LogLens • Runs entirely in your browser • No uploads • No database
+    </div>
+
+</div>
+
+
+<div
+    id="toast"
+    class="toast">
+    Done
+</div>
+
+
+<script>
+
+/* =========================================================
+   REGEX
+========================================================= */
+
+const IP_REGEX =
+    /\b(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\b/g;
+
+
+const LEVEL_REGEX =
+    /\b(TRACE|DEBUG|INFO|NOTICE|WARN|WARNING|ERROR|ERR|FATAL|CRITICAL)\b/i;
+
+
+const STATUS_REGEX =
+    /\b(?:HTTP\/\d(?:\.\d)?\s+)?([1-5]\d{2})\b/g;
+
+
+const TIMESTAMP_REGEX = [
+    /\b\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?\b/,
+    /\b\d{2}\/\d{2}\/\d{4}[ T]\d{2}:\d{2}:\d{2}\b/,
+    /\b\d{2}-\d{2}-\d{4}[ T]\d{2}:\d{2}:\d{2}\b/
+];
+
+
+/* =========================================================
+   COUNT
+========================================================= */
+
+function count(values) {
+
+    const result = {};
+
+    values.forEach(value => {
+
+        result[value] =
+            (result[value] || 0) + 1;
+
+    });
+
+    return result;
+}
+
+
+/* =========================================================
+   SORT
+========================================================= */
+
+function sorted(obj) {
+
+    return Object.entries(obj)
+        .sort((a,b) => b[1] - a[1]);
+
+}
+
+
+/* =========================================================
+   ANALYZE
+========================================================= */
+
+function analyze() {
+
+    const text =
+        document.getElementById("logInput").value;
+
+    if (!text.trim()) {
+
+        toast("Paste some logs first");
+
+        return;
+    }
+
+
+    const lines =
+        text
+            .split(/\r?\n/)
+            .filter(line => line.trim());
+
+
+    const ips = [];
+    const levels = [];
+    const statuses = [];
+    const timestamps = [];
+    const errors = [];
+
+
+    lines.forEach(line => {
+
+
+        /* IP */
+
+        const foundIPs =
+            line.match(IP_REGEX);
+
+        if (foundIPs) {
+
+            ips.push(...foundIPs);
+
+        }
+
+
+        /* TIMESTAMP */
+
+        let timestamp = null;
+
+        for (const regex of TIMESTAMP_REGEX) {
+
+            const match =
+                line.match(regex);
+
+            if (match) {
+
+                timestamp =
+                    match[0];
+
+                break;
+            }
+
+        }
+
+        if (timestamp) {
+
+            timestamps.push(timestamp);
+
+        }
+
+
+        /* LEVEL */
+
+        const levelMatch =
+            line.match(LEVEL_REGEX);
+
+        if (levelMatch) {
+
+            let level =
+                levelMatch[1].toUpperCase();
+
+
+            if (level === "WARNING")
+                level = "WARN";
+
+
+            if (level === "ERR")
+                level = "ERROR";
+
+
+            if (level === "CRITICAL")
+                level = "FATAL";
+
+
+            levels.push(level);
+
+
+            /* ERROR MESSAGE */
+
+            if (
+                level === "ERROR" ||
+                level === "FATAL"
+            ) {
+
+                let message =
+                    line;
+
+                if (timestamp) {
+
+                    message =
+                        message.replace(
+                            timestamp,
+                            ""
+                        );
+
+                }
+
+                message =
+                    message.replace(
+                        LEVEL_REGEX,
+                        ""
+                    );
+
+                message =
+                    message.replace(
+                        IP_REGEX,
+                        ""
+                    );
+
+                message =
+                    message
+                        .replace(
+                            /^[\s\-:|]+/,
+                            ""
+                        )
+                        .trim();
+
+
+                if (message) {
+
+                    errors.push(message);
+
+                }
+
+            }
+
+        }
+
+
+        /* HTTP */
+
+        STATUS_REGEX.lastIndex = 0;
+
+        let match;
+
+        while (
+            (match =
+                STATUS_REGEX.exec(line)) !== null
+        ) {
+
+            statuses.push(match[1]);
+
+        }
+
+    });
+
+
+    const result = {
+
+        lines: lines.length,
+
+        ips: count(ips),
+
+        levels: count(levels),
+
+        statuses: count(statuses),
+
+        timestamps: count(timestamps),
+
+        errors: count(errors)
+
+    };
+
+
+    render(result);
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(result) {
+
+
+    /* STATS */
+
+    document.getElementById(
+        "lines"
+    ).textContent =
+        result.lines;
+
+
+    document.getElementById(
+        "ipsCount"
+    ).textContent =
+        Object.keys(result.ips).length;
+
+
+    document.getElementById(
+        "errorsCount"
+    ).textContent =
+        (result.levels.ERROR || 0) +
+        (result.levels.FATAL || 0);
+
+
+    document.getElementById(
+        "warningsCount"
+    ).textContent =
+        result.levels.WARN || 0;
+
+
+    /* LEVELS */
+
+    renderBars(
+        "levels",
+        result.levels
+    );
+
+
+    /* STATUS */
+
+    renderBars(
+        "statuses",
+        result.statuses
+    );
+
+
+    /* IPS */
+
+    renderList(
+        "ips",
+        result.ips
+    );
+
+
+    /* ERRORS */
+
+    renderErrors(
+        result.errors
+    );
+
+
+    /* TIMESTAMPS */
+
+    renderTimestamps(
+        result.timestamps
+    );
+
+
+    /* REPORT */
+
+    generateReport(result);
+
+
+    toast(
+        `Analyzed ${result.lines} lines`
+    );
+
+}
+
+
+/* =========================================================
+   BARS
+========================================================= */
+
+function renderBars(id, data) {
+
+    const container =
+        document.getElementById(id);
+
+    container.innerHTML = "";
+
+
+    const entries =
+        sorted(data);
+
+
+    if (!entries.length) {
+
+        container.innerHTML =
+            '<div class="empty">No data detected.</div>';
+
+        return;
+    }
+
+
+    const max =
+        entries[0][1];
+
+
+    entries.forEach(([key,value]) => {
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "bar-row";
+
+
+        row.innerHTML = `
+
+            <div class="bar-info">
+
+                <span>
+                    ${escapeHTML(key)}
+                </span>
+
+                <strong>
+                    ${value}
+                </strong>
+
+            </div>
+
+            <div class="bar-bg">
+
+                <div
+                    class="bar-fill"
+                    style="width:${(value/max)*100}%">
+                </div>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(row);
+
+    });
+
+}
+
+
+/* =========================================================
+   LIST
+========================================================= */
+
+function renderList(id,data) {
+
+    const container =
+        document.getElementById(id);
+
+    container.innerHTML = "";
+
+
+    const entries =
+        sorted(data);
+
+
+    if (!entries.length) {
+
+        container.innerHTML =
+            '<div class="empty">No data detected.</div>';
+
+        return;
+    }
+
+
+    entries.forEach(([key,value]) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "list-item";
+
+
+        div.innerHTML = `
+
+            <span>
+                ${escapeHTML(key)}
+            </span>
+
+            <span class="count">
+                ${value}×
+            </span>
+
+        `;
+
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+/* =========================================================
+   ERRORS
+========================================================= */
+
+function renderErrors(data) {
+
+    const container =
+        document.getElementById("errors");
+
+    container.innerHTML = "";
+
+
+    const entries =
+        sorted(data).slice(0,30);
+
+
+    if (!entries.length) {
+
+        container.innerHTML =
+            '<div class="empty">No errors detected.</div>';
+
+        return;
+    }
+
+
+    entries.forEach(([message,value]) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "error-item";
+
+
+        div.innerHTML = `
+
+            <span class="error-count">
+                ${value}×
+            </span>
+
+            ${escapeHTML(message)}
+
+        `;
+
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+/* =========================================================
+   TIMESTAMPS
+========================================================= */
+
+function renderTimestamps(data) {
+
+    const container =
+        document.getElementById("timestamps");
+
+    container.innerHTML = "";
+
+
+    const entries =
+        sorted(data).slice(0,50);
+
+
+    if (!entries.length) {
+
+        container.innerHTML =
+            '<div class="empty">No timestamps detected.</div>';
+
+        return;
+    }
+
+
+    const table =
+        document.createElement("table");
+
+
+    table.innerHTML = `
+
+        <tr>
+            <th>Timestamp</th>
+            <th>Count</th>
+        </tr>
+
+    `;
+
+
+    entries.forEach(([key,value]) => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        tr.innerHTML = `
+
+            <td>
+                ${escapeHTML(key)}
+            </td>
+
+            <td>
+                ${value}
+            </td>
+
+        `;
+
+
+        table.appendChild(tr);
+
+    });
+
+
+    container.appendChild(table);
+
+}
+
+
+/* =========================================================
+   REPORT
+========================================================= */
+
+function generateReport(result) {
+
+    let out = "";
+
+    out += "LOGLENS REPORT\n";
+    out += "==============\n\n";
+
+    out +=
+        `Total lines: ${result.lines}\n`;
+
+    out +=
+        `Unique IPs: ${Object.keys(result.ips).length}\n`;
+
+    out +=
+        `Errors: ${(result.levels.ERROR || 0) +
+                   (result.levels.FATAL || 0)}\n`;
+
+    out +=
+        `Warnings: ${result.levels.WARN || 0}\n\n`;
+
+
+    out += "LOG LEVELS\n";
+    out += "----------\n";
+
+    sorted(result.levels)
+        .forEach(([key,value]) => {
+
+            out +=
+                `${key}: ${value}\n`;
+
+        });
+
+
+    out += "\nIP ADDRESSES\n";
+    out += "------------\n";
+
+    sorted(result.ips)
+        .forEach(([key,value]) => {
+
+            out +=
+                `${key}: ${value}\n`;
+
+        });
+
+
+    out += "\nHTTP STATUS CODES\n";
+    out += "-----------------\n";
+
+    sorted(result.statuses)
+        .forEach(([key,value]) => {
+
+            out +=
+                `${key}: ${value}\n`;
+
+        });
+
+
+    out += "\nTOP ERRORS\n";
+    out += "----------\n";
+
+    sorted(result.errors)
+        .slice(0,30)
+        .forEach(([key,value]) => {
+
+            out +=
+                `[${value}x] ${key}\n`;
+
+        });
+
+
+    out += "\nTIMESTAMPS\n";
+    out += "----------\n";
+
+    sorted(result.timestamps)
+        .slice(0,50)
+        .forEach(([key,value]) => {
+
+            out +=
+                `${key}: ${value}\n`;
+
+        });
+
+
+    out +=
+        "\nProcessed locally in browser memory.\n";
+
+
+    document.getElementById(
+        "report"
+    ).value = out;
+
+}
+
+
+/* =========================================================
+   SAMPLE
+========================================================= */
+
+function sample() {
+
+    document.getElementById(
+        "logInput"
+    ).value = `2026-09-09 10:15:21 INFO Server started on 192.168.1.10
+2026-09-09 10:15:22 INFO Request received from 192.168.1.20
+2026-09-09 10:15:23 ERROR Database connection failed from 192.168.1.20
+2026-09-09 10:15:24 ERROR Database connection failed from 192.168.1.20
+2026-09-09 10:15:25 WARN Slow request from 10.0.0.15
+2026-09-09 10:15:26 ERROR Authentication failed for 10.0.0.15
+2026-09-09 10:15:27 INFO Request completed HTTP 200
+2026-09-09 10:15:28 ERROR Database connection failed from 192.168.1.20
+2026-09-09 10:15:29 INFO Request completed HTTP 201
+2026-09-09 10:15:30 ERROR Authentication failed for 10.0.0.15
+2026-09-09 10:15:31 INFO Request completed HTTP 404
+2026-09-09 10:15:32 FATAL Server crashed on 192.168.1.10
+2026-09-09 10:15:33 DEBUG Cleanup completed`;
+
+    analyze();
+
+}
+
+
+/* =========================================================
+   FILE
+========================================================= */
+
+function loadFile(event) {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload = function(e) {
+
+        document.getElementById(
+            "logInput"
+        ).value =
+            e.target.result;
+
+        analyze();
+
+        toast(
+            "Log loaded locally"
+        );
+
+    };
+
+
+    reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+function clearAll() {
+
+    document.getElementById(
+        "logInput"
+    ).value = "";
+
+    document.getElementById(
+        "report"
+    ).value = "";
+
+
+    [
+        "lines",
+        "ipsCount",
+        "errorsCount",
+        "warningsCount"
+    ].forEach(id => {
+
+        document.getElementById(id)
+            .textContent = "0";
+
+    });
+
+
+    [
+        "levels",
+        "statuses",
+        "ips",
+        "errors",
+        "timestamps"
+    ].forEach(id => {
+
+        document.getElementById(id).innerHTML =
+            '<div class="empty">No data yet.</div>';
+
+    });
+
+
+    toast("Cleared");
+
+}
+
+
+/* =========================================================
+   COPY
+========================================================= */
+
+function copyReport() {
+
+    const text =
+        document.getElementById(
+            "report"
+        ).value;
+
+
+    if (!text) {
+
+        toast(
+            "Analyze logs first"
+        );
+
+        return;
+    }
+
+
+    navigator.clipboard
+        .writeText(text)
+        .then(() => {
+
+            toast(
+                "Report copied"
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function toast(message) {
+
+    const el =
+        document.getElementById("toast");
+
+    el.textContent =
+        message;
+
+    el.classList.add("show");
+
+
+    setTimeout(() => {
+
+        el.classList.remove("show");
+
+    }, 1800);
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   CTRL + ENTER
+========================================================= */
+
+document.getElementById(
+    "logInput"
+).addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.ctrlKey &&
+            event.key === "Enter"
+        ) {
+
+            analyze();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
