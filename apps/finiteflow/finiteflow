@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex → NFA → DFA Visualizer</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: #0b1120;
+    color: #e5e7eb;
+}
+
+header {
+    padding: 22px 28px;
+    border-bottom: 1px solid #243047;
+    background: #111827;
+}
+
+header h1 {
+    margin: 0 0 6px;
+    font-size: 25px;
+}
+
+header p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1500px;
+    margin: auto;
+    padding: 22px;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: minmax(250px, 2fr) minmax(180px, 1fr) auto;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #334155;
+    border-radius: 9px;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #38bdf8;
+}
+
+button {
+    border: 0;
+    border-radius: 9px;
+    padding: 12px 17px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary {
+    background: #38bdf8;
+    color: #082f49;
+}
+
+.secondary {
+    background: #334155;
+    color: white;
+}
+
+.green {
+    background: #22c55e;
+    color: #052e16;
+}
+
+.red {
+    background: #ef4444;
+    color: white;
+}
+
+button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.examples {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.example {
+    padding: 7px 11px;
+    border-radius: 20px;
+    background: #172033;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-family: monospace;
+}
+
+.message {
+    min-height: 24px;
+    color: #fbbf24;
+    margin-bottom: 10px;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tab {
+    background: #1e293b;
+    color: #cbd5e1;
+}
+
+.tab.active {
+    background: #38bdf8;
+    color: #082f49;
+}
+
+.panel {
+    background: #111827;
+    border: 1px solid #26344d;
+    border-radius: 13px;
+    overflow: hidden;
+}
+
+.graph-wrap {
+    height: 620px;
+    overflow: auto;
+    position: relative;
+    background:
+        linear-gradient(#162033 1px, transparent 1px),
+        linear-gradient(90deg, #162033 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+svg {
+    min-width: 100%;
+    min-height: 100%;
+    display: block;
+}
+
+.edge {
+    stroke: #64748b;
+    stroke-width: 1.7;
+    fill: none;
+}
+
+.edge.active {
+    stroke: #facc15;
+    stroke-width: 3.5;
+}
+
+.edge-label {
+    fill: #cbd5e1;
+    font-size: 14px;
+    font-family: monospace;
+}
+
+.node {
+    fill: #172033;
+    stroke: #64748b;
+    stroke-width: 2;
+}
+
+.node.start {
+    stroke: #38bdf8;
+}
+
+.node.accept {
+    stroke: #22c55e;
+    stroke-width: 3;
+}
+
+.node.active {
+    fill: #713f12;
+    stroke: #facc15;
+    stroke-width: 4;
+}
+
+.node-label {
+    fill: white;
+    font-size: 13px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+.state-badge {
+    fill: #94a3b8;
+    font-size: 11px;
+    text-anchor: middle;
+}
+
+.bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.card {
+    background: #111827;
+    border: 1px solid #26344d;
+    border-radius: 13px;
+    padding: 18px;
+}
+
+.card h2 {
+    margin: 0 0 15px;
+    font-size: 17px;
+}
+
+.simulator {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+}
+
+.simulator input {
+    font-family: monospace;
+}
+
+.status {
+    margin-top: 14px;
+    padding: 13px;
+    border-radius: 9px;
+    background: #0b1120;
+    border: 1px solid #26344d;
+}
+
+.status.accepted {
+    border-color: #22c55e;
+    color: #86efac;
+}
+
+.status.rejected {
+    border-color: #ef4444;
+    color: #fca5a5;
+}
+
+.status.running {
+    border-color: #facc15;
+    color: #fde68a;
+}
+
+.states {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+.state-chip {
+    font-family: monospace;
+    padding: 6px 9px;
+    border-radius: 7px;
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+
+.state-chip.active {
+    background: #713f12;
+    border-color: #facc15;
+}
+
+.step-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.info {
+    line-height: 1.6;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+pre {
+    margin: 0;
+    white-space: pre-wrap;
+    color: #cbd5e1;
+    font-family: monospace;
+    line-height: 1.55;
+}
+
+.legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+@media(max-width:900px) {
+    .controls,
+    .bottom {
+        grid-template-columns: 1fr;
+    }
+
+    .graph-wrap {
+        height: 500px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Regex → NFA → DFA Visualizer</h1>
+    <p>
+        Thompson's Construction · ε-Closure · Subset Construction ·
+        Character-by-character simulation
+    </p>
+</header>
+
+<div class="container">
+
+    <div class="controls">
+
+        <input
+            id="regexInput"
+            value="a(b|c)*"
+            placeholder="Enter regex e.g. a(b|c)*"
+            aria-label="Regular expression"
+        >
+
+        <input
+            id="testInput"
+            value="abcb"
+            placeholder="Test string"
+            aria-label="Test string"
+        >
+
+        <button class="primary" id="buildBtn">
+            Build Automata
+        </button>
+
+    </div>
+
+    <div class="examples">
+        <span>Examples:</span>
+
+        <button class="example" data-regex="a">
+            a
+        </button>
+
+        <button class="example" data-regex="ab">
+            ab
+        </button>
+
+        <button class="example" data-regex="a|b">
+            a|b
+        </button>
+
+        <button class="example" data-regex="a*">
+            a*
+        </button>
+
+        <button class="example" data-regex="(a|b)*">
+            (a|b)*
+        </button>
+
+        <button class="example" data-regex="a(b|c)*">
+            a(b|c)*
+        </button>
+
+        <button class="example" data-regex="(ab|cd)*">
+            (ab|cd)*
+        </button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="tabs">
+
+        <button class="tab active" id="nfaTab">
+            NFA
+        </button>
+
+        <button class="tab" id="dfaTab">
+            DFA
+        </button>
+
+    </div>
+
+    <div class="panel">
+
+        <div class="graph-wrap">
+            <svg id="graph"
+                 viewBox="0 0 1200 600"
+                 preserveAspectRatio="xMinYMin meet">
+            </svg>
+        </div>
+
+    </div>
+
+    <div class="legend">
+
+        <span>
+            <span class="dot"
+                  style="background:#38bdf8"></span>
+            Start
+        </span>
+
+        <span>
+            <span class="dot"
+                  style="background:#22c55e"></span>
+            Accept
+        </span>
+
+        <span>
+            <span class="dot"
+                  style="background:#facc15"></span>
+            Active
+        </span>
+
+    </div>
+
+
+    <div class="bottom">
+
+        <div class="card">
+
+            <h2>String Simulator</h2>
+
+            <div class="simulator">
+
+                <input
+                    id="simulationInput"
+                    value="abcb"
+                    placeholder="Enter test string"
+                >
+
+                <button class="green" id="startSim">
+                    Start
+                </button>
+
+            </div>
+
+            <div class="step-controls">
+
+                <button class="secondary"
+                        id="prevBtn"
+                        disabled>
+                    ← Previous
+                </button>
+
+                <button class="primary"
+                        id="stepBtn"
+                        disabled>
+                    Next Character →
+                </button>
+
+                <button class="red"
+                        id="resetSim">
+                    Reset
+                </button>
+
+            </div>
+
+            <div id="simStatus"
+                 class="status">
+                Enter a string and press Start.
+            </div>
+
+            <div>
+                <strong>Active states:</strong>
+                <div class="states"
+                     id="activeStates">
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Automata Information</h2>
+
+            <div class="info" id="info">
+                Build an automaton to see its details.
+            </div>
+
+            <hr style="border-color:#26344d;margin:15px 0">
+
+            <h3 style="font-size:15px">
+                Parsed Regex
+            </h3>
+
+            <pre id="parsed"></pre>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/*
+=========================================================
+REGEX TOKENIZER
+=========================================================
+Supported:
+
+literal characters
+()
+|
+*
++
+?
+concatenation
+
+Examples:
+
+a
+ab
+a|b
+a*
+(a|b)*
+a(b|c)*
+*/
+
+
+function tokenize(regex) {
+
+    const tokens = [];
+
+    for (let i = 0; i < regex.length; i++) {
+
+        const c = regex[i];
+
+        if (c === "\\") {
+
+            i++;
+
+            if (i >= regex.length) {
+                throw new Error("Dangling escape.");
+            }
+
+            tokens.push({
+                type: "literal",
+                value: regex[i]
+            });
+
+        }
+
+        else if ("()|*+?".includes(c)) {
+
+            tokens.push({
+                type: c,
+                value: c
+            });
+
+        }
+
+        else {
+
+            tokens.push({
+                type: "literal",
+                value: c
+            });
+
+        }
+    }
+
+    return tokens;
+}
+
+
+/*
+=========================================================
+INSERT EXPLICIT CONCATENATION
+=========================================================
+*/
+
+
+function addConcat(tokens) {
+
+    const output = [];
+
+    function canEnd(token) {
+
+        return token.type === "literal" ||
+               token.type === ")" ||
+               token.type === "*" ||
+               token.type === "+" ||
+               token.type === "?";
+
+    }
+
+    function canStart(token) {
+
+        return token.type === "literal" ||
+               token.type === "(";
+
+    }
+
+    for (let i = 0; i < tokens.length; i++) {
+
+        const current = tokens[i];
+
+        if (i > 0) {
+
+            const previous = tokens[i - 1];
+
+            if (canEnd(previous) && canStart(current)) {
+
+                output.push({
+                    type: ".",
+                    value: "."
+                });
+
+            }
+        }
+
+        output.push(current);
+    }
+
+    return output;
+}
+
+
+/*
+=========================================================
+POSTFIX CONVERSION
+=========================================================
+*/
+
+
+function toPostfix(tokens) {
+
+    const output = [];
+    const stack = [];
+
+    const precedence = {
+        "|": 1,
+        ".": 2,
+        "*": 3,
+        "+": 3,
+        "?": 3
+    };
+
+    for (const token of tokens) {
+
+        if (token.type === "literal") {
+
+            output.push(token);
+
+        }
+
+        else if (token.type === "(") {
+
+            stack.push(token);
+
+        }
+
+        else if (token.type === ")") {
+
+            let found = false;
+
+            while (stack.length) {
+
+                const top = stack.pop();
+
+                if (top.type === "(") {
+
+                    found = true;
+                    break;
+
+                }
+
+                output.push(top);
+            }
+
+            if (!found) {
+                throw new Error("Unmatched ')'.");
+            }
+
+        }
+
+        else {
+
+            while (
+                stack.length &&
+                stack[stack.length - 1].type !== "(" &&
+                precedence[stack[stack.length - 1].type] >=
+                precedence[token.type]
+            ) {
+
+                output.push(stack.pop());
+
+            }
+
+            stack.push(token);
+        }
+    }
+
+    while (stack.length) {
+
+        const top = stack.pop();
+
+        if (top.type === "(") {
+            throw new Error("Unmatched '('.");
+        }
+
+        output.push(top);
+    }
+
+    return output;
+}
+
+
+/*
+=========================================================
+NFA STATE
+=========================================================
+*/
+
+
+let stateCounter = 0;
+
+function newState() {
+
+    return {
+        id: stateCounter++,
+        transitions: [],
+        accept: false
+    };
+
+}
+
+
+function addTransition(from, to, symbol) {
+
+    from.transitions.push({
+        to,
+        symbol
+    });
+
+}
+
+
+/*
+=========================================================
+THOMPSON CONSTRUCTION
+=========================================================
+*/
+
+
+function buildNFA(postfix) {
+
+    stateCounter = 0;
+
+    const stack = [];
+
+    for (const token of postfix) {
+
+        if (token.type === "literal") {
+
+            const start = newState();
+            const end = newState();
+
+            addTransition(
+                start,
+                end,
+                token.value
+            );
+
+            stack.push({
+                start,
+                end
+            });
+
+        }
+
+        else if (token.type === ".") {
+
+            if (stack.length < 2) {
+                throw new Error("Invalid concatenation.");
+            }
+
+            const b = stack.pop();
+            const a = stack.pop();
+
+            addTransition(
+                a.end,
+                b.start,
+                "ε"
+            );
+
+            stack.push({
+                start: a.start,
+                end: b.end
+            });
+
+        }
+
+        else if (token.type === "|") {
+
+            if (stack.length < 2) {
+                throw new Error("Invalid alternation.");
+            }
+
+            const b = stack.pop();
+            const a = stack.pop();
+
+            const start = newState();
+            const end = newState();
+
+            addTransition(
+                start,
+                a.start,
+                "ε"
+            );
+
+            addTransition(
+                start,
+                b.start,
+                "ε"
+            );
+
+            addTransition(
+                a.end,
+                end,
+                "ε"
+            );
+
+            addTransition(
+                b.end,
+                end,
+                "ε"
+            );
+
+            stack.push({
+                start,
+                end
+            });
+
+        }
+
+        else if (token.type === "*") {
+
+            if (stack.length < 1) {
+                throw new Error("Invalid '*'.");
+            }
+
+            const a = stack.pop();
+
+            const start = newState();
+            const end = newState();
+
+            addTransition(
+                start,
+                a.start,
+                "ε"
+            );
+
+            addTransition(
+                start,
+                end,
+                "ε"
+            );
+
+            addTransition(
+                a.end,
+                a.start,
+                "ε"
+            );
+
+            addTransition(
+                a.end,
+                end,
+                "ε"
+            );
+
+            stack.push({
+                start,
+                end
+            });
+
+        }
+
+        else if (token.type === "+") {
+
+            if (stack.length < 1) {
+                throw new Error("Invalid '+'.");
+            }
+
+            const a = stack.pop();
+
+            const start = newState();
+            const end = newState();
+
+            addTransition(
+                start,
+                a.start,
+                "ε"
+            );
+
+            addTransition(
+                a.end,
+                a.start,
+                "ε"
+            );
+
+            addTransition(
+                a.end,
+                end,
+                "ε"
+            );
+
+            stack.push({
+                start,
+                end
+            });
+
+        }
+
+        else if (token.type === "?") {
+
+            if (stack.length < 1) {
+                throw new Error("Invalid '?'.");
+            }
+
+            const a = stack.pop();
+
+            const start = newState();
+            const end = newState();
+
+            addTransition(
+                start,
+                a.start,
+                "ε"
+            );
+
+            addTransition(
+                start,
+                end,
+                "ε"
+            );
+
+            addTransition(
+                a.end,
+                end,
+                "ε"
+            );
+
+            stack.push({
+                start,
+                end
+            });
+
+        }
+
+    }
+
+    if (stack.length !== 1) {
+        throw new Error("Invalid regular expression.");
+    }
+
+    const result = stack.pop();
+
+    result.end.accept = true;
+
+    return {
+        start: result.start,
+        accept: result.end,
+        states: collectStates(result.start)
+    };
+}
+
+
+/*
+=========================================================
+COLLECT NFA STATES
+=========================================================
+*/
+
+
+function collectStates(start) {
+
+    const result = [];
+    const seen = new Set();
+    const queue = [start];
+
+    while (queue.length) {
+
+        const state = queue.shift();
+
+        if (seen.has(state.id)) {
+            continue;
+        }
+
+        seen.add(state.id);
+        result.push(state);
+
+        for (const edge of state.transitions) {
+            queue.push(edge.to);
+        }
+    }
+
+    return result.sort((a,b) => a.id - b.id);
+}
+
+
+/*
+=========================================================
+EPSILON CLOSURE
+=========================================================
+*/
+
+
+function epsilonClosure(states) {
+
+    const result = new Map();
+    const stack = [...states];
+
+    for (const s of states) {
+        result.set(s.id, s);
+    }
+
+    while (stack.length) {
+
+        const state = stack.pop();
+
+        for (const edge of state.transitions) {
+
+            if (edge.symbol !== "ε") {
+                continue;
+            }
+
+            if (!result.has(edge.to.id)) {
+
+                result.set(
+                    edge.to.id,
+                    edge.to
+                );
+
+                stack.push(edge.to);
+            }
+        }
+    }
+
+    return [...result.values()]
+        .sort((a,b) => a.id - b.id);
+}
+
+
+/*
+=========================================================
+MOVE
+=========================================================
+*/
+
+
+function move(states, symbol) {
+
+    const result = new Map();
+
+    for (const state of states) {
+
+        for (const edge of state.transitions) {
+
+            if (edge.symbol === symbol) {
+
+                result.set(
+                    edge.to.id,
+                    edge.to
+                );
+
+            }
+        }
+    }
+
+    return [...result.values()]
+        .sort((a,b) => a.id - b.id);
+}
+
+
+/*
+=========================================================
+DFA CONSTRUCTION
+=========================================================
+*/
+
+
+function setKey(states) {
+
+    return states
+        .map(s => s.id)
+        .sort((a,b) => a-b)
+        .join(",");
+}
+
+
+function buildDFA(nfa) {
+
+    const alphabet = new Set();
+
+    for (const state of nfa.states) {
+
+        for (const edge of state.transitions) {
+
+            if (edge.symbol !== "ε") {
+                alphabet.add(edge.symbol);
+            }
+        }
+    }
+
+    const symbols = [...alphabet].sort();
+
+    const startSet =
+        epsilonClosure([nfa.start]);
+
+    const dfaStates = [];
+
+    const stateMap = new Map();
+
+    const queue = [];
+
+    function create(set) {
+
+        const key = setKey(set);
+
+        if (stateMap.has(key)) {
+            return stateMap.get(key);
+        }
+
+        const state = {
+            id: dfaStates.length,
+            nfaStates: set,
+            transitions: [],
+            accept: set.some(
+                s => s.id === nfa.accept.id
+            )
+        };
+
+        dfaStates.push(state);
+        stateMap.set(key, state);
+        queue.push(state);
+
+        return state;
+    }
+
+    const dfaStart = create(startSet);
+
+    while (queue.length) {
+
+        const current = queue.shift();
+
+        for (const symbol of symbols) {
+
+            const moved =
+                move(current.nfaStates, symbol);
+
+            if (!moved.length) {
+                continue;
+            }
+
+            const closed =
+                epsilonClosure(moved);
+
+            const target =
+                create(closed);
+
+            current.transitions.push({
+                to: target,
+                symbol
+            });
+        }
+    }
+
+    return {
+        start: dfaStart,
+        states: dfaStates,
+        alphabet: symbols
+    };
+}
+
+
+/*
+=========================================================
+GRAPH RENDERER
+=========================================================
+*/
+
+
+const svg =
+    document.getElementById("graph");
+
+
+let currentAutomaton = null;
+let currentMode = "nfa";
+
+
+function svgElement(name, attrs = {}) {
+
+    const el =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            name
+        );
+
+    for (const [key,value] of Object.entries(attrs)) {
+        el.setAttribute(key,value);
+    }
+
+    return el;
+}
+
+
+function renderGraph(automaton, activeIds = [], activeEdges = []) {
+
+    svg.innerHTML = "";
+
+    if (!automaton || !automaton.states.length) {
+        return;
+    }
+
+    const states = automaton.states;
+
+    const count = states.length;
+
+    const columns =
+        Math.max(
+            1,
+            Math.ceil(Math.sqrt(count))
+        );
+
+    const spacingX = 190;
+    const spacingY = 150;
+
+    const width =
+        Math.max(
+            900,
+            columns * spacingX + 100
+        );
+
+    const rows =
+        Math.ceil(count / columns);
+
+    const height =
+        Math.max(
+            500,
+            rows * spacingY + 100
+        );
+
+    svg.setAttribute(
+        "viewBox",
+        `0 0 ${width} ${height}`
+    );
+
+    const positions = new Map();
+
+    states.forEach((state,index) => {
+
+        const col = index % columns;
+        const row = Math.floor(index / columns);
+
+        positions.set(
+            state.id,
+            {
+                x: 80 + col * spacingX,
+                y: 80 + row * spacingY
+            }
+        );
+
+    });
+
+
+    /*
+    Arrow marker
+    */
+
+    const defs = svgElement("defs");
+
+    const marker =
+        svgElement("marker", {
+            id: "arrow",
+            markerWidth: "10",
+            markerHeight: "10",
+            refX: "9",
+            refY: "3",
+            orient: "auto",
+            markerUnits: "strokeWidth"
+        });
+
+    marker.appendChild(
+        svgElement("path", {
+            d: "M0,0 L0,6 L9,3 z",
+            fill: "#64748b"
+        })
+    );
+
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+
+    /*
+    Edges
+    */
+
+    states.forEach(state => {
+
+        state.transitions.forEach(edge => {
+
+            const a =
+                positions.get(state.id);
+
+            const b =
+                positions.get(edge.to.id);
+
+            const active =
+                activeEdges.some(
+                    e =>
+                        e.from === state.id &&
+                        e.to === edge.to.id &&
+                        e.symbol === edge.symbol
+                );
+
+            let path;
+
+            if (state.id === edge.to.id) {
+
+                path =
+                    svgElement("path", {
+                        d:
+                            `M ${a.x} ${a.y-28}
+                             C ${a.x+65} ${a.y-100},
+                               ${a.x+65} ${a.y+100},
+                               ${a.x+5} ${a.y+28}`,
+                        class:
+                            active
+                                ? "edge active"
+                                : "edge",
+                        "marker-end":
+                            "url(#arrow)"
+                    });
+
+            }
+
+            else {
+
+                const dx = b.x - a.x;
+                const dy = b.y - a.y;
+
+                const length =
+                    Math.sqrt(dx*dx + dy*dy) || 1;
+
+                const ux = dx / length;
+                const uy = dy / length;
+
+                const sx = a.x + ux * 31;
+                const sy = a.y + uy * 31;
+
+                const ex = b.x - ux * 31;
+                const ey = b.y - uy * 31;
+
+                const curve =
+                    edge.fromOffset || 0;
+
+                const mx =
+                    (sx + ex) / 2 - uy * curve;
+
+                const my =
+                    (sy + ey) / 2 + ux * curve;
+
+                path =
+                    svgElement("path", {
+                        d:
+                            curve
+                                ? `M ${sx} ${sy}
+                                   Q ${mx} ${my}
+                                     ${ex} ${ey}`
+                                : `M ${sx} ${sy}
+                                   L ${ex} ${ey}`,
+                        class:
+                            active
+                                ? "edge active"
+                                : "edge",
+                        "marker-end":
+                            "url(#arrow)"
+                    });
+
+            }
+
+            svg.appendChild(path);
+
+
+            /*
+            Edge label
+            */
+
+            const aPos = positions.get(state.id);
+            const bPos = positions.get(edge.to.id);
+
+            const tx =
+                (aPos.x + bPos.x) / 2;
+
+            const ty =
+                (aPos.y + bPos.y) / 2 - 7;
+
+            const label =
+                svgElement("text", {
+                    x: tx,
+                    y: ty,
+                    class: "edge-label"
+                });
+
+            label.textContent = edge.symbol;
+
+            svg.appendChild(label);
+
+        });
+
+    });
+
+
+    /*
+    Start arrow
+    */
+
+    const startPos =
+        positions.get(automaton.start.id);
+
+    const startLine =
+        svgElement("line", {
+            x1: startPos.x - 65,
+            y1: startPos.y,
+            x2: startPos.x - 34,
+            y2: startPos.y,
+            stroke: "#38bdf8",
+            "stroke-width": "2",
+            "marker-end": "url(#arrow)"
+        });
+
+    svg.appendChild(startLine);
+
+
+    /*
+    Nodes
+    */
+
+    states.forEach(state => {
+
+        const pos =
+            positions.get(state.id);
+
+        const group =
+            svgElement("g");
+
+        const isActive =
+            activeIds.includes(state.id);
+
+        let classes = "node";
+
+        if (state.id === automaton.start.id) {
+            classes += " start";
+        }
+
+        if (state.accept) {
+            classes += " accept";
+        }
+
+        if (isActive) {
+            classes += " active";
+        }
+
+        const circle =
+            svgElement("circle", {
+                cx: pos.x,
+                cy: pos.y,
+                r: 30,
+                class: classes
+            });
+
+        group.appendChild(circle);
+
+
+        /*
+        Double circle for accept
+        */
+
+        if (state.accept) {
+
+            group.appendChild(
+                svgElement("circle", {
+                    cx: pos.x,
+                    cy: pos.y,
+                    r: 24,
+                    fill: "none",
+                    stroke: "#22c55e",
+                    "stroke-width": "2"
+                })
+            );
+
+        }
+
+
+        const label =
+            svgElement("text", {
+                x: pos.x,
+                y: pos.y,
+                class: "node-label"
+            });
+
+        if (currentMode === "nfa") {
+
+            label.textContent =
+                "q" + state.id;
+
+        }
+
+        else {
+
+            label.textContent =
+                "D" + state.id;
+
+        }
+
+        group.appendChild(label);
+
+
+        if (currentMode === "dfa") {
+
+            const sub =
+                svgElement("text", {
+                    x: pos.x,
+                    y: pos.y + 47,
+                    class: "state-badge"
+                });
+
+            sub.textContent =
+                "{ " +
+                state.nfaStates
+                    .map(s => "q" + s.id)
+                    .join(", ") +
+                " }";
+
+            group.appendChild(sub);
+
+        }
+
+        svg.appendChild(group);
+
+    });
+
+}
+
+
+/*
+=========================================================
+UI
+=========================================================
+*/
+
+
+const regexInput =
+    document.getElementById("regexInput");
+
+const testInput =
+    document.getElementById("testInput");
+
+const buildBtn =
+    document.getElementById("buildBtn");
+
+const message =
+    document.getElementById("message");
+
+const nfaTab =
+    document.getElementById("nfaTab");
+
+const dfaTab =
+    document.getElementById("dfaTab");
+
+const info =
+    document.getElementById("info");
+
+const parsed =
+    document.getElementById("parsed");
+
+const simulationInput =
+    document.getElementById("simulationInput");
+
+const startSim =
+    document.getElementById("startSim");
+
+const stepBtn =
+    document.getElementById("stepBtn");
+
+const prevBtn =
+    document.getElementById("prevBtn");
+
+const resetSim =
+    document.getElementById("resetSim");
+
+const simStatus =
+    document.getElementById("simStatus");
+
+const activeStates =
+    document.getElementById("activeStates");
+
+
+let nfa = null;
+let dfa = null;
+
+let simulation = null;
+
+
+/*
+=========================================================
+BUILD
+=========================================================
+*/
+
+
+function build() {
+
+    try {
+
+        const regex =
+            regexInput.value;
+
+        if (!regex.trim()) {
+            throw new Error(
+                "Please enter a regular expression."
+            );
+        }
+
+        const tokens =
+            tokenize(regex);
+
+        const withConcat =
+            addConcat(tokens);
+
+        const postfix =
+            toPostfix(withConcat);
+
+        nfa =
+            buildNFA(postfix);
+
+        dfa =
+            buildDFA(nfa);
+
+        currentMode = "nfa";
+        currentAutomaton = nfa;
+
+        nfaTab.classList.add("active");
+        dfaTab.classList.remove("active");
+
+        message.textContent = "";
+
+        parsed.textContent =
+            "Tokens:\n" +
+            tokens.map(t => t.value).join(" ") +
+            "\n\nWith concatenation:\n" +
+            withConcat.map(t => t.value).join(" ") +
+            "\n\nPostfix:\n" +
+            postfix.map(t => t.value).join(" ");
+
+        info.innerHTML =
+            `<strong>NFA:</strong> ${nfa.states.length} states<br>
+             <strong>DFA:</strong> ${dfa.states.length} states<br>
+             <strong>Alphabet:</strong> ${
+                 dfa.alphabet.length
+                     ? dfa.alphabet.join(", ")
+                     : "∅"
+             }<br>
+             <strong>Start:</strong> q${nfa.start.id}<br>
+             <strong>Accept:</strong> q${nfa.accept.id}`;
+
+        renderGraph(nfa);
+
+        resetSimulation();
+
+    }
+
+    catch (error) {
+
+        message.textContent =
+            "⚠ " + error.message;
+
+        svg.innerHTML = "";
+
+    }
+
+}
+
+
+buildBtn.addEventListener(
+    "click",
+    build
+);
+
+
+/*
+Enter key
+*/
+
+regexInput.addEventListener(
+    "keydown",
+    e => {
+
+        if (e.key === "Enter") {
+            build();
+        }
+
+    }
+);
+
+
+/*
+Example buttons
+*/
+
+document
+    .querySelectorAll(".example")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                regexInput.value =
+                    button.dataset.regex;
+
+                build();
+
+            }
+        );
+
+    });
+
+
+/*
+=========================================================
+TABS
+=========================================================
+*/
+
+
+nfaTab.addEventListener(
+    "click",
+    () => {
+
+        if (!nfa) return;
+
+        currentMode = "nfa";
+        currentAutomaton = nfa;
+
+        nfaTab.classList.add("active");
+        dfaTab.classList.remove("active");
+
+        renderGraph(
+            nfa,
+            getActiveIds()
+        );
+
+    }
+);
+
+
+dfaTab.addEventListener(
+    "click",
+    () => {
+
+        if (!dfa) return;
+
+        currentMode = "dfa";
+        currentAutomaton = dfa;
+
+        dfaTab.classList.add("active");
+        nfaTab.classList.remove("active");
+
+        renderGraph(
+            dfa,
+            getActiveIds()
+        );
+
+    }
+);
+
+
+/*
+=========================================================
+SIMULATION
+=========================================================
+*/
+
+
+function getActiveIds() {
+
+    if (!simulation) {
+        return [];
+    }
+
+    if (currentMode === "nfa") {
+
+        return simulation.nfaStates
+            ? simulation.nfaStates.map(s => s.id)
+            : [];
+
+    }
+
+    return simulation.dfaState !== undefined
+        ? [simulation.dfaState]
+        : [];
+
+}
+
+
+function setStatus(text, type = "") {
+
+    simStatus.className =
+        "status " + type;
+
+    simStatus.textContent = text;
+
+}
+
+
+function showActiveStates() {
+
+    activeStates.innerHTML = "";
+
+    if (!simulation) {
+        return;
+    }
+
+    if (currentMode === "nfa") {
+
+        const states =
+            simulation.nfaStates || [];
+
+        states.forEach(state => {
+
+            const chip =
+                document.createElement("span");
+
+            chip.className = "state-chip active";
+
+            chip.textContent =
+                "q" + state.id;
+
+            activeStates.appendChild(chip);
+
+        });
+
+    }
+
+    else {
+
+        if (simulation.dfaState !== undefined) {
+
+            const state =
+                dfa.states[simulation.dfaState];
+
+            const chip =
+                document.createElement("span");
+
+            chip.className =
+                "state-chip active";
+
+            chip.textContent =
+                "D" + state.id +
+                " = {" +
+                state.nfaStates
+                    .map(s => "q" + s.id)
+                    .join(", ") +
+                "}";
+
+            activeStates.appendChild(chip);
+
+        }
+
+    }
+
+}
+
+
+function resetSimulation() {
+
+    simulation = null;
+
+    stepBtn.disabled = true;
+    prevBtn.disabled = true;
+
+    setStatus(
+        "Enter a string and press Start."
+    );
+
+    activeStates.innerHTML = "";
+
+    if (currentAutomaton) {
+        renderGraph(currentAutomaton);
+    }
+
+}
+
+
+resetSim.addEventListener(
+    "click",
+    resetSimulation
+);
+
+
+/*
+=========================================================
+START SIMULATION
+=========================================================
+*/
+
+
+startSim.addEventListener(
+    "click",
+    () => {
+
+        if (!nfa || !dfa) {
+            setStatus(
+                "Build the automaton first.",
+                "rejected"
+            );
+            return;
+        }
+
+        const string =
+            simulationInput.value;
+
+        /*
+        NFA starts in epsilon closure
+        */
+
+        const initial =
+            epsilonClosure([nfa.start]);
+
+        simulation = {
+
+            string,
+
+            position: 0,
+
+            nfaStates: initial,
+
+            dfaState: dfa.start.id,
+
+            history: []
+
+        };
+
+        stepBtn.disabled =
+            string.length === 0;
+
+        prevBtn.disabled = true;
+
+        setStatus(
+            string.length === 0
+                ? "Empty string — press Check by stepping or inspect the start state."
+                : `Ready. Position 0/${string.length}`,
+            "running"
+        );
+
+        showActiveStates();
+
+        renderGraph(
+            currentAutomaton,
+            getActiveIds()
+        );
+
+    }
+);
+
+
+/*
+=========================================================
+NEXT CHARACTER
+=========================================================
+*/
+
+
+stepBtn.addEventListener(
+    "click",
+    () => {
+
+        if (!simulation) {
+            return;
+        }
+
+        if (
+            simulation.position >=
+            simulation.string.length
+        ) {
+
+            finishSimulation();
+            return;
+
+        }
+
+
+        /*
+        Save history
+        */
+
+        simulation.history.push({
+            position: simulation.position,
+            nfaStates: simulation.nfaStates,
+            dfaState: simulation.dfaState
+        });
+
+
+        const character =
+            simulation.string[
+                simulation.position
+            ];
+
+
+        /*
+        NFA transition
+        */
+
+        const before =
+            simulation.nfaStates;
+
+        const moved =
+            move(before, character);
+
+        const next =
+            epsilonClosure(moved);
+
+
+        simulation.nfaStates =
+            next;
+
+
+        /*
+        DFA transition
+        */
+
+        const dfaCurrent =
+            dfa.states[
+                simulation.dfaState
+            ];
+
+        const dfaEdge =
+            dfaCurrent.transitions.find(
+                edge =>
+                    edge.symbol === character
+            );
+
+        if (dfaEdge) {
+
+            simulation.dfaState =
+                dfaEdge.to.id;
+
+        }
+
+        else {
+
+            simulation.dfaState =
+                null;
+
+        }
+
+
+        simulation.position++;
+
+
+        const activeEdges = [];
+
+
+        if (currentMode === "nfa") {
+
+            for (const state of before) {
+
+                for (const edge of state.transitions) {
+
+                    if (
+                        edge.symbol === character &&
+                        moved.some(
+                            s => s.id === edge.to.id
+                        )
+                    ) {
+
+                        activeEdges.push({
+                            from: state.id,
+                            to: edge.to.id,
+                            symbol: character
+                        });
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        else {
+
+            if (
+                dfaEdge &&
+                dfaCurrent
+            ) {
+
+                activeEdges.push({
+                    from: dfaCurrent.id,
+                    to: dfaEdge.to.id,
+                    symbol: character
+                });
+
+            }
+
+        }
+
+
+        showActiveStates();
+
+        renderGraph(
+            currentAutomaton,
+            getActiveIds(),
+            activeEdges
+        );
+
+
+        if (
+            simulation.position >=
+            simulation.string.length
+        ) {
+
+            finishSimulation();
+
+        }
+
+        else {
+
+            setStatus(
+                `Read "${character}". ` +
+                `Position ${simulation.position}/` +
+                `${simulation.string.length}.`,
+                "running"
+            );
+
+        }
+
+        prevBtn.disabled =
+            simulation.history.length === 0;
+
+    }
+);
+
+
+/*
+=========================================================
+FINISH
+=========================================================
+*/
+
+
+function finishSimulation() {
+
+    const nfaAccepted =
+        simulation.nfaStates.some(
+            s => s.id === nfa.accept.id
+        );
+
+    let dfaAccepted = false;
+
+    if (simulation.dfaState !== null) {
+
+        dfaAccepted =
+            dfa.states[
+                simulation.dfaState
+            ].accept;
+
+    }
+
+    const accepted =
+        nfaAccepted;
+
+    if (accepted) {
+
+        setStatus(
+            `✓ ACCEPTED — "${simulation.string}" matches the regex.`,
+            "accepted"
+        );
+
+    }
+
+    else {
+
+        setStatus(
+            `✗ REJECTED — "${simulation.string}" does not match the regex.`,
+            "rejected"
+        );
+
+    }
+
+    stepBtn.disabled = true;
+
+    showActiveStates();
+
+    renderGraph(
+        currentAutomaton,
+        getActiveIds()
+    );
+
+}
+
+
+/*
+=========================================================
+PREVIOUS STEP
+=========================================================
+*/
+
+
+prevBtn.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !simulation ||
+            !simulation.history.length
+        ) {
+            return;
+        }
+
+        const previous =
+            simulation.history.pop();
+
+        simulation.position =
+            previous.position;
+
+        simulation.nfaStates =
+            previous.nfaStates;
+
+        simulation.dfaState =
+            previous.dfaState;
+
+        stepBtn.disabled = false;
+
+        prevBtn.disabled =
+            simulation.history.length === 0;
+
+        setStatus(
+            `Back to position ${simulation.position}/` +
+            `${simulation.string.length}.`,
+            "running"
+        );
+
+        showActiveStates();
+
+        renderGraph(
+            currentAutomaton,
+            getActiveIds()
+        );
+
+    }
+);
+
+
+/*
+=========================================================
+KEYBOARD SHORTCUT
+=========================================================
+*/
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if (e.key === " " &&
+            document.activeElement.tagName !== "INPUT") {
+
+            e.preventDefault();
+
+            if (!stepBtn.disabled) {
+                stepBtn.click();
+            }
+
+        }
+
+    }
+);
+
+
+/*
+=========================================================
+INITIAL BUILD
+=========================================================
+*/
+
+build();
+
+</script>
+
+</body>
+</html>
