@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown Live Renderer</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", sans-serif;
+    background: #0f1115;
+    color: #e8eaed;
+}
+
+.app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+
+header {
+    height: 58px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    border-bottom: 1px solid #292d35;
+    background: #151820;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.logo-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: #ffffff;
+    color: #111;
+    font-weight: 900;
+}
+
+.status {
+    font-size: 12px;
+    color: #8d96a3;
+}
+
+/* MAIN */
+
+.workspace {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* EDITOR */
+
+.editor-pane,
+.preview-pane {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-pane {
+    border-right: 1px solid #292d35;
+}
+
+.pane-header {
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    background: #12151b;
+    border-bottom: 1px solid #292d35;
+}
+
+.pane-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #9da5b1;
+}
+
+textarea {
+    flex: 1;
+    width: 100%;
+    resize: none;
+    border: 0;
+    outline: 0;
+    padding: 22px;
+    background: #0f1115;
+    color: #e8eaed;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono",
+                 Menlo, monospace;
+    font-size: 15px;
+    line-height: 1.7;
+    tab-size: 2;
+}
+
+textarea::selection {
+    background: #39404d;
+}
+
+/* PREVIEW */
+
+.preview-pane {
+    background: #f7f7f8;
+    color: #202124;
+}
+
+.preview-container {
+    flex: 1;
+    overflow: auto;
+    padding: 30px;
+}
+
+.preview {
+    max-width: 850px;
+    margin: auto;
+}
+
+/* MARKDOWN STYLE */
+
+.preview h1,
+.preview h2,
+.preview h3,
+.preview h4,
+.preview h5,
+.preview h6 {
+    line-height: 1.25;
+    margin-top: 1.4em;
+    margin-bottom: .55em;
+}
+
+.preview h1 {
+    font-size: 2.2rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: .35em;
+}
+
+.preview h2 {
+    font-size: 1.7rem;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: .25em;
+}
+
+.preview h3 {
+    font-size: 1.35rem;
+}
+
+.preview p {
+    line-height: 1.75;
+    margin: 1em 0;
+}
+
+.preview a {
+    color: #0969da;
+}
+
+.preview strong {
+    font-weight: 750;
+}
+
+.preview em {
+    font-style: italic;
+}
+
+.preview blockquote {
+    margin: 1em 0;
+    padding: 5px 20px;
+    border-left: 4px solid #bbb;
+    color: #666;
+    background: #eeeeef;
+}
+
+.preview ul,
+.preview ol {
+    padding-left: 28px;
+    line-height: 1.8;
+}
+
+.preview li {
+    margin: 3px 0;
+}
+
+.preview code {
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #e8e8ea;
+    font-family: Consolas, monospace;
+    font-size: .9em;
+}
+
+.preview pre {
+    overflow-x: auto;
+    padding: 17px;
+    border-radius: 9px;
+    background: #1e1e1e;
+    color: #eee;
+    line-height: 1.55;
+}
+
+.preview pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}
+
+.preview hr {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 2em 0;
+}
+
+.preview img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+}
+
+.preview th,
+.preview td {
+    border: 1px solid #ccc;
+    padding: 9px 12px;
+    text-align: left;
+}
+
+.preview th {
+    background: #e9e9eb;
+}
+
+/* EMPTY STATE */
+
+.empty {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #999;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.empty p {
+    margin: 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+    .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    .editor-pane {
+        border-right: 0;
+        border-bottom: 1px solid #292d35;
+    }
+
+    .preview-container {
+        padding: 20px;
+    }
+
+    textarea {
+        padding: 16px;
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">M</div>
+            Markdown Live
+        </div>
+
+        <div class="status">
+            ● Live Preview · No Storage
+        </div>
+    </header>
+
+    <main class="workspace">
+
+        <!-- EDITOR -->
+        <section class="editor-pane">
+
+            <div class="pane-header">
+                <span class="pane-title">Markdown</span>
+                <span id="charCount">0 characters</span>
+            </div>
+
+            <textarea
+                id="editor"
+                spellcheck="false"
+                placeholder="# Start writing...
+
+Type Markdown on the left and see the result instantly.
+
+**Bold**
+*Italic*
+`code`
+
+- Item one
+- Item two
+
+> A blockquote"
+            ></textarea>
+
+        </section>
+
+        <!-- PREVIEW -->
+        <section class="preview-pane">
+
+            <div class="pane-header">
+                <span class="pane-title">Preview</span>
+                <span id="wordCount">0 words</span>
+            </div>
+
+            <div class="preview-container">
+                <article id="preview" class="preview">
+                    <div class="empty">
+                        <div>
+                            <div class="empty-icon">✦</div>
+                            <p>Your Markdown preview appears here</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+/*
+    SINGLE-FILE MARKDOWN PARSER
+    No libraries.
+    No network.
+    No storage.
+*/
+
+const editor = document.getElementById("editor");
+const preview = document.getElementById("preview");
+const charCount = document.getElementById("charCount");
+const wordCount = document.getElementById("wordCount");
+
+
+/* --------------------------------------------------
+   HTML ESCAPE
+-------------------------------------------------- */
+
+function escapeHTML(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* --------------------------------------------------
+   INLINE MARKDOWN
+-------------------------------------------------- */
+
+function inlineMarkdown(text) {
+
+    text = escapeHTML(text);
+
+    // Images
+    text = text.replace(
+        /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<img src="$2" alt="$1">'
+    );
+
+    // Links
+    text = text.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>'
+    );
+
+    // Inline code
+    text = text.replace(
+        /`([^`]+)`/g,
+        "<code>$1</code>"
+    );
+
+    // Bold
+    text = text.replace(
+        /\*\*(.+?)\*\*/g,
+        "<strong>$1</strong>"
+    );
+
+    text = text.replace(
+        /__(.+?)__/g,
+        "<strong>$1</strong>"
+    );
+
+    // Italic
+    text = text.replace(
+        /(^|[^*])\*([^*\n]+)\*(?!\*)/g,
+        "$1<em>$2</em>"
+    );
+
+    text = text.replace(
+        /(^|[^_])_([^_\n]+)_(?!_)/g,
+        "$1<em>$2</em>"
+    );
+
+    // Strikethrough
+    text = text.replace(
+        /~~(.+?)~~/g,
+        "<del>$1</del>"
+    );
+
+    return text;
+}
+
+
+/* --------------------------------------------------
+   MARKDOWN PARSER
+-------------------------------------------------- */
+
+function markdownToHTML(markdown) {
+
+    if (!markdown.trim()) {
+        return `
+            <div class="empty">
+                <div>
+                    <div class="empty-icon">✦</div>
+                    <p>Your Markdown preview appears here</p>
+                </div>
+            </div>
+        `;
+    }
+
+    const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+
+    let html = "";
+    let inCode = false;
+    let codeLanguage = "";
+    let codeBuffer = [];
+
+    let inUL = false;
+    let inOL = false;
+    let inBlockquote = false;
+    let paragraph = [];
+
+    function closeParagraph() {
+        if (paragraph.length) {
+            html += "<p>" +
+                inlineMarkdown(paragraph.join("\n"))
+                    .replace(/\n/g, "<br>") +
+                "</p>";
+
+            paragraph = [];
+        }
+    }
+
+    function closeLists() {
+
+        if (inUL) {
+            html += "</ul>";
+            inUL = false;
+        }
+
+        if (inOL) {
+            html += "</ol>";
+            inOL = false;
+        }
+    }
+
+    function closeBlockquote() {
+
+        if (inBlockquote) {
+            html += "</blockquote>";
+            inBlockquote = false;
+        }
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+
+        let line = lines[i];
+
+        /* CODE BLOCK */
+
+        if (line.startsWith("```")) {
+
+            if (!inCode) {
+
+                closeParagraph();
+                closeLists();
+                closeBlockquote();
+
+                inCode = true;
+                codeLanguage = line.slice(3).trim();
+                codeBuffer = [];
+
+            } else {
+
+                const code = escapeHTML(
+                    codeBuffer.join("\n")
+                );
+
+                html += `
+                    <pre><code class="language-${escapeHTML(codeLanguage)}">${code}</code></pre>
+                `;
+
+                inCode = false;
+                codeBuffer = [];
+                codeLanguage = "";
+            }
+
+            continue;
+        }
+
+        if (inCode) {
+            codeBuffer.push(line);
+            continue;
+        }
+
+
+        /* EMPTY LINE */
+
+        if (!line.trim()) {
+            closeParagraph();
+            closeLists();
+            closeBlockquote();
+            continue;
+        }
+
+
+        /* HEADINGS */
+
+        const heading = line.match(
+            /^(#{1,6})\s+(.*)$/
+        );
+
+        if (heading) {
+
+            closeParagraph();
+            closeLists();
+            closeBlockquote();
+
+            const level = heading[1].length;
+
+            html += `<h${level}>${
+                inlineMarkdown(heading[2])
+            }</h${level}>`;
+
+            continue;
+        }
+
+
+        /* HORIZONTAL RULE */
+
+        if (/^(\*\s*){3,}$/.test(line) ||
+            /^(-\s*){3,}$/.test(line) ||
+            /^(_\s*){3,}$/.test(line)) {
+
+            closeParagraph();
+            closeLists();
+            closeBlockquote();
+
+            html += "<hr>";
+            continue;
+        }
+
+
+        /* BLOCKQUOTE */
+
+        if (/^>\s?/.test(line)) {
+
+            closeParagraph();
+            closeLists();
+
+            if (!inBlockquote) {
+                html += "<blockquote>";
+                inBlockquote = true;
+            }
+
+            html += "<p>" +
+                inlineMarkdown(
+                    line.replace(/^>\s?/, "")
+                ) +
+                "</p>";
+
+            continue;
+        }
+
+
+        /* UNORDERED LIST */
+
+        const unordered = line.match(
+            /^[-*+]\s+(.*)$/
+        );
+
+        if (unordered) {
+
+            closeParagraph();
+            closeBlockquote();
+
+            if (!inUL) {
+                closeLists();
+                html += "<ul>";
+                inUL = true;
+            }
+
+            html += "<li>" +
+                inlineMarkdown(unordered[1]) +
+                "</li>";
+
+            continue;
+        }
+
+
+        /* ORDERED LIST */
+
+        const ordered = line.match(
+            /^\d+\.\s+(.*)$/
+        );
+
+        if (ordered) {
+
+            closeParagraph();
+            closeBlockquote();
+
+            if (!inOL) {
+                closeLists();
+                html += "<ol>";
+                inOL = true;
+            }
+
+            html += "<li>" +
+                inlineMarkdown(ordered[1]) +
+                "</li>";
+
+            continue;
+        }
+
+
+        /* NORMAL TEXT */
+
+        closeLists();
+        closeBlockquote();
+
+        paragraph.push(line);
+    }
+
+
+    if (inCode) {
+
+        html += `
+            <pre><code>${escapeHTML(
+                codeBuffer.join("\n")
+            )}</code></pre>
+        `;
+    }
+
+    closeParagraph();
+    closeLists();
+    closeBlockquote();
+
+    return html;
+}
+
+
+/* --------------------------------------------------
+   UPDATE
+-------------------------------------------------- */
+
+function render() {
+
+    const text = editor.value;
+
+    preview.innerHTML = markdownToHTML(text);
+
+    charCount.textContent =
+        `${text.length} characters`;
+
+    const words = text.trim()
+        ? text.trim().split(/\s+/).length
+        : 0;
+
+    wordCount.textContent =
+        `${words} words`;
+}
+
+
+/* --------------------------------------------------
+   TAB KEY
+-------------------------------------------------- */
+
+editor.addEventListener("keydown", function(e) {
+
+    if (e.key === "Tab") {
+
+        e.preventDefault();
+
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+
+        this.value =
+            this.value.substring(0, start) +
+            "  " +
+            this.value.substring(end);
+
+        this.selectionStart =
+            this.selectionEnd = start + 2;
+
+        render();
+    }
+});
+
+
+/* --------------------------------------------------
+   LIVE RENDER
+-------------------------------------------------- */
+
+editor.addEventListener("input", render);
+
+
+/*
+    IMPORTANT:
+    Nothing is stored.
+
+    No:
+      localStorage
+      sessionStorage
+      IndexedDB
+      cookies
+      server
+      database
+
+    Closing or refreshing the page wipes everything.
+*/
+
+render();
+
+</script>
+
+</body>
+</html>
