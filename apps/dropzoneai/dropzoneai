@@ -1,0 +1,1546 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="DropZone — private, client-side file utilities with no uploads or login.">
+<title>DropZone — Instant File Tools</title>
+
+<style>
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #090b10;
+  --surface: #11151d;
+  --surface-2: #171d29;
+  --surface-3: #202735;
+  --border: #ffffff18;
+  --border-strong: #8290ff88;
+  --text: #f7f8fb;
+  --muted: #9ea6b5;
+  --muted-2: #737c8d;
+  --accent: #8290ff;
+  --accent-soft: #8290ff18;
+  --success: #55d6a3;
+  --danger: #ff7b7b;
+  --focus: #b8c0ff;
+  --radius: 18px;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 10%, #3545ff30, transparent 30%),
+    radial-gradient(circle at 80% 80%, #00d5ff18, transparent 28%),
+    var(--bg);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.drop:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+header {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 6vw;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 950;
+  font-size: 23px;
+  letter-spacing: -1px;
+}
+
+.brand span {
+  color: var(--accent);
+}
+
+.tag {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+main {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  padding: 58px 0;
+}
+
+.hero {
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  background: #ffffff08;
+  border-radius: 999px;
+  color: #aeb7ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+h1 {
+  margin: 18px 0 16px;
+  font-size: clamp(42px, 7vw, 82px);
+  line-height: .95;
+  letter-spacing: -5px;
+}
+
+.hero > p {
+  max-width: 650px;
+  margin: 0 auto 35px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.drop {
+  min-height: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  border: 1.5px dashed #6670a0;
+  border-radius: 30px;
+  background: #ffffff06;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+  box-shadow: 0 25px 80px #0005;
+}
+
+.drop.is-dragover {
+  transform: scale(1.01);
+  background: var(--accent-soft);
+  border-color: var(--focus);
+}
+
+.drop-inner {
+  text-align: center;
+}
+
+.drop-icon {
+  margin-bottom: 12px;
+  font-size: 58px;
+}
+
+.drop h2 {
+  margin: 0;
+  font-size: 25px;
+}
+
+.drop p {
+  margin: 10px 0 20px;
+  color: #8992a2;
+}
+
+.choose-button,
+.primary-button,
+.secondary-button,
+.danger-button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 900;
+  transition: transform .12s ease, filter .12s ease, background .12s ease;
+}
+
+.choose-button,
+.primary-button {
+  background: #f4f5f8;
+  color: #111;
+}
+
+.secondary-button {
+  background: var(--surface-3);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.danger-button {
+  background: #4b2428;
+  color: #fff;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.file-card,
+.tool-panel,
+.result-panel {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #11151de8;
+  box-shadow: 0 15px 50px #0004;
+}
+
+.file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.file-name {
+  overflow-wrap: anywhere;
+  font-weight: 850;
+}
+
+.file-meta {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.action-button {
+  min-height: 130px;
+  padding: 18px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.action-button:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.action-icon {
+  font-size: 25px;
+}
+
+.action-button strong {
+  display: block;
+  margin-top: 8px;
+}
+
+.action-button span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.tool-panel h2,
+.result-panel h2 {
+  margin: 0 0 16px;
+  font-size: 21px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-field.full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  color: #cdd2dc;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 9px 11px;
+  background: #0d1118;
+  color: var(--text);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+}
+
+.range-row {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  align-items: center;
+  gap: 12px;
+}
+
+.range-value {
+  text-align: center;
+  padding: 8px;
+  border-radius: 9px;
+  background: var(--surface-3);
+  color: #dfe3eb;
+  font-weight: 800;
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.status {
+  min-height: 24px;
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+.status.success {
+  color: var(--success);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.stat {
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0d1118;
+}
+
+.stat strong {
+  display: block;
+  font-size: 22px;
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.preview {
+  max-height: 430px;
+  overflow: auto;
+  padding: 17px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: #0a0d12;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #d7dbe4;
+  line-height: 1.55;
+}
+
+table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+}
+
+.table-wrap {
+  max-height: 460px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #1a202b;
+  color: #e9ecf3;
+}
+
+td {
+  color: #c7cdd8;
+  max-width: 320px;
+  overflow-wrap: anywhere;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.meta-item {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0d1118;
+}
+
+.meta-item dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.meta-item dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #e6e9ef;
+  font-weight: 700;
+}
+
+footer {
+  padding: 20px;
+  text-align: center;
+  color: #626b7a;
+  font-size: 12px;
+}
+
+.live-region {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 800px) {
+  .actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid,
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  header {
+    padding: 0 4vw;
+  }
+
+  .tag {
+    display: none;
+  }
+
+  main {
+    width: 92vw;
+    padding-top: 35px;
+  }
+
+  h1 {
+    letter-spacing: -3px;
+  }
+
+  .drop {
+    min-height: 280px;
+  }
+
+  .actions,
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .file-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand" aria-label="DropZone">DROP<span>ZONE</span></div>
+  <div class="tag">Instant tools • No login • No upload</div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="page-title">
+    <span class="eyebrow">PRIVATE BY DESIGN</span>
+    <h1 id="page-title">Drop it.<br>Do something.</h1>
+    <p>
+      A fast, accessible workspace for common file tasks.
+      Files are processed locally in your browser.
+    </p>
+  </section>
+
+  <section
+    id="dropZone"
+    class="drop"
+    tabindex="0"
+    role="button"
+    aria-label="File drop zone. Press Enter or Space to choose a file."
+    aria-describedby="dropHelp"
+  >
+    <input
+      id="filePicker"
+      type="file"
+      multiple
+      hidden
+      aria-label="Choose files"
+    >
+
+    <div class="drop-inner">
+      <div class="drop-icon" aria-hidden="true">✦</div>
+      <h2>Drop your file here</h2>
+      <p id="dropHelp">PDF, image, text or CSV. You can also press Enter to browse.</p>
+
+      <label class="choose-button" for="filePicker">
+        Choose file
+      </label>
+    </div>
+  </section>
+
+  <section id="fileSection" class="file-card" hidden aria-labelledby="selectedFileTitle">
+    <div>
+      <div id="selectedFileTitle" class="file-name"></div>
+      <div id="selectedFileMeta" class="file-meta"></div>
+    </div>
+
+    <button id="removeFile" class="danger-button" type="button">
+      Remove
+    </button>
+  </section>
+
+  <section
+    id="actions"
+    class="actions"
+    aria-label="File tools"
+    hidden
+  >
+    <button class="action-button" type="button" data-tool="text">
+      <div class="action-icon" aria-hidden="true">Aa</div>
+      <strong>Text Tool</strong>
+      <span>Preview text and see useful statistics.</span>
+    </button>
+
+    <button class="action-button" type="button" data-tool="image">
+      <div class="action-icon" aria-hidden="true">◫</div>
+      <strong>Image Resizer</strong>
+      <span>Resize and convert images with custom settings.</span>
+    </button>
+
+    <button class="action-button" type="button" data-tool="csv">
+      <div class="action-icon" aria-hidden="true">▦</div>
+      <strong>CSV Inspector</strong>
+      <span>Parse quoted and multiline CSV into a table.</span>
+    </button>
+
+    <button class="action-button" type="button" data-tool="info">
+      <div class="action-icon" aria-hidden="true">⌁</div>
+      <strong>File Information</strong>
+      <span>Inspect metadata and calculate SHA-256.</span>
+    </button>
+  </section>
+
+  <section id="toolPanel" class="tool-panel" hidden aria-live="polite">
+    <h2 id="toolTitle"></h2>
+    <div id="toolContent"></div>
+    <div id="toolStatus" class="status" role="status"></div>
+  </section>
+
+  <section id="resultPanel" class="result-panel" hidden aria-live="polite">
+    <h2 id="resultTitle"></h2>
+    <div id="resultContent"></div>
+  </section>
+</main>
+
+<footer>
+  DropZone runs locally in your browser. Files are not uploaded to a server.
+</footer>
+
+<div id="liveRegion" class="live-region" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------
+   State
+--------------------------------------------------------- */
+
+const state = {
+  file: null,
+  objectUrls: new Set(),
+  imageObjectUrl: null,
+  currentImage: null,
+  tool: null
+};
+
+const els = {
+  dropZone: document.getElementById("dropZone"),
+  filePicker: document.getElementById("filePicker"),
+  fileSection: document.getElementById("fileSection"),
+  selectedFileTitle: document.getElementById("selectedFileTitle"),
+  selectedFileMeta: document.getElementById("selectedFileMeta"),
+  removeFile: document.getElementById("removeFile"),
+  actions: document.getElementById("actions"),
+  toolPanel: document.getElementById("toolPanel"),
+  toolTitle: document.getElementById("toolTitle"),
+  toolContent: document.getElementById("toolContent"),
+  toolStatus: document.getElementById("toolStatus"),
+  resultPanel: document.getElementById("resultPanel"),
+  resultTitle: document.getElementById("resultTitle"),
+  resultContent: document.getElementById("resultContent"),
+  liveRegion: document.getElementById("liveRegion")
+};
+
+/* ---------------------------------------------------------
+   Utility / security helpers
+--------------------------------------------------------- */
+
+function announce(message) {
+  els.liveRegion.textContent = "";
+  requestAnimationFrame(() => {
+    els.liveRegion.textContent = message;
+  });
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[char]));
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return "Unknown";
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unit = 0;
+
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit++;
+  }
+
+  return unit === 0
+    ? `${value} ${units[unit]}`
+    : `${value.toFixed(value >= 100 ? 0 : value >= 10 ? 1 : 2)} ${units[unit]}`;
+}
+
+function revokeObjectUrl(url) {
+  if (!url) return;
+
+  try {
+    URL.revokeObjectURL(url);
+  } catch (_) {}
+
+  state.objectUrls.delete(url);
+
+  if (state.imageObjectUrl === url) {
+    state.imageObjectUrl = null;
+  }
+}
+
+function createObjectUrl(blob) {
+  const url = URL.createObjectURL(blob);
+  state.objectUrls.add(url);
+  return url;
+}
+
+function cleanupObjectUrls() {
+  for (const url of state.objectUrls) {
+    try {
+      URL.revokeObjectURL(url);
+    } catch (_) {}
+  }
+
+  state.objectUrls.clear();
+  state.imageObjectUrl = null;
+}
+
+function clearTool() {
+  els.toolPanel.hidden = true;
+  els.toolContent.replaceChildren();
+  els.toolStatus.textContent = "";
+  els.resultPanel.hidden = true;
+  els.resultContent.replaceChildren();
+  state.tool = null;
+}
+
+function setStatus(message, type = "") {
+  els.toolStatus.textContent = message;
+  els.toolStatus.className = `status ${type}`.trim();
+}
+
+function setFile(file) {
+  if (!(file instanceof File)) return;
+
+  cleanupObjectUrls();
+  clearTool();
+
+  state.file = file;
+
+  els.selectedFileTitle.textContent = file.name;
+  els.selectedFileMeta.textContent =
+    `${file.type || "Unknown MIME type"} • ${formatBytes(file.size)}`;
+
+  els.fileSection.hidden = false;
+  els.actions.hidden = false;
+
+  announce(`Selected file ${file.name}`);
+}
+
+function removeFile() {
+  cleanupObjectUrls();
+
+  if (state.currentImage) {
+    state.currentImage.onload = null;
+    state.currentImage.onerror = null;
+  }
+
+  state.file = null;
+  state.currentImage = null;
+
+  els.filePicker.value = "";
+  els.fileSection.hidden = true;
+  els.actions.hidden = true;
+
+  clearTool();
+
+  announce("File removed");
+}
+
+/* ---------------------------------------------------------
+   File input / drag and drop
+--------------------------------------------------------- */
+
+els.dropZone.addEventListener("click", event => {
+  if (event.target.closest("label")) return;
+  els.filePicker.click();
+});
+
+els.dropZone.addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    els.filePicker.click();
+  }
+});
+
+els.filePicker.addEventListener("change", event => {
+  const file = event.target.files?.[0];
+  if (file) setFile(file);
+});
+
+els.dropZone.addEventListener("dragover", event => {
+  event.preventDefault();
+
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "copy";
+  }
+
+  els.dropZone.classList.add("is-dragover");
+});
+
+els.dropZone.addEventListener("dragleave", event => {
+  if (!els.dropZone.contains(event.relatedTarget)) {
+    els.dropZone.classList.remove("is-dragover");
+  }
+});
+
+els.dropZone.addEventListener("drop", event => {
+  event.preventDefault();
+  els.dropZone.classList.remove("is-dragover");
+
+  const file = event.dataTransfer?.files?.[0];
+
+  if (file) {
+    setFile(file);
+  }
+});
+
+els.removeFile.addEventListener("click", removeFile);
+
+/* ---------------------------------------------------------
+   Tool navigation
+--------------------------------------------------------- */
+
+els.actions.addEventListener("click", event => {
+  const button = event.target.closest("button[data-tool]");
+  if (!button || !state.file) return;
+
+  openTool(button.dataset.tool);
+});
+
+function openTool(tool) {
+  clearTool();
+
+  state.tool = tool;
+  els.toolPanel.hidden = false;
+
+  switch (tool) {
+    case "text":
+      openTextTool();
+      break;
+
+    case "image":
+      openImageTool();
+      break;
+
+    case "csv":
+      openCSVTool();
+      break;
+
+    case "info":
+      openInfoTool();
+      break;
+
+    default:
+      return;
+  }
+
+  els.toolPanel.scrollIntoView({
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth",
+    block: "start"
+  });
+}
+
+/* ---------------------------------------------------------
+   Text Tool
+--------------------------------------------------------- */
+
+async function openTextTool() {
+  els.toolTitle.textContent = "Text Tool";
+
+  const file = state.file;
+
+  const allowed =
+    file.type.startsWith("text/") ||
+    /\.(txt|md|json|log|xml|html|css|js|csv)$/i.test(file.name);
+
+  if (!allowed) {
+    setStatus("This tool works with text-based files.", "error");
+    return;
+  }
+
+  try {
+    const text = await file.text();
+
+    const wordCount = countWords(text);
+    const characterCount = text.length;
+    const lineCount = text === "" ? 0 : text.split(/\r\n|\r|\n/).length;
+
+    els.toolContent.innerHTML = `
+      <div class="stats" aria-label="Text statistics">
+        <div class="stat">
+          <strong>${wordCount.toLocaleString()}</strong>
+          <span>Words</span>
+        </div>
+
+        <div class="stat">
+          <strong>${characterCount.toLocaleString()}</strong>
+          <span>Characters</span>
+        </div>
+
+        <div class="stat">
+          <strong>${lineCount.toLocaleString()}</strong>
+          <span>Lines</span>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="copyText" class="primary-button" type="button">
+          Copy to Clipboard
+        </button>
+      </div>
+
+      <div class="preview" tabindex="0" aria-label="Text preview"></div>
+    `;
+
+    els.toolContent.querySelector(".preview").textContent =
+      text.slice(0, 50000);
+
+    document.getElementById("copyText").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Text copied to clipboard.", "success");
+        announce("Text copied to clipboard");
+      } catch (_) {
+        setStatus(
+          "Clipboard access was unavailable. Select and copy the preview manually.",
+          "error"
+        );
+      }
+    });
+
+    setStatus(
+      text.length > 50000
+        ? "Preview limited to the first 50,000 characters."
+        : "Text loaded successfully.",
+      "success"
+    );
+  } catch (error) {
+    setStatus("Unable to read this file.", "error");
+  }
+}
+
+function countWords(text) {
+  const trimmed = text.trim();
+
+  if (!trimmed) return 0;
+
+  /*
+    Unicode-aware word detection when supported.
+    Falls back to a whitespace-based counter.
+  */
+  try {
+    const matches = trimmed.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu);
+    return matches ? matches.length : 0;
+  } catch (_) {
+    return trimmed.split(/\s+/).filter(Boolean).length;
+  }
+}
+
+/* ---------------------------------------------------------
+   Image Resizer
+--------------------------------------------------------- */
+
+function openImageTool() {
+  els.toolTitle.textContent = "Image Resizer";
+
+  const file = state.file;
+
+  if (!file.type.startsWith("image/")) {
+    setStatus("Please choose an image file.", "error");
+    return;
+  }
+
+  const url = createObjectUrl(file);
+  state.imageObjectUrl = url;
+
+  const image = new Image();
+
+  image.onload = () => {
+    if (state.file !== file) {
+      revokeObjectUrl(url);
+      return;
+    }
+
+    state.currentImage = image;
+
+    const width = image.naturalWidth;
+    const height = image.naturalHeight;
+
+    els.toolContent.innerHTML = `
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="imageWidth">Width (px)</label>
+          <input id="imageWidth" type="number" min="1" max="20000"
+                 inputmode="numeric" value="${width}">
+        </div>
+
+        <div class="form-field">
+          <label for="imageHeight">Height (px)</label>
+          <input id="imageHeight" type="number" min="1" max="20000"
+                 inputmode="numeric" value="${height}">
+        </div>
+
+        <div class="form-field full">
+          <label for="scale">Scale percentage</label>
+          <div class="range-row">
+            <input id="scale" type="range" min="1" max="400" step="1" value="100">
+            <output id="scaleValue" class="range-value" for="scale">100%</output>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="format">Output format</label>
+          <select id="format">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="quality">Quality — JPEG/WebP</label>
+          <div class="range-row">
+            <input id="quality" type="range" min="10" max="100" step="1" value="90">
+            <output id="qualityValue" class="range-value" for="quality">90%</output>
+          </div>
+        </div>
+
+        <div class="form-field full">
+          <div class="checkbox-row">
+            <input id="lockRatio" type="checkbox" checked>
+            <label for="lockRatio">Preserve aspect ratio</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="resizeDownload" class="primary-button" type="button">
+          Resize & Download
+        </button>
+      </div>
+
+      <div id="imagePreviewStatus" class="status">
+        Original: ${width} × ${height}px
+      </div>
+    `;
+
+    const widthInput = document.getElementById("imageWidth");
+    const heightInput = document.getElementById("imageHeight");
+    const scaleInput = document.getElementById("scale");
+    const scaleValue = document.getElementById("scaleValue");
+    const qualityInput = document.getElementById("quality");
+    const qualityValue = document.getElementById("qualityValue");
+    const formatSelect = document.getElementById("format");
+    const lockRatio = document.getElementById("lockRatio");
+    const status = document.getElementById("imagePreviewStatus");
+
+    let aspectRatio = width / height;
+
+    function updateFromWidth() {
+      let newWidth = clampInteger(widthInput.value, 1, 20000);
+
+      widthInput.value = newWidth;
+
+      if (lockRatio.checked) {
+        const newHeight = Math.max(1, Math.round(newWidth / aspectRatio));
+        heightInput.value = Math.min(20000, newHeight);
+      }
+
+      scaleInput.value = Math.min(
+        400,
+        Math.max(1, Math.round(newWidth / width * 100))
+      );
+
+      scaleValue.textContent = `${scaleInput.value}%`;
+    }
+
+    function updateFromHeight() {
+      let newHeight = clampInteger(heightInput.value, 1, 20000);
+
+      heightInput.value = newHeight;
+
+      if (lockRatio.checked) {
+        const newWidth = Math.max(1, Math.round(newHeight * aspectRatio));
+        widthInput.value = Math.min(20000, newWidth);
+      }
+
+      scaleInput.value = Math.min(
+        400,
+        Math.max(1, Math.round(newHeight / height * 100))
+      );
+
+      scaleValue.textContent = `${scaleInput.value}%`;
+    }
+
+    function updateFromScale() {
+      const scale = Number(scaleInput.value) / 100;
+
+      const newWidth = Math.max(1, Math.round(width * scale));
+      const newHeight = Math.max(1, Math.round(height * scale));
+
+      widthInput.value = Math.min(20000, newWidth);
+      heightInput.value = Math.min(20000, newHeight);
+      scaleValue.textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    widthInput.addEventListener("input", updateFromWidth);
+    heightInput.addEventListener("input", updateFromHeight);
+    scaleInput.addEventListener("input", updateFromScale);
+
+    lockRatio.addEventListener("change", () => {
+      if (lockRatio.checked) {
+        aspectRatio =
+          Number(widthInput.value) / Math.max(1, Number(heightInput.value));
+      }
+    });
+
+    qualityInput.addEventListener("input", () => {
+      qualityValue.textContent = `${qualityInput.value}%`;
+    });
+
+    formatSelect.addEventListener("change", () => {
+      const lossy = formatSelect.value !== "image/png";
+      qualityInput.disabled = !lossy;
+    });
+
+    document.getElementById("resizeDownload").addEventListener("click", async () => {
+      const targetWidth = clampInteger(widthInput.value, 1, 20000);
+      const targetHeight = clampInteger(heightInput.value, 1, 20000);
+      const mime = formatSelect.value;
+      const quality = Number(qualityInput.value) / 100;
+
+      if (!Number.isFinite(targetWidth) || !Number.isFinite(targetHeight)) {
+        setStatus("Please enter valid dimensions.", "error");
+        return;
+      }
+
+      const maxPixels = 100_000_000;
+
+      if (targetWidth * targetHeight > maxPixels) {
+        setStatus(
+          "The requested image is too large. Maximum output is 100 megapixels.",
+          "error"
+        );
+        return;
+      }
+
+      setStatus("Rendering image…");
+
+      try {
+        const blob = await renderImage(
+          image,
+          targetWidth,
+          targetHeight,
+          mime,
+          quality
+        );
+
+        downloadBlob(
+          blob,
+          makeOutputName(file.name, mime)
+        );
+
+        setStatus(
+          `Done — ${targetWidth} × ${targetHeight}px ${mime.replace("image/", "").toUpperCase()}.`,
+          "success"
+        );
+
+        announce("Image resized and downloaded");
+      } catch (error) {
+        setStatus("Unable to create the resized image.", "error");
+      }
+    });
+
+    qualityInput.disabled = false;
+  };
+
+  image.onerror = () => {
+    revokeObjectUrl(url);
+    setStatus("This image could not be decoded by the browser.", "error");
+  };
+
+  image.src = url;
+}
+
+function clampInteger(value, min, max) {
+  const number = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(number)) return min;
+
+  return Math.min(max, Math.max(min, number));
+}
+
+function renderImage(image, width, height, mime, quality) {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d", {
+      alpha: mime === "image/png"
+    });
+
+    if (!context) {
+      reject(new Error("Canvas unavailable"));
+      return;
+    }
+
+    if (mime === "image/jpeg") {
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+    }
+
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(image, 0, 0, width, height);
+
+    canvas.toBlob(
+      blob => blob ? resolve(blob) : reject(new Error("Encoding failed")),
+      mime,
+      mime === "image/png" ? undefined : quality
+    );
+  });
+}
+
+/* ---------------------------------------------------------
+   CSV Inspector
+--------------------------------------------------------- */
+
+async function openCSVTool() {
+  els.toolTitle.textContent = "CSV Inspector";
+
+  const file = state.file;
+
+  if (!/\.csv$/i.test(file.name) && file.type !== "text/csv") {
+    setStatus("Please choose a CSV file.", "error");
+    return;
+  }
+
+  try {
+    const text = await file.text();
+    const rows = parseCSV(text);
+
+    if (!rows.length) {
+      setStatus("The CSV contains no records.", "error");
+      return;
+    }
+
+    renderCSV(rows);
+  } catch (error) {
+    setStatus(`CSV parsing failed: ${error.message}`, "error");
+  }
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    if (inQuotes) {
+      if (char === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += char;
+      }
+
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = true;
+    } else if (char === ",") {
+      row.push(field);
+      field = "";
+    } else if (char === "\n") {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else if (char === "\r") {
+      if (text[i + 1] === "\n") i++;
+
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += char;
+    }
+  }
+
+  if (inQuotes) {
+    throw new Error("Unclosed quoted field.");
+  }
+
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+
+  return rows.filter(record =>
+    record.some(value => value.trim() !== "")
+  );
+}
+
+function renderCSV(rows) {
+  const headers = rows[0];
+  const data = rows.slice(1);
+
+  const maxColumns = Math.max(...rows.map(row => row.length));
+
+  while (headers.length < maxColumns) {
+    headers.push(`Column ${headers.length + 1}`);
+  }
+
+  els.toolContent.innerHTML = `
+    <div class="status success">
+      ${data.length.toLocaleString()} data row(s) •
+      ${maxColumns.toLocaleString()} column(s)
+    </div>
+
+    <div class="table-wrap" tabindex="0" aria-label="CSV table">
+      <table>
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  `;
+
+  const table = els.toolContent.querySelector("table");
+  const thead = table.querySelector("thead");
+  const tbody = table.querySelector("tbody");
+
+  const headerRow = document.createElement("tr");
+
+  headers.forEach(header => {
+    const th = document.createElement("th");
+    th.scope = "col";
+    th.textContent = header;
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+
+  const maxPreviewRows = 1000;
+
+  data.slice(0, maxPreviewRows).forEach(record => {
+    const tr = document.createElement("tr");
+
+    for (let i = 0; i < maxColumns; i++) {
+      const td = document.createElement("td");
+      td.textContent = record[i] ?? "";
+      tr.appendChild(td);
+    }
+
+    tbody.appendChild(tr);
+  });
+
+  if (data.length > maxPreviewRows) {
+    setStatus(
+      `Showing the first ${maxPreviewRows.toLocaleString()} rows of ${data.length.toLocaleString()}.`,
+      "success"
+    );
+  } else {
+    setStatus("CSV parsed successfully.", "success");
+  }
+}
+
+/* ---------------------------------------------------------
+   File Information
+--------------------------------------------------------- */
+
+async function openInfoTool() {
+  els.toolTitle.textContent = "File Information";
+
+  const file = state.file;
+
+  els.toolContent.innerHTML = `
+    <div class="meta-grid" id="metadataGrid">
+      <div class="meta-item">
+        <dt>File name</dt>
+        <dd>${escapeHTML(file.name)}</dd>
+      </div>
+
+      <div class="meta-item">
+        <dt>File size</dt>
+        <dd>${formatBytes(file.size)}</dd>
+      </div>
+
+      <div class="meta-item">
+        <dt>MIME type</dt>
+        <dd>${escapeHTML(file.type || "Unknown")}</dd>
+      </div>
+
+      <div class="meta-item">
+        <dt>Last modified</dt>
+        <dd>${escapeHTML(new Date(file.lastModified).toLocaleString())}</dd>
+      </div>
+
+      <div class="meta-item">
+        <dt>SHA-256</dt>
+        <dd id="hashValue">Calculating…</dd>
+      </div>
+
+      <div class="meta-item">
+        <dt>Image resolution</dt>
+        <dd id="resolutionValue">Not an image</dd>
+      </div>
+    </div>
+  `;
+
+  const hashElement = document.getElementById("hashValue");
+
+  try {
+    const hash = await calculateSHA256(file);
+    hashElement.textContent = hash;
+  } catch (_) {
+    hashElement.textContent = "Web Crypto unavailable";
+  }
+
+  if (file.type.startsWith("image/")) {
+    const resolutionElement = document.getElementById("resolutionValue");
+
+    const url = createObjectUrl(file);
+    const image = new Image();
+
+    image.onload = () => {
+      resolutionElement.textContent =
+        `${image.naturalWidth.toLocaleString()} × ${image.naturalHeight.toLocaleString()} px`;
+
+      revokeObjectUrl(url);
+    };
+
+    image.onerror = () => {
+      resolutionElement.textContent = "Unable to read";
+      revokeObjectUrl(url);
+    };
+
+    image.src = url;
+  }
+
+  setStatus("Metadata loaded.", "success");
+}
+
+async function calculateSHA256(file) {
+  if (!window.crypto?.subtle) {
+    throw new Error("Web Crypto API unavailable");
+  }
+
+  const buffer = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/* ---------------------------------------------------------
+   Download helpers
+--------------------------------------------------------- */
+
+function downloadBlob(blob, filename) {
+  const url = createObjectUrl(blob);
+
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.rel = "noopener";
+
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+
+  /*
+    Keep the URL alive for the browser's download operation,
+    then revoke it. This prevents Blob URL memory leaks.
+  */
+  setTimeout(() => revokeObjectUrl(url), 1000);
+}
+
+function makeOutputName(originalName, mime) {
+  const base = originalName.replace(/\.[^/.]+$/, "");
+  const extension = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp"
+  }[mime] || "bin";
+
+  return `${base}-resized.${extension}`;
+}
+
+/* ---------------------------------------------------------
+   Cleanup
+--------------------------------------------------------- */
+
+window.addEventListener("pagehide", cleanupObjectUrls);
+window.addEventListener("beforeunload", cleanupObjectUrls);
+</script>
+
+</body>
+</html>
+```
