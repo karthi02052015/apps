@@ -1,0 +1,1429 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ElectroLab — Electronics Toolkit</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0b1020;
+  --panel:#11182b;
+  --panel2:#171f35;
+  --border:#27324d;
+  --text:#eef3ff;
+  --muted:#8995ad;
+  --accent:#4f8cff;
+  --accent2:#6d5dfc;
+  --green:#30d69b;
+  --danger:#ff5d73;
+  --shadow:0 18px 50px rgba(0,0,0,.25);
+}
+body.light{
+  --bg:#f4f7fc;
+  --panel:#fff;
+  --panel2:#eef3fa;
+  --border:#dce3ef;
+  --text:#172033;
+  --muted:#69758a;
+  --shadow:0 15px 35px rgba(31,45,70,.12);
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  width:250px;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  padding:20px 14px;
+  position:fixed;
+  left:0;top:0;bottom:0;
+  z-index:20;
+  overflow-y:auto;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:5px 10px 25px;
+}
+.logo-icon{
+  width:42px;height:42px;
+  border-radius:13px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  font-size:22px;
+  box-shadow:0 8px 25px rgba(79,140,255,.3);
+}
+.logo b{font-size:19px}
+.logo small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+
+.section-title{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.5px;
+  padding:15px 12px 7px;
+}
+.nav{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  border:0;
+  width:100%;
+  color:var(--muted);
+  background:transparent;
+  padding:11px 12px;
+  border-radius:10px;
+  text-align:left;
+  margin:2px 0;
+  transition:.18s;
+}
+.nav:hover{background:var(--panel2);color:var(--text)}
+.nav.active{
+  background:rgba(79,140,255,.13);
+  color:var(--accent);
+}
+.nav .icon{width:20px;text-align:center}
+.sidebar-bottom{
+  margin-top:20px;
+  border-top:1px solid var(--border);
+  padding-top:14px;
+}
+
+/* MAIN */
+.main{
+  margin-left:250px;
+  width:calc(100% - 250px);
+}
+.topbar{
+  height:70px;
+  border-bottom:1px solid var(--border);
+  background:var(--panel);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 28px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.page-title{font-size:18px;font-weight:750}
+.top-actions{display:flex;gap:8px}
+.icon-btn{
+  width:40px;height:40px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--panel2);
+  color:var(--text);
+}
+.mobile-menu{display:none}
+
+.content{
+  max-width:1250px;
+  margin:auto;
+  padding:30px;
+}
+
+/* DASHBOARD */
+.hero{
+  padding:32px;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 85% 20%,rgba(79,140,255,.2),transparent 30%),
+    linear-gradient(135deg,var(--panel),var(--panel2));
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  margin-bottom:28px;
+}
+.hero h1{margin:0 0 8px;font-size:32px}
+.hero p{color:var(--muted);margin:0;max-width:700px}
+.hero .bolt{
+  color:var(--accent);
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.tool-card{
+  border:1px solid var(--border);
+  background:var(--panel);
+  border-radius:17px;
+  padding:21px;
+  transition:.2s;
+  cursor:pointer;
+}
+.tool-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(79,140,255,.5);
+  box-shadow:var(--shadow);
+}
+.tool-icon{
+  width:45px;height:45px;
+  border-radius:13px;
+  display:grid;place-items:center;
+  background:rgba(79,140,255,.12);
+  font-size:21px;
+  margin-bottom:15px;
+}
+.tool-card h3{margin:0 0 6px;font-size:16px}
+.tool-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+
+/* TOOL PAGE */
+.tool-page{display:none}
+.tool-page.active{display:block}
+.page-head{
+  margin-bottom:25px;
+}
+.page-head h1{margin:0 0 7px;font-size:28px}
+.page-head p{margin:0;color:var(--muted)}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:var(--shadow);
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+.field{margin-bottom:16px}
+.field label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:650;
+  margin-bottom:7px;
+}
+.input-row{display:flex}
+input,select{
+  width:100%;
+  padding:12px 13px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  outline:none;
+  color:var(--text);
+  background:var(--panel2);
+}
+input:focus,select:focus{border-color:var(--accent)}
+.input-row select{max-width:100px;margin-left:6px}
+
+.btn{
+  border:0;
+  border-radius:10px;
+  padding:12px 17px;
+  color:white;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  font-weight:700;
+}
+.btn.secondary{
+  color:var(--text);
+  background:var(--panel2);
+  border:1px solid var(--border);
+}
+.result{
+  margin-top:18px;
+  padding:18px;
+  border-radius:13px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+}
+.result-title{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.result-value{
+  font-size:28px;
+  font-weight:800;
+  color:var(--green);
+  margin-top:5px;
+}
+.formula{
+  color:var(--muted);
+  font-family:monospace;
+  padding:12px;
+  border-radius:9px;
+  background:rgba(0,0,0,.12);
+  margin-bottom:15px;
+}
+
+/* RESISTOR */
+.resistor-preview{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:150px;
+}
+.resistor{
+  width:260px;height:72px;
+  background:#d4a46d;
+  border-radius:35px;
+  position:relative;
+  box-shadow:inset 0 0 10px rgba(0,0,0,.2);
+}
+.resistor:before,.resistor:after{
+  content:"";
+  position:absolute;
+  width:65px;height:8px;
+  background:#999;
+  top:32px;
+}
+.resistor:before{left:-65px}
+.resistor:after{right:-65px}
+.band{
+  position:absolute;
+  top:0;bottom:0;
+  width:24px;
+}
+.b1{left:55px}.b2{left:100px}.b3{left:145px}.b4{right:30px}
+.band.black{background:#151515}.band.brown{background:#743c19}
+.band.red{background:#e22b35}.band.orange{background:#ef7b22}
+.band.yellow{background:#e8ce29}.band.green{background:#32a852}
+.band.blue{background:#3478db}.band.violet{background:#753ca8}
+.band.grey{background:#777}.band.white{background:#eee}
+.band.gold{background:#c49a30}.band.silver{background:#aaa}
+
+/* LED */
+.led{
+  width:85px;height:85px;
+  border-radius:50%;
+  margin:25px auto;
+  background:#ffcf40;
+  box-shadow:0 0 45px #ffcf40;
+  animation:pulse 1.6s infinite alternate;
+}
+@keyframes pulse{
+  from{box-shadow:0 0 20px #ffcf40}
+  to{box-shadow:0 0 65px #ffcf40}
+}
+
+/* LOGIC */
+.gates{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+.gate{
+  padding:20px;
+  border:1px solid var(--border);
+  background:var(--panel2);
+  border-radius:15px;
+}
+.gate h3{margin-top:0}
+.truth{
+  width:100%;
+  border-collapse:collapse;
+}
+.truth td,.truth th{
+  border-bottom:1px solid var(--border);
+  padding:10px;
+  text-align:center;
+}
+.on{color:var(--green);font-weight:800}
+.off{color:var(--muted)}
+
+/* CALCULATOR */
+.calc{
+  max-width:430px;
+  margin:auto;
+}
+.calc-display{
+  padding:20px;
+  min-height:90px;
+  border:1px solid var(--border);
+  background:var(--panel2);
+  border-radius:15px;
+  margin-bottom:12px;
+  text-align:right;
+  overflow:hidden;
+}
+.calc-expression{font-size:13px;color:var(--muted);min-height:20px}
+.calc-value{font-size:32px;font-weight:800;margin-top:5px}
+.calc-buttons{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.calc-buttons button{
+  height:55px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  border-radius:11px;
+  font-weight:700;
+}
+.calc-buttons button:hover{background:var(--panel2)}
+.calc-buttons .operator{color:var(--accent)}
+.calc-buttons .equals{background:var(--accent);color:white}
+
+/* MOBILE */
+@media(max-width:900px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;width:100%}
+  .mobile-menu{display:block}
+  .cards{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .topbar{padding:0 15px}
+  .content{padding:18px}
+  .cards,.grid2,.grid3,.gates{grid-template-columns:1fr}
+  .hero{padding:23px}
+  .hero h1{font-size:25px}
+  .resistor{width:190px}
+  .resistor:before{left:-45px}
+  .resistor:after{right:-45px}
+  .b1{left:38px}.b2{left:72px}.b3{left:106px}.b4{right:20px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <b>ElectroLab</b>
+      <small>Electronics Toolkit</small>
+    </div>
+  </div>
+
+  <div class="section-title">TOOLS</div>
+
+  <button class="nav active" data-page="dashboard">
+    <span class="icon">⌂</span> Dashboard
+  </button>
+
+  <button class="nav" data-page="scientific">
+    <span class="icon">🧮</span> Scientific Calculator
+  </button>
+
+  <button class="nav" data-page="ohm">
+    <span class="icon">Ω</span> Ohm's Law
+  </button>
+
+  <button class="nav" data-page="power">
+    <span class="icon">⚡</span> Power Calculator
+  </button>
+
+  <button class="nav" data-page="resistor">
+    <span class="icon">〰</span> Resistor Color Code
+  </button>
+
+  <button class="nav" data-page="led">
+    <span class="icon">💡</span> LED Resistor
+  </button>
+
+  <button class="nav" data-page="divider">
+    <span class="icon">↕</span> Voltage Divider
+  </button>
+
+  <button class="nav" data-page="series">
+    <span class="icon">➕</span> Series / Parallel
+  </button>
+
+  <button class="nav" data-page="capacitor">
+    <span class="icon">▥</span> Capacitor
+  </button>
+
+  <button class="nav" data-page="rc">
+    <span class="icon">◉</span> RC Time Constant
+  </button>
+
+  <button class="nav" data-page="converter">
+    <span class="icon">⇄</span> Unit Converter
+  </button>
+
+  <button class="nav" data-page="logic">
+    <span class="icon">AND</span> Logic Gates
+  </button>
+
+  <div class="section-title">REFERENCE</div>
+  <button class="nav" data-page="reference">
+    <span class="icon">📖</span> Electronics Reference
+  </button>
+
+  <div class="sidebar-bottom">
+    <button class="nav" id="themeBtn">
+      <span class="icon">☀</span> Toggle Theme
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="icon-btn mobile-menu" id="menuBtn">☰</button>
+    <div class="page-title" id="pageTitle">Dashboard</div>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" id="themeTop">☀</button>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<section class="tool-page active" id="dashboard">
+  <div class="hero">
+    <h1>Electronics made <span class="bolt">simple.</span></h1>
+    <p>
+      Calculate, experiment and learn electronics with a collection of
+      practical engineering tools.
+    </p>
+  </div>
+
+  <div class="cards">
+    <div class="tool-card" data-open="ohm">
+      <div class="tool-icon">Ω</div>
+      <h3>Ohm's Law</h3>
+      <p>Calculate voltage, current or resistance.</p>
+    </div>
+
+    <div class="tool-card" data-open="resistor">
+      <div class="tool-icon">〰</div>
+      <h3>Resistor Color Code</h3>
+      <p>Decode resistor bands instantly.</p>
+    </div>
+
+    <div class="tool-card" data-open="led">
+      <div class="tool-icon">💡</div>
+      <h3>LED Resistor</h3>
+      <p>Find the correct series resistor.</p>
+    </div>
+
+    <div class="tool-card" data-open="power">
+      <div class="tool-icon">⚡</div>
+      <h3>Power</h3>
+      <p>Calculate electrical power and current.</p>
+    </div>
+
+    <div class="tool-card" data-open="divider">
+      <div class="tool-icon">↕</div>
+      <h3>Voltage Divider</h3>
+      <p>Calculate output voltage from two resistors.</p>
+    </div>
+
+    <div class="tool-card" data-open="logic">
+      <div class="tool-icon">AND</div>
+      <h3>Logic Gates</h3>
+      <p>Explore digital logic and truth tables.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCIENTIFIC -->
+<section class="tool-page" id="scientific">
+  <div class="page-head">
+    <h1>Scientific Calculator</h1>
+    <p>Useful for electronics calculations and engineering math.</p>
+  </div>
+  <div class="panel">
+    <div class="calc">
+      <div class="calc-display">
+        <div class="calc-expression" id="calcExpression"></div>
+        <div class="calc-value" id="calcValue">0</div>
+      </div>
+      <div class="calc-buttons">
+        <button onclick="calcClear()">AC</button>
+        <button onclick="calcBack()">⌫</button>
+        <button onclick="calcInsert('(')">(</button>
+        <button class="operator" onclick="calcInsert(')')">)</button>
+
+        <button onclick="calcInsert('sin(')">sin</button>
+        <button onclick="calcInsert('cos(')">cos</button>
+        <button onclick="calcInsert('tan(')">tan</button>
+        <button class="operator" onclick="calcInsert('/')">÷</button>
+
+        <button onclick="calcInsert('sqrt(')">√</button>
+        <button onclick="calcInsert('log(')">log</button>
+        <button onclick="calcInsert('Math.PI')">π</button>
+        <button class="operator" onclick="calcInsert('*')">×</button>
+
+        <button onclick="calcInsert('7')">7</button>
+        <button onclick="calcInsert('8')">8</button>
+        <button onclick="calcInsert('9')">9</button>
+        <button class="operator" onclick="calcInsert('-')">−</button>
+
+        <button onclick="calcInsert('4')">4</button>
+        <button onclick="calcInsert('5')">5</button>
+        <button onclick="calcInsert('6')">6</button>
+        <button class="operator" onclick="calcInsert('+')">+</button>
+
+        <button onclick="calcInsert('1')">1</button>
+        <button onclick="calcInsert('2')">2</button>
+        <button onclick="calcInsert('3')">3</button>
+        <button class="equals" onclick="calcEvaluate()">=</button>
+
+        <button onclick="calcInsert('0')" style="grid-column:span 2">0</button>
+        <button onclick="calcInsert('.')">.</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OHM -->
+<section class="tool-page" id="ohm">
+  <div class="page-head">
+    <h1>Ohm's Law</h1>
+    <p>V = I × R</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="formula">V = I × R &nbsp; | &nbsp; I = V / R &nbsp; | &nbsp; R = V / I</div>
+
+      <div class="field">
+        <label>What do you want to calculate?</label>
+        <select id="ohmMode" onchange="ohmModeChange()">
+          <option value="I">Current (I)</option>
+          <option value="V">Voltage (V)</option>
+          <option value="R">Resistance (R)</option>
+        </select>
+      </div>
+
+      <div id="ohmInputs"></div>
+      <button class="btn" onclick="calcOhm()">Calculate</button>
+    </div>
+
+    <div class="panel">
+      <div class="result-title">RESULT</div>
+      <div class="result-value" id="ohmResult">—</div>
+      <div class="result" id="ohmDetails">
+        Enter values to calculate.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POWER -->
+<section class="tool-page" id="power">
+  <div class="page-head">
+    <h1>Power Calculator</h1>
+    <p>P = V × I</p>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <div class="field">
+        <label>Voltage</label>
+        <div class="input-row">
+          <input id="powerV" type="number" placeholder="12">
+          <select id="powerVU"><option>V</option><option>mV</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Current</label>
+        <div class="input-row">
+          <input id="powerI" type="number" placeholder="0.5">
+          <select id="powerIU"><option>A</option><option>mA</option></select>
+        </div>
+      </div>
+      <button class="btn" onclick="powerCalc()">Calculate</button>
+    </div>
+    <div class="panel">
+      <div class="result-title">POWER</div>
+      <div class="result-value" id="powerResult">—</div>
+      <div class="result" id="powerDetails">P = V × I</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESISTOR -->
+<section class="tool-page" id="resistor">
+  <div class="page-head">
+    <h1>Resistor Color Code</h1>
+    <p>Decode a 4-band resistor.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="resistor-preview">
+        <div class="resistor">
+          <div class="band b1" id="rb1"></div>
+          <div class="band b2" id="rb2"></div>
+          <div class="band b3" id="rb3"></div>
+          <div class="band b4" id="rb4"></div>
+        </div>
+      </div>
+      <button class="btn" onclick="randomResistor()">Random Resistor</button>
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <label>Band 1</label>
+        <select id="r1" onchange="resistorCalc()"></select>
+      </div>
+      <div class="field">
+        <label>Band 2</label>
+        <select id="r2" onchange="resistorCalc()"></select>
+      </div>
+      <div class="field">
+        <label>Multiplier</label>
+        <select id="r3" onchange="resistorCalc()"></select>
+      </div>
+      <div class="field">
+        <label>Tolerance</label>
+        <select id="r4" onchange="resistorCalc()"></select>
+      </div>
+
+      <div class="result">
+        <div class="result-title">RESISTANCE</div>
+        <div class="result-value" id="resistorResult">1 kΩ ±5%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LED -->
+<section class="tool-page" id="led">
+  <div class="page-head">
+    <h1>LED Resistor Calculator</h1>
+    <p>Calculate the resistor required to safely drive an LED.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="led"></div>
+
+      <div class="field">
+        <label>Supply Voltage</label>
+        <input id="ledV" type="number" value="5">
+      </div>
+
+      <div class="field">
+        <label>LED Forward Voltage</label>
+        <input id="ledF" type="number" value="2">
+      </div>
+
+      <div class="field">
+        <label>LED Current (mA)</label>
+        <input id="ledI" type="number" value="20">
+      </div>
+
+      <button class="btn" onclick="ledCalc()">Calculate</button>
+    </div>
+
+    <div class="panel">
+      <div class="result-title">RECOMMENDED RESISTOR</div>
+      <div class="result-value" id="ledResult">—</div>
+
+      <div class="result">
+        <b>Formula</b><br><br>
+        R = (Vsupply − Vf) / I
+      </div>
+
+      <div class="result" id="ledPower">LED resistor power: —</div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<section class="tool-page" id="divider">
+  <div class="page-head">
+    <h1>Voltage Divider</h1>
+    <p>Vout = Vin × R2 / (R1 + R2)</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="field">
+        <label>Input Voltage (Vin)</label>
+        <input id="divV" type="number" value="12">
+      </div>
+      <div class="field">
+        <label>R1</label>
+        <input id="divR1" type="number" value="10000">
+      </div>
+      <div class="field">
+        <label>R2</label>
+        <input id="divR2" type="number" value="10000">
+      </div>
+      <button class="btn" onclick="dividerCalc()">Calculate</button>
+    </div>
+
+    <div class="panel">
+      <div class="result-title">OUTPUT VOLTAGE</div>
+      <div class="result-value" id="dividerResult">—</div>
+      <div class="result" id="dividerCurrent">Divider current: —</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERIES -->
+<section class="tool-page" id="series">
+  <div class="page-head">
+    <h1>Series / Parallel Resistors</h1>
+    <p>Calculate equivalent resistance.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="field">
+        <label>Configuration</label>
+        <select id="seriesMode">
+          <option value="series">Series</option>
+          <option value="parallel">Parallel</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Resistor values (Ω)</label>
+        <input id="resValues" value="100, 220, 470">
+      </div>
+      <button class="btn" onclick="seriesCalc()">Calculate</button>
+    </div>
+
+    <div class="panel">
+      <div class="result-title">EQUIVALENT RESISTANCE</div>
+      <div class="result-value" id="seriesResult">—</div>
+      <div class="result" id="seriesFormula">—</div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPACITOR -->
+<section class="tool-page" id="capacitor">
+  <div class="page-head">
+    <h1>Capacitor Calculator</h1>
+    <p>Calculate stored charge and energy.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="field">
+        <label>Capacitance</label>
+        <div class="input-row">
+          <input id="capC" type="number" value="100">
+          <select id="capU">
+            <option value="1e-6">µF</option>
+            <option value="1e-9">nF</option>
+            <option value="1e-3">mF</option>
+            <option value="1">F</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Voltage</label>
+        <input id="capV" type="number" value="5">
+      </div>
+      <button class="btn" onclick="capCalc()">Calculate</button>
+    </div>
+
+    <div class="panel">
+      <div class="result">
+        <div class="result-title">CHARGE</div>
+        <div class="result-value" id="capCharge">—</div>
+      </div>
+      <div class="result">
+        <div class="result-title">ENERGY</div>
+        <div class="result-value" id="capEnergy">—</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RC -->
+<section class="tool-page" id="rc">
+  <div class="page-head">
+    <h1>RC Time Constant</h1>
+    <p>τ = R × C</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="field">
+        <label>Resistance (Ω)</label>
+        <input id="rcR" type="number" value="10000">
+      </div>
+      <div class="field">
+        <label>Capacitance (µF)</label>
+        <input id="rcC" type="number" value="100">
+      </div>
+      <button class="btn" onclick="rcCalc()">Calculate</button>
+    </div>
+
+    <div class="panel">
+      <div class="result-title">TIME CONSTANT</div>
+      <div class="result-value" id="rcResult">—</div>
+      <div class="result" id="rcTimes">—</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONVERTER -->
+<section class="tool-page" id="converter">
+  <div class="page-head">
+    <h1>Unit Converter</h1>
+    <p>Convert common electronics units.</p>
+  </div>
+
+  <div class="panel">
+    <div class="grid3">
+      <div class="field">
+        <label>Value</label>
+        <input id="convValue" type="number" value="1">
+      </div>
+      <div class="field">
+        <label>From</label>
+        <select id="convFrom"></select>
+      </div>
+      <div class="field">
+        <label>To</label>
+        <select id="convTo"></select>
+      </div>
+    </div>
+    <button class="btn" onclick="convert()">Convert</button>
+
+    <div class="result">
+      <div class="result-title">RESULT</div>
+      <div class="result-value" id="convResult">—</div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGIC -->
+<section class="tool-page" id="logic">
+  <div class="page-head">
+    <h1>Logic Gates</h1>
+    <p>Interactive digital logic reference.</p>
+  </div>
+
+  <div class="gates">
+    <div class="gate">
+      <h3>AND</h3>
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>OUT</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td class="on">1</td></tr>
+      </table>
+    </div>
+
+    <div class="gate">
+      <h3>OR</h3>
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>OUT</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>0</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>1</td><td class="on">1</td></tr>
+      </table>
+    </div>
+
+    <div class="gate">
+      <h3>NOT</h3>
+      <table class="truth">
+        <tr><th>A</th><th>OUT</th></tr>
+        <tr><td>0</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <div class="gate">
+      <h3>NAND</h3>
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>OUT</th></tr>
+        <tr><td>0</td><td>0</td><td class="on">1</td></tr>
+        <tr><td>0</td><td>1</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>0</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <div class="gate">
+      <h3>NOR</h3>
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>OUT</th></tr>
+        <tr><td>0</td><td>0</td><td class="on">1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <div class="gate">
+      <h3>XOR</h3>
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>OUT</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>0</td><td class="on">1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCE -->
+<section class="tool-page" id="reference">
+  <div class="page-head">
+    <h1>Electronics Reference</h1>
+    <p>Quick formulas for everyday electronics work.</p>
+  </div>
+
+  <div class="cards">
+    <div class="tool-card">
+      <div class="tool-icon">Ω</div>
+      <h3>Ohm's Law</h3>
+      <p>V = IR<br>I = V/R<br>R = V/I</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">⚡</div>
+      <h3>Power</h3>
+      <p>P = VI<br>P = I²R<br>P = V²/R</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">▥</div>
+      <h3>Capacitor</h3>
+      <p>Q = CV<br>E = ½CV²</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">◉</div>
+      <h3>RC Circuit</h3>
+      <p>τ = RC<br>After 1τ ≈ 63.2%</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">↕</div>
+      <h3>Voltage Divider</h3>
+      <p>Vout = Vin × R2/(R1+R2)</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">〰</div>
+      <h3>Resistors</h3>
+      <p>Series: Rtotal = R1+R2<br>Parallel: 1/Rt = Σ1/R</p>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+</div>
+
+<script>
+/* NAVIGATION */
+const pages=[...document.querySelectorAll(".tool-page")];
+const navs=[...document.querySelectorAll(".nav[data-page]")];
+const title=document.getElementById("pageTitle");
+
+const titles={
+ dashboard:"Dashboard",
+ scientific:"Scientific Calculator",
+ ohm:"Ohm's Law",
+ power:"Power Calculator",
+ resistor:"Resistor Color Code",
+ led:"LED Resistor",
+ divider:"Voltage Divider",
+ series:"Series / Parallel",
+ capacitor:"Capacitor Calculator",
+ rc:"RC Time Constant",
+ converter:"Unit Converter",
+ logic:"Logic Gates",
+ reference:"Electronics Reference"
+};
+
+function openPage(page){
+  pages.forEach(p=>p.classList.toggle("active",p.id===page));
+  navs.forEach(n=>n.classList.toggle("active",n.dataset.page===page));
+  title.textContent=titles[page]||page;
+  document.getElementById("sidebar").classList.remove("open");
+  history.replaceState(null,"","#"+page);
+}
+
+navs.forEach(n=>n.addEventListener("click",()=>openPage(n.dataset.page)));
+
+document.querySelectorAll("[data-open]").forEach(c=>{
+  c.addEventListener("click",()=>openPage(c.dataset.open));
+});
+
+document.getElementById("menuBtn").onclick=()=>{
+  document.getElementById("sidebar").classList.toggle("open");
+};
+
+/* THEME */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  localStorage.setItem("electrolab-theme",
+    document.body.classList.contains("light")?"light":"dark");
+}
+document.getElementById("themeBtn").onclick=toggleTheme;
+document.getElementById("themeTop").onclick=toggleTheme;
+
+if(localStorage.getItem("electrolab-theme")==="light")
+  document.body.classList.add("light");
+
+/* OHM */
+function ohmModeChange(){
+  const m=document.getElementById("ohmMode").value;
+  const el=document.getElementById("ohmInputs");
+
+  if(m==="I"){
+    el.innerHTML=`
+      <div class="field"><label>Voltage (V)</label>
+      <input id="ov" type="number" value="12"></div>
+      <div class="field"><label>Resistance (Ω)</label>
+      <input id="or" type="number" value="1000"></div>`;
+  }
+  if(m==="V"){
+    el.innerHTML=`
+      <div class="field"><label>Current (A)</label>
+      <input id="oi" type="number" value="0.01"></div>
+      <div class="field"><label>Resistance (Ω)</label>
+      <input id="or" type="number" value="1000"></div>`;
+  }
+  if(m==="R"){
+    el.innerHTML=`
+      <div class="field"><label>Voltage (V)</label>
+      <input id="ov" type="number" value="12"></div>
+      <div class="field"><label>Current (A)</label>
+      <input id="oi" type="number" value="0.01"></div>`;
+  }
+}
+ohmModeChange();
+
+function fmt(n){
+  if(!isFinite(n))return "Invalid";
+  const a=Math.abs(n);
+  if(a>=1e9)return (n/1e9).toFixed(3)+" G";
+  if(a>=1e6)return (n/1e6).toFixed(3)+" M";
+  if(a>=1e3)return (n/1e3).toFixed(3)+" k";
+  if(a<1 && a>=1e-3)return (n*1e3).toFixed(3)+" m";
+  if(a<1e-3)return n.toExponential(3);
+  return Number(n.toFixed(4)).toString();
+}
+
+function calcOhm(){
+  const m=document.getElementById("ohmMode").value;
+  let result;
+
+  if(m==="I"){
+    const v=+document.getElementById("ov").value;
+    const r=+document.getElementById("or").value;
+    result=v/r;
+    document.getElementById("ohmResult").textContent=fmt(result)+" A";
+    document.getElementById("ohmDetails").textContent=`I = ${v} / ${r}`;
+  }
+
+  if(m==="V"){
+    const i=+document.getElementById("oi").value;
+    const r=+document.getElementById("or").value;
+    result=i*r;
+    document.getElementById("ohmResult").textContent=fmt(result)+" V";
+    document.getElementById("ohmDetails").textContent=`V = ${i} × ${r}`;
+  }
+
+  if(m==="R"){
+    const v=+document.getElementById("ov").value;
+    const i=+document.getElementById("oi").value;
+    result=v/i;
+    document.getElementById("ohmResult").textContent=fmt(result)+" Ω";
+    document.getElementById("ohmDetails").textContent=`R = ${v} / ${i}`;
+  }
+}
+
+/* POWER */
+function powerCalc(){
+  let v=+powerV.value;
+  let i=+powerI.value;
+  if(powerVU.value==="mV")v/=1000;
+  if(powerIU.value==="mA")i/=1000;
+
+  const p=v*i;
+  powerResult.textContent=fmt(p)+" W";
+  powerDetails.textContent=
+    `P = ${v} × ${i} = ${p} W`;
+}
+
+/* RESISTOR COLORS */
+const colors=[
+ ["Black",0,"black"],
+ ["Brown",1,"brown"],
+ ["Red",2,"red"],
+ ["Orange",3,"orange"],
+ ["Yellow",4,"yellow"],
+ ["Green",5,"green"],
+ ["Blue",6,"blue"],
+ ["Violet",7,"violet"],
+ ["Grey",8,"grey"],
+ ["White",9,"white"]
+];
+
+const tolerances=[
+ ["Gold","±5%","gold"],
+ ["Silver","±10%","silver"],
+ ["Brown","±1%","brown"],
+ ["Red","±2%","red"]
+];
+
+function fillResistors(){
+  ["r1","r2"].forEach(id=>{
+    const s=document.getElementById(id);
+    s.innerHTML=colors.map(c=>
+      `<option value="${c[1]}">${c[0]}</option>`).join("");
+  });
+
+  r3.innerHTML=colors.map(c=>
+    `<option value="${c[1]}">${c[0]} ×10^${c[1]}</option>`).join("");
+
+  r4.innerHTML=tolerances.map((c,i)=>
+    `<option value="${i}">${c[0]} ${c[1]}</option>`).join("");
+
+  r1.value=1;
+  r2.value=0;
+  r3.value=2;
+  r4.value=0;
+}
+fillResistors();
+
+function resistorCalc(){
+  const a=+r1.value,b=+r2.value,m=+r3.value;
+  const t=tolerances[+r4.value];
+
+  const resistance=(10*a+b)*Math.pow(10,m);
+
+  let val;
+  if(resistance>=1e6)val=(resistance/1e6).toFixed(2)+" MΩ";
+  else if(resistance>=1000)val=(resistance/1000).toFixed(2)+" kΩ";
+  else val=resistance+" Ω";
+
+  resistorResult.textContent=val+" "+t[1];
+
+  rb1.className="band b1 "+colors[a][2];
+  rb2.className="band b2 "+colors[b][2];
+  rb3.className="band b3 "+colors[m][2];
+  rb4.className="band b4 "+t[2];
+}
+resistorCalc();
+
+function randomResistor(){
+  r1.value=Math.floor(Math.random()*10);
+  r2.value=Math.floor(Math.random()*10);
+  r3.value=Math.floor(Math.random()*10);
+  r4.value=Math.floor(Math.random()*4);
+  resistorCalc();
+}
+
+/* LED */
+function ledCalc(){
+  const v=+ledV.value;
+  const vf=+ledF.value;
+  const ma=+ledI.value;
+  const i=ma/1000;
+
+  const r=(v-vf)/i;
+  const p=i*i*r;
+
+  if(r<=0){
+    ledResult.textContent="Invalid";
+    ledPower.textContent="Supply voltage must exceed LED forward voltage.";
+    return;
+  }
+
+  ledResult.textContent=fmt(r)+" Ω";
+  ledPower.textContent=
+    `Resistor power = ${p.toFixed(3)} W — use at least a ${Math.ceil(p*2*100)/100} W rated resistor.`;
+}
+
+/* VOLTAGE DIVIDER */
+function dividerCalc(){
+  const v=+divV.value;
+  const r1=+divR1.value;
+  const r2=+divR2.value;
+
+  const out=v*r2/(r1+r2);
+  const current=v/(r1+r2);
+
+  dividerResult.textContent=out.toFixed(4)+" V";
+  dividerCurrent.textContent=
+    `Divider current: ${fmt(current)} A`;
+}
+
+/* SERIES/PARALLEL */
+function seriesCalc(){
+  const vals=resValues.value.split(",")
+    .map(x=>parseFloat(x.trim()))
+    .filter(x=>x>0);
+
+  if(!vals.length){
+    seriesResult.textContent="Invalid";
+    return;
+  }
+
+  let total;
+
+  if(seriesMode.value==="series"){
+    total=vals.reduce((a,b)=>a+b,0);
+    seriesFormula.textContent=
+      "Rtotal = R1 + R2 + ...";
+  }else{
+    total=1/vals.reduce((a,b)=>a+1/b,0);
+    seriesFormula.textContent=
+      "1/Rtotal = 1/R1 + 1/R2 + ...";
+  }
+
+  seriesResult.textContent=fmt(total)+" Ω";
+}
+
+/* CAPACITOR */
+function capCalc(){
+  const c=+capC.value*+capU.value;
+  const v=+capV.value;
+
+  const q=c*v;
+  const e=.5*c*v*v;
+
+  capCharge.textContent=fmt(q)+" C";
+  capEnergy.textContent=fmt(e)+" J";
+}
+
+/* RC */
+function rcCalc(){
+  const r=+rcR.value;
+  const c=+rcC.value*1e-6;
+
+  const tau=r*c;
+
+  rcResult.textContent=fmt(tau)+" s";
+  rcTimes.innerHTML=
+    `1τ: ${(tau).toFixed(4)} s<br>
+     3τ: ${(3*tau).toFixed(4)} s<br>
+     5τ: ${(5*tau).toFixed(4)} s`;
+}
+
+/* CONVERTER */
+const units=[
+ ["Ω",1,"Resistance"],
+ ["kΩ",1000,"Resistance"],
+ ["MΩ",1000000,"Resistance"],
+ ["V",1,"Voltage"],
+ ["mV",0.001,"Voltage"],
+ ["A",1,"Current"],
+ ["mA",0.001,"Current"],
+ ["W",1,"Power"],
+ ["mW",0.001,"Power"],
+ ["F",1,"Capacitance"],
+ ["µF",1e-6,"Capacitance"],
+ ["nF",1e-9,"Capacitance"],
+ ["pF",1e-12,"Capacitance"],
+ ["Hz",1,"Frequency"],
+ ["kHz",1000,"Frequency"],
+ ["MHz",1000000,"Frequency"]
+];
+
+function initConverter(){
+  const html=units.map((u,i)=>
+    `<option value="${i}">${u[0]}</option>`).join("");
+  convFrom.innerHTML=html;
+  convTo.innerHTML=html;
+  convFrom.value=0;
+  convTo.value=1;
+}
+initConverter();
+
+function convert(){
+  const a=units[+convFrom.value];
+  const b=units[+convTo.value];
+
+  if(a[2]!==b[2]){
+    convResult.textContent="Units are incompatible";
+    return;
+  }
+
+  const value=+convValue.value;
+  const base=value*a[1];
+  const result=base/b[1];
+
+  convResult.textContent=
+    `${result} ${b[0]}`;
+}
+
+/* SCIENTIFIC CALCULATOR */
+let calcExpr="";
+
+function calcRender(){
+  calcExpression.textContent=calcExpr;
+  calcValue.textContent=calcExpr||"0";
+}
+
+function calcInsert(x){
+  calcExpr+=x;
+  calcRender();
+}
+
+function calcClear(){
+  calcExpr="";
+  calcRender();
+}
+
+function calcBack(){
+  calcExpr=calcExpr.slice(0,-1);
+  calcRender();
+}
+
+function calcEvaluate(){
+  try{
+    let e=calcExpr
+      .replace(/sin\(/g,"Math.sin(")
+      .replace(/cos\(/g,"Math.cos(")
+      .replace(/tan\(/g,"Math.tan(")
+      .replace(/sqrt\(/g,"Math.sqrt(")
+      .replace(/log\(/g,"Math.log10(");
+
+    if(!/^[0-9+\-*/().,\sA-Za-z_]+$/.test(e))
+      throw Error();
+
+    const result=Function(
+      "return ("+e+")"
+    )();
+
+    calcExpression.textContent=calcExpr;
+    calcValue.textContent=
+      Number.isFinite(result)
+      ? Number(result.toFixed(12))
+      : "Error";
+
+    calcExpr=String(result);
+  }catch{
+    calcValue.textContent="Error";
+  }
+}
+
+/* KEYBOARD CALCULATOR */
+document.addEventListener("keydown",e=>{
+  if(document.getElementById("scientific").classList.contains("active")){
+    if(/[0-9+\-*/().]/.test(e.key))calcInsert(e.key);
+    if(e.key==="Enter")calcEvaluate();
+    if(e.key==="Backspace")calcBack();
+    if(e.key==="Escape")calcClear();
+  }
+});
+
+/* HASH ROUTING */
+if(location.hash){
+  const p=location.hash.substring(1);
+  if(document.getElementById(p))openPage(p);
+}
+</script>
+</body>
+</html>
+
