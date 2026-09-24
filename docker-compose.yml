@@ -1,0 +1,61 @@
+# Production-like local stack: PostgreSQL + TaskFlow (API serving the web app).
+#   cp .env.example .env   # then set JWT_SECRET and POSTGRES_PASSWORD
+#   docker compose up --build
+#   open http://localhost:8080
+name: taskflow
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: taskflow
+      POSTGRES_USER: taskflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U taskflow -d taskflow']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Not exposed to the host by default; uncomment for local inspection.
+    # ports: ['5432:5432']
+
+  migrate:
+    build: .
+    command: ['node', 'dist/db/migrate.js']
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://taskflow:${POSTGRES_PASSWORD}@db:5432/taskflow
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '8080:4000'
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://taskflow:${POSTGRES_PASSWORD}@db:5432/taskflow
+      JWT_SECRET: ${JWT_SECRET}
+      AUTO_MIGRATE: 'false' # handled by the migrate service
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      # Plain-http localhost only. Behind TLS (any real deployment) remove this line.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ['no-new-privileges:true']
+
+volumes:
+  pgdata:
