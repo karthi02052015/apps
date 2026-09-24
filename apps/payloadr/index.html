@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Offline JSON / JWT Quick Formatter & Inspector" />
+  <title>JSON / JWT Quick Formatter & Inspector</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #080b12;
+      --panel: #10151f;
+      --panel-2: #151c28;
+      --border: #273142;
+      --text: #e6edf7;
+      --muted: #8b98aa;
+      --accent: #6ea8fe;
+      --accent-2: #4f8df7;
+      --green: #35d07f;
+      --red: #ff5c70;
+      --yellow: #f5c451;
+      --purple: #b18cff;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .35);
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(76, 110, 245, .09), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(177, 140, 255, .06), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      padding: 24px;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1400px, 100%);
+      margin: 0 auto;
+    }
+
+    /* Header */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+      box-shadow: 0 10px 30px rgba(79, 70, 229, .25);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 3vw, 28px);
+      letter-spacing: -.6px;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .offline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid rgba(53, 208, 127, .25);
+      color: #7de8aa;
+      background: rgba(53, 208, 127, .07);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .offline-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(53, 208, 127, .8);
+    }
+
+    /* Panels */
+
+    .panel {
+      background: rgba(16, 21, 31, .92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .panel-title span {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    /* Input */
+
+    .input-panel {
+      margin-bottom: 18px;
+    }
+
+    .editor-wrap {
+      position: relative;
+    }
+
+    #input {
+      display: block;
+      width: 100%;
+      min-height: 280px;
+      resize: vertical;
+      border: 0;
+      outline: none;
+      background: #0b1018;
+      color: #dce7f5;
+      padding: 20px;
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      tab-size: 2;
+    }
+
+    #input::placeholder {
+      color: #536176;
+    }
+
+    .editor-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #0b1018;
+      border-top: 1px solid #1d2635;
+    }
+
+    .detector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .detector strong {
+      color: var(--text);
+    }
+
+    .mode-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .mode-dot.jwt {
+      background: var(--purple);
+      box-shadow: 0 0 10px rgba(177, 140, 255, .6);
+    }
+
+    .mode-dot.json {
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(110, 168, 254, .6);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: #151c28;
+      color: #dbe5f2;
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 650;
+      transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease;
+    }
+
+    .btn:hover {
+      background: #1c2635;
+      border-color: #3a4659;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn.primary {
+      background: #1d4ed8;
+      border-color: #2861e6;
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: #245be2;
+    }
+
+    .btn.danger {
+      color: #ff8593;
+    }
+
+    /* Status */
+
+    .status {
+      display: none;
+      margin: 0 0 18px;
+      padding: 12px 15px;
+      border: 1px solid;
+      border-radius: 12px;
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .status.visible {
+      display: block;
+    }
+
+    .status.error {
+      color: #ff9ca9;
+      border-color: rgba(255, 92, 112, .3);
+      background: rgba(255, 92, 112, .07);
+    }
+
+    .status.success {
+      color: #8be9b2;
+      border-color: rgba(53, 208, 127, .3);
+      background: rgba(53, 208, 127, .07);
+    }
+
+    /* Results */
+
+    .results {
+      display: grid;
+      gap: 18px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .code-card {
+      min-width: 0;
+      background: #0b1018;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .code-card-header {
+      min-height: 46px;
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      background: #111722;
+    }
+
+    .code-card-title {
+      font-size: 12px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .code-card-meta {
+      color: var(--muted);
+      font-size: 11px;
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+    }
+
+    pre {
+      margin: 0;
+      min-height: 180px;
+      max-height: 520px;
+      overflow: auto;
+      padding: 16px;
+      color: #dce7f5;
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* JWT */
+
+    #jwtSection {
+      display: none;
+    }
+
+    #jwtSection.visible {
+      display: block;
+    }
+
+    .jwt-top {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .token-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #0b1018;
+    }
+
+    .token-state {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .state-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 17px;
+    }
+
+    .state-valid .state-icon {
+      background: rgba(53, 208, 127, .12);
+      color: var(--green);
+    }
+
+    .state-expired .state-icon {
+      background: rgba(255, 92, 112, .12);
+      color: var(--red);
+    }
+
+    .state-future .state-icon {
+      background: rgba(245, 196, 81, .12);
+      color: var(--yellow);
+    }
+
+    .state-unknown .state-icon {
+      background: rgba(139, 152, 170, .12);
+      color: var(--muted);
+    }
+
+    .state-label {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .state-description {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .clock {
+      color: var(--muted);
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .claims {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .claim {
+      border: 1px solid var(--border);
+      background: #0b1018;
+      border-radius: 11px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .claim-name {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .claim-value {
+      margin-top: 6px;
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    /* Collapsible */
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #0b1018;
+      overflow: hidden;
+    }
+
+    details + details {
+      margin-top: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 15px;
+      font-size: 13px;
+      font-weight: 750;
+      background: #111722;
+      user-select: none;
+    }
+
+    summary:hover {
+      background: #151d2a;
+    }
+
+    details pre {
+      border-top: 1px solid var(--border);
+    }
+
+    /* Empty */
+
+    .empty {
+      text-align: center;
+      padding: 45px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 30px;
+      margin-bottom: 10px;
+      opacity: .7;
+    }
+
+    .empty strong {
+      display: block;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+
+    .empty p {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    /* Toast */
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 25px;
+      transform: translate(-50%, 20px);
+      padding: 10px 15px;
+      border-radius: 10px;
+      background: #182231;
+      border: 1px solid #344158;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .2s ease;
+      z-index: 999;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* Footer */
+
+    footer {
+      margin-top: 20px;
+      color: #566378;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    footer code {
+      color: #77859a;
+      font-family: monospace;
+    }
+
+    /* Scrollbars */
+
+    ::-webkit-scrollbar {
+      width: 9px;
+      height: 9px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0e15;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #273142;
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #344158;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 850px) {
+      body {
+        padding: 13px;
+      }
+
+      .header {
+        align-items: flex-start;
+      }
+
+      .offline-badge {
+        display: none;
+      }
+
+      .result-grid,
+      .claims {
+        grid-template-columns: 1fr;
+      }
+
+      #input {
+        min-height: 230px;
+      }
+
+      .token-status {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .clock {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .panel-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .editor-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <main class="app">
+
+```
+<header class="header">
+  <div class="brand">
+    <div class="logo">{ }</div>
+    <div>
+      <h1>JSON / JWT Quick Formatter & Inspector</h1>
+      <p class="subtitle">
+        Format JSON, inspect JWTs, decode claims and check token timing.
+      </p>
+    </div>
+  </div>
+
+  <div class="offline-badge">
+    <span class="offline-dot"></span>
+    100% Offline
+  </div>
+</header>
+
+<!-- INPUT -->
+
+<section class="panel input-panel">
+
+  <div class="panel-header">
+    <div class="panel-title">
+      Input
+      <span>JSON or JWT</span>
+    </div>
+
+    <button
+      class="btn danger"
+      id="clearBtn"
+      type="button"
+    >
+      Clear
+    </button>
+  </div>
+
+  <div class="editor-wrap">
+    <textarea
+      id="input"
+      spellcheck="false"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      placeholder='Paste JSON or a JWT here...
+```
+
+Examples:
+
+{"name":"John","active":true}
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+></textarea> </div>
+
+```
+  <div class="editor-footer">
+
+    <div class="detector">
+      <span class="mode-dot" id="modeDot"></span>
+      Detected:
+      <strong id="modeText">Waiting for input</strong>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="formatBtn" type="button">
+        Format / Beautify
+      </button>
+
+      <button class="btn" id="minifyBtn" type="button">
+        Minify / Compact
+      </button>
+
+      <button class="btn" id="copyBtn" type="button">
+        Copy
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ERROR / SUCCESS -->
+
+<div
+  id="status"
+  class="status"
+  role="status"
+  aria-live="polite"
+></div>
+
+<!-- JSON RESULTS -->
+
+<section id="jsonSection" class="results">
+
+  <div class="panel">
+
+    <div class="panel-header">
+      <div class="panel-title">
+        JSON Output
+        <span>2-space indentation</span>
+      </div>
+    </div>
+
+    <div id="jsonOutput">
+      <div class="empty">
+        <div class="empty-icon">{ }</div>
+        <strong>No JSON processed yet</strong>
+        <p>Paste JSON above to format or compact it.</p>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- JWT RESULTS -->
+
+<section id="jwtSection">
+
+  <div class="jwt-top">
+
+    <div class="token-status" id="tokenStatus">
+
+      <div class="token-state state-unknown">
+        <div class="state-icon">?</div>
+
+        <div>
+          <div class="state-label" id="stateLabel">
+            Token status unavailable
+          </div>
+
+          <div class="state-description" id="stateDescription">
+            Add a JWT containing temporal claims such as exp, nbf or iat.
+          </div>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">
+        System time: —
+      </div>
+
+    </div>
+
+    <div class="claims" id="claims"></div>
+
+  </div>
+
+  <div class="panel">
+
+    <div class="panel-header">
+      <div class="panel-title">
+        JWT Inspector
+        <span>Decoded locally in your browser</span>
+      </div>
+    </div>
+
+    <div style="padding: 14px;">
+
+      <details open>
+        <summary>Header</summary>
+
+        <pre id="jwtHeader">{}</pre>
+      </details>
+
+      <details open>
+        <summary>Payload</summary>
+
+        <pre id="jwtPayload">{}</pre>
+      </details>
+
+      <details>
+        <summary>Signature / Raw Segment</summary>
+
+        <pre id="jwtSignature">—</pre>
+      </details>
+
+    </div>
+
+  </div>
+
+</section>
+
+<footer>
+  No external libraries. No CDN. No network requests.
+  Everything runs locally using <code>HTML + CSS + JavaScript</code>.
+</footer>
+```
+
+  </main>
+
+  <div id="toast">Copied!</div>
+
+<script>
+"use strict";
+
+/*
+  JSON / JWT Quick Formatter & Inspector
+  --------------------------------------
+  Fully client-side.
+  No fetch(), XMLHttpRequest, WebSocket or external resources.
+*/
+
+/* -------------------------------------------------------
+   DOM
+------------------------------------------------------- */
+
+const input = document.getElementById("input");
+
+const formatBtn = document.getElementById("formatBtn");
+const minifyBtn = document.getElementById("minifyBtn");
+const copyBtn = document.getElementById("copyBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+const modeDot = document.getElementById("modeDot");
+const modeText = document.getElementById("modeText");
+
+const status = document.getElementById("status");
+const jsonSection = document.getElementById("jsonSection");
+const jsonOutput = document.getElementById("jsonOutput");
+
+const jwtSection = document.getElementById("jwtSection");
+
+const jwtHeader = document.getElementById("jwtHeader");
+const jwtPayload = document.getElementById("jwtPayload");
+const jwtSignature = document.getElementById("jwtSignature");
+
+const tokenStatus = document.getElementById("tokenStatus");
+const stateLabel = document.getElementById("stateLabel");
+const stateDescription = document.getElementById("stateDescription");
+const clock = document.getElementById("clock");
+const claims = document.getElementById("claims");
+
+const toast = document.getElementById("toast");
+
+
+/* -------------------------------------------------------
+   Helpers
+------------------------------------------------------- */
+
+function getInput() {
+  return input.value.trim();
+}
+
+function isLikelyJWT(value) {
+  const parts = value.split(".");
+
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  /*
+    JWT Base64URL segments may contain:
+    A-Z a-z 0-9 - _
+  */
+  return parts.every(function(part) {
+    return /^[A-Za-z0-9_-]+$/.test(part);
+  });
+}
+
+function showStatus(message, type) {
+  status.textContent = message;
+  status.className = "status visible " + type;
+}
+
+function hideStatus() {
+  status.textContent = "";
+  status.className = "status";
+}
+
+function showToast(message = "Copied!") {
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(showToast.timer);
+
+  showToast.timer = setTimeout(function() {
+    toast.classList.remove("show");
+  }, 1500);
+}
+
+
+/* -------------------------------------------------------
+   JSON Error Location
+------------------------------------------------------- */
+
+function getJSONErrorPosition(error, source) {
+  const message = String(error && error.message || "");
+
+  /*
+    Chrome / Edge:
+      Unexpected token } in JSON at position 17
+
+    Firefox:
+      JSON.parse: unexpected character at line 2 column 3
+  */
+
+  let line = null;
+  let column = null;
+  let position = null;
+
+  const positionMatch = message.match(/position\s+(\d+)/i);
+
+  if (positionMatch) {
+    position = Number(positionMatch[1]);
+
+    const before = source.slice(0, position);
+
+    line = before.split("\n").length;
+
+    const lastNewLine = before.lastIndexOf("\n");
+
+    column =
+      position -
+      (lastNewLine === -1 ? 0 : lastNewLine + 1) +
+      1;
+  }
+
+  const lineColumnMatch =
+    message.match(/line\s+(\d+)\s+column\s+(\d+)/i);
+
+  if (lineColumnMatch) {
+    line = Number(lineColumnMatch[1]);
+    column = Number(lineColumnMatch[2]);
+  }
+
+  return {
+    line,
+    column,
+    position,
+    message
+  };
+}
+
+
+/* -------------------------------------------------------
+   JSON Parsing
+------------------------------------------------------- */
+
+function parseJSON(value) {
+  try {
+    return {
+      success: true,
+      data: JSON.parse(value)
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: getJSONErrorPosition(error, value)
+    };
+  }
+}
+
+function prettyJSON(data) {
+  return JSON.stringify(data, null, 2);
+}
+
+function compactJSON(data) {
+  return JSON.stringify(data);
+}
+
+
+/* -------------------------------------------------------
+   Base64URL decoding
+------------------------------------------------------- */
+
+function base64UrlToBytes(base64url) {
+
+  let base64 = base64url
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+
+  while (base64.length % 4 !== 0) {
+    base64 += "=";
+  }
+
+  const binary = atob(base64);
+
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return bytes;
+}
+
+function decodeBase64URL(base64url) {
+
+  const bytes = base64UrlToBytes(base64url);
+
+  /*
+    TextDecoder correctly handles UTF-8 JWT payloads.
+  */
+  return new TextDecoder("utf-8", {
+    fatal: true
+  }).decode(bytes);
+}
+
+function decodeJWTSegment(segment) {
+
+  const text = decodeBase64URL(segment);
+
+  return JSON.parse(text);
+}
+
+
+/* -------------------------------------------------------
+   Timestamp formatting
+------------------------------------------------------- */
+
+function formatTimestamp(value) {
+
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value)
+  ) {
+    return String(value);
+  }
+
+  const date = new Date(value * 1000);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "medium"
+  });
+}
+
+
+/* -------------------------------------------------------
+   JWT Claims
+------------------------------------------------------- */
+
+function renderClaim(name, value) {
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "claim";
+
+  const title = document.createElement("div");
+  title.className = "claim-name";
+  title.textContent = name;
+
+  const valueElement = document.createElement("div");
+  valueElement.className = "claim-value";
+
+  if (
+    ["iat", "exp", "nbf"].includes(name) &&
+    typeof value === "number"
+  ) {
+    valueElement.textContent =
+      value + " → " + formatTimestamp(value);
+  } else if (
+    typeof value === "object" &&
+    value !== null
+  ) {
+    valueElement.textContent =
+      JSON.stringify(value);
+  } else {
+    valueElement.textContent =
+      String(value);
+  }
+
+  wrapper.appendChild(title);
+  wrapper.appendChild(valueElement);
+
+  return wrapper;
+}
+
+function renderClaims(payload) {
+
+  claims.innerHTML = "";
+
+  const importantClaims = [
+    "iss",
+    "sub",
+    "aud",
+    "iat",
+    "nbf",
+    "exp"
+  ];
+
+  let count = 0;
+
+  importantClaims.forEach(function(name) {
+
+    if (
+      Object.prototype.hasOwnProperty.call(payload, name)
+    ) {
+      claims.appendChild(
+        renderClaim(name, payload[name])
+      );
+
+      count++;
+    }
+  });
+
+  /*
+    If none of the standard claims exist,
+    display a few custom claims instead.
+  */
+
+  if (count === 0) {
+
+    Object.keys(payload)
+      .slice(0, 6)
+      .forEach(function(name) {
+
+        claims.appendChild(
+          renderClaim(name, payload[name])
+        );
+
+      });
+  }
+}
+
+
+/* -------------------------------------------------------
+   JWT Status
+------------------------------------------------------- */
+
+function updateJWTStatus(payload) {
+
+  tokenStatus.className = "token-status";
+
+  const now = Math.floor(Date.now() / 1000);
+
+  let state = "unknown";
+  let label = "Status unknown";
+  let description =
+    "No usable exp/nbf timing claims were found.";
+
+  /*
+    nbf = Not Before
+    exp = Expiration Time
+
+    Standard interpretation:
+      now < nbf  => Not Yet Active
+      now >= exp => Expired
+      otherwise  => Valid
+  */
+
+  if (
+    typeof payload.nbf === "number" &&
+    now < payload.nbf
+  ) {
+
+    state = "future";
+    label = "Not Yet Active";
+
+    description =
+      "The token's nbf claim is in the future.";
+
+  } else if (
+    typeof payload.exp === "number" &&
+    now >= payload.exp
+  ) {
+
+    state = "expired";
+    label = "Expired";
+
+    description =
+      "The token's exp claim is in the past.";
+
+  } else if (
+    typeof payload.exp === "number" ||
+    typeof payload.nbf === "number"
+  ) {
+
+    state = "valid";
+    label = "Valid";
+
+    description =
+      "The token is currently within its available time window.";
+
+  }
+
+  tokenStatus.classList.add(
+    "state-" + state
+  );
+
+  const icon =
+    tokenStatus.querySelector(".state-icon");
+
+  icon.textContent =
+    state === "valid" ? "✓" :
+    state === "expired" ? "!" :
+    state === "future" ? "⏳" :
+    "?";
+
+  stateLabel.textContent = label;
+  stateDescription.textContent = description;
+
+  clock.textContent =
+    "System time: " +
+    new Date().toLocaleString();
+}
+
+
+/* -------------------------------------------------------
+   JWT Processing
+------------------------------------------------------- */
+
+function processJWT(value) {
+
+  const parts = value.split(".");
+
+  if (parts.length !== 3) {
+    throw new Error(
+      "A JWT must contain exactly 3 dot-separated segments."
+    );
+  }
+
+  let header;
+  let payload;
+
+  try {
+    header = decodeJWTSegment(parts[0]);
+  } catch (error) {
+    throw new Error(
+      "Unable to decode JWT header: " +
+      error.message
+    );
+  }
+
+  try {
+    payload = decodeJWTSegment(parts[1]);
+  } catch (error) {
+    throw new Error(
+      "Unable to decode JWT payload: " +
+      error.message
+    );
+  }
+
+  jwtHeader.textContent =
+    prettyJSON(header);
+
+  jwtPayload.textContent =
+    prettyJSON(payload);
+
+  jwtSignature.textContent =
+    parts[2] || "(empty signature segment)";
+
+  renderClaims(payload);
+
+  updateJWTStatus(payload);
+
+  jwtSection.classList.add("visible");
+  jsonSection.style.display = "none";
+
+  showStatus(
+    "JWT decoded successfully. Decoding is performed locally.",
+    "success"
+  );
+}
+
+
+/* -------------------------------------------------------
+   JSON Processing
+------------------------------------------------------- */
+
+function processJSON(mode) {
+
+  const value = getInput();
+
+  const parsed = parseJSON(value);
+
+  if (!parsed.success) {
+
+    const e = parsed.error;
+
+    let message =
+      "Invalid JSON.";
+
+    if (
+      e.line !== null &&
+      e.column !== null
+    ) {
+      message +=
+        " Error at line " +
+        e.line +
+        ", column " +
+        e.column + ".";
+    }
+
+    if (
+      e.position !== null
+    ) {
+      message +=
+        " Character position: " +
+        e.position + ".";
+    }
+
+    message +=
+      " " +
+      e.message;
+
+    showStatus(message, "error");
+
+    jwtSection.classList.remove("visible");
+    jsonSection.style.display = "block";
+
+    jsonOutput.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">⚠</div>
+        <strong>Malformed JSON</strong>
+        <p>Correct the syntax above and try again.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const output =
+    mode === "minify"
+      ? compactJSON(parsed.data)
+      : prettyJSON(parsed.data);
+
+  /*
+    Put the formatted result back into the input.
+    This makes the tool behave like a formatter.
+  */
+  input.value = output;
+
+  renderJSONOutput(output);
+
+  jwtSection.classList.remove("visible");
+  jsonSection.style.display = "block";
+
+  showStatus(
+    mode === "minify"
+      ? "JSON compacted successfully."
+      : "JSON formatted successfully.",
+    "success"
+  );
+
+  detectMode();
+}
+
+function renderJSONOutput(text) {
+
+  const card = document.createElement("div");
+  card.className = "code-card";
+
+  const header = document.createElement("div");
+  header.className = "code-card-header";
+
+  const title = document.createElement("div");
+  title.className = "code-card-title";
+  title.textContent = "Formatted JSON";
+
+  const meta = document.createElement("div");
+  meta.className = "code-card-meta";
+  meta.textContent =
+    text.length.toLocaleString() + " chars";
+
+  header.appendChild(title);
+  header.appendChild(meta);
+
+  const pre = document.createElement("pre");
+  pre.textContent = text;
+
+  card.appendChild(header);
+  card.appendChild(pre);
+
+  jsonOutput.innerHTML = "";
+  jsonOutput.appendChild(card);
+}
+
+
+/* -------------------------------------------------------
+   Auto Detection
+------------------------------------------------------- */
+
+function detectMode() {
+
+  const value = getInput();
+
+  modeDot.className = "mode-dot";
+
+  if (!value) {
+
+    modeText.textContent =
+      "Waiting for input";
+
+    jsonSection.style.display = "block";
+    jwtSection.classList.remove("visible");
+
+    return;
+  }
+
+  if (isLikelyJWT(value)) {
+
+    modeDot.classList.add("jwt");
+    modeText.textContent =
+      "JWT";
+
+    return;
+  }
+
+  /*
+    Check if it looks like JSON.
+  */
+
+  const first = value[0];
+
+  if (
+    first === "{" ||
+    first === "["
+  ) {
+
+    modeDot.classList.add("json");
+
+    modeText.textContent =
+      "JSON";
+
+    return;
+  }
+
+  modeText.textContent =
+    "Text / unknown";
+}
+
+
+/* -------------------------------------------------------
+   Automatic processing
+------------------------------------------------------- */
+
+let detectTimer = null;
+
+input.addEventListener("input", function() {
+
+  detectMode();
+
+  clearTimeout(detectTimer);
+
+  /*
+    Automatically inspect JWTs once typing/pasting
+    settles. JSON is not automatically reformatted,
+    preventing the cursor from jumping while typing.
+  */
+
+  detectTimer = setTimeout(function() {
+
+    const value = getInput();
+
+    if (!value) {
+      return;
+    }
+
+    if (isLikelyJWT(value)) {
+
+      try {
+        processJWT(value);
+      } catch (error) {
+        showStatus(
+          error.message,
+          "error"
+        );
+      }
+
+    }
+
+  }, 250);
+});
+
+
+/* -------------------------------------------------------
+   Buttons
+------------------------------------------------------- */
+
+formatBtn.addEventListener("click", function() {
+
+  const value = getInput();
+
+  if (!value) {
+    showStatus(
+      "Paste JSON or a JWT first.",
+      "error"
+    );
+    return;
+  }
+
+  if (isLikelyJWT(value)) {
+
+    try {
+      processJWT(value);
+    } catch (error) {
+      showStatus(
+        error.message,
+        "error"
+      );
+    }
+
+    return;
+  }
+
+  processJSON("format");
+});
+
+
+minifyBtn.addEventListener("click", function() {
+
+  const value = getInput();
+
+  if (!value) {
+    showStatus(
+      "Paste JSON first.",
+      "error"
+    );
+    return;
+  }
+
+  if (isLikelyJWT(value)) {
+
+    showStatus(
+      "Minify / Compact is intended for JSON. JWT segments are already compact.",
+      "error"
+    );
+
+    return;
+  }
+
+  processJSON("minify");
+});
+
+
+copyBtn.addEventListener("click", async function() {
+
+  const value = getInput();
+
+  if (!value) {
+    showStatus(
+      "Nothing to copy.",
+      "error"
+    );
+    return;
+  }
+
+  try {
+
+    await navigator.clipboard.writeText(value);
+
+    showToast("Copied!");
+
+  } catch (error) {
+
+    /*
+      Fallback for browsers where Clipboard API
+      is unavailable.
+    */
+
+    input.focus();
+    input.select();
+
+    try {
+
+      document.execCommand("copy");
+
+      showToast("Copied!");
+
+    } catch (fallbackError) {
+
+      showStatus(
+        "Clipboard access was blocked by the browser.",
+        "error"
+      );
+    }
+  }
+});
+
+
+clearBtn.addEventListener("click", function() {
+
+  input.value = "";
+
+  modeDot.className = "mode-dot";
+  modeText.textContent =
+    "Waiting for input";
+
+  hideStatus();
+
+  jwtSection.classList.remove("visible");
+  jsonSection.style.display = "block";
+
+  jsonOutput.innerHTML = `
+    <div class="empty">
+      <div class="empty-icon">{ }</div>
+      <strong>No JSON processed yet</strong>
+      <p>Paste JSON above to format or compact it.</p>
+    </div>
+  `;
+
+  claims.innerHTML = "";
+
+  input.focus();
+});
+
+
+/* -------------------------------------------------------
+   Keyboard shortcuts
+------------------------------------------------------- */
+
+input.addEventListener("keydown", function(event) {
+
+  /*
+    Ctrl/Cmd + Enter:
+      Process current input.
+  */
+
+  if (
+    event.key === "Enter" &&
+    (event.ctrlKey || event.metaKey)
+  ) {
+
+    event.preventDefault();
+
+    const value = getInput();
+
+    if (!value) {
+      return;
+    }
+
+    if (isLikelyJWT(value)) {
+
+      try {
+        processJWT(value);
+      } catch (error) {
+        showStatus(
+          error.message,
+          "error"
+        );
+      }
+
+    } else {
+      processJSON("format");
+    }
+  }
+
+  /*
+    Tab inserts two spaces instead of leaving textarea.
+  */
+
+  if (event.key === "Tab") {
+
+    event.preventDefault();
+
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+
+    input.value =
+      input.value.substring(0, start) +
+      "  " +
+      input.value.substring(end);
+
+    input.selectionStart =
+      input.selectionEnd =
+      start + 2;
+  }
+
+});
+
+
+/* -------------------------------------------------------
+   Clock refresh
+------------------------------------------------------- */
+
+setInterval(function() {
+
+  if (
+    jwtSection.classList.contains("visible")
+  ) {
+
+    const value = getInput();
+
+    if (isLikelyJWT(value)) {
+
+      try {
+
+        const parts = value.split(".");
+        const payload =
+          decodeJWTSegment(parts[1]);
+
+        updateJWTStatus(payload);
+
+      } catch (_) {
+        // Ignore clock refresh errors.
+      }
+    }
+  }
+
+}, 1000);
+
+
+/* -------------------------------------------------------
+   Initial state
+------------------------------------------------------- */
+
+detectMode();
+
+</script>
+
+</body>
+</html>
