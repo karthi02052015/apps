@@ -1,0 +1,2058 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Karthikeyan — Apps & Experiments</title>
+
+  <meta
+    name="description"
+    content="Explore apps, tools, experiments and projects built by Karthikeyan."
+  />
+
+  <style>
+    /* =========================================================
+       RESET
+    ========================================================= */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #060812;
+      --bg-2: #0b0f1d;
+
+      --text: #ffffff;
+      --muted: #9aa3b8;
+      --muted-2: #697287;
+
+      --border: rgba(255, 255, 255, 0.09);
+      --border-hover: rgba(255, 255, 255, 0.18);
+
+      --purple: #7c5cff;
+      --cyan: #28d9ff;
+      --green: #35e39a;
+      --orange: #ffad42;
+      --pink: #ff5fa2;
+
+      --card: rgba(16, 21, 39, 0.72);
+
+      --shadow:
+        0 20px 55px rgba(0, 0, 0, 0.38);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 10% 5%,
+          rgba(124, 92, 255, 0.16),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 90% 15%,
+          rgba(40, 217, 255, 0.10),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 50% 100%,
+          rgba(255, 95, 162, 0.06),
+          transparent 30%
+        ),
+        linear-gradient(
+          180deg,
+          var(--bg),
+          var(--bg-2)
+        );
+
+      overflow-x: hidden;
+    }
+
+    /* =========================================================
+       BACKGROUND GLOW
+    ========================================================= */
+
+    body::before {
+      content: "";
+
+      position: fixed;
+
+      width: 480px;
+      height: 480px;
+
+      top: -230px;
+      left: -180px;
+
+      border-radius: 50%;
+
+      background: rgba(124, 92, 255, 0.08);
+
+      filter: blur(100px);
+
+      pointer-events: none;
+
+      z-index: -1;
+    }
+
+    body::after {
+      content: "";
+
+      position: fixed;
+
+      width: 450px;
+      height: 450px;
+
+      right: -180px;
+      bottom: -220px;
+
+      border-radius: 50%;
+
+      background: rgba(40, 217, 255, 0.055);
+
+      filter: blur(110px);
+
+      pointer-events: none;
+
+      z-index: -1;
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    header {
+      width: min(1180px, calc(100% - 40px));
+
+      margin: auto;
+
+      padding:
+        30px
+        0
+        20px;
+    }
+
+    .topbar {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+
+      align-items: center;
+
+      gap: 13px;
+    }
+
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+
+      border-radius: 15px;
+
+      display: grid;
+
+      place-items: center;
+
+      font-size: 21px;
+
+      font-weight: 800;
+
+      background:
+        linear-gradient(
+          135deg,
+          #7c5cff,
+          #29d9ff
+        );
+
+      box-shadow:
+        0 10px 30px rgba(124, 92, 255, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .brand-name {
+      font-size: 17px;
+
+      font-weight: 700;
+
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      margin-top: 3px;
+
+      font-size: 12px;
+
+      color: var(--muted);
+    }
+
+    .github-button {
+      text-decoration: none;
+
+      color: white;
+
+      padding:
+        10px
+        15px;
+
+      border-radius: 12px;
+
+      border: 1px solid var(--border);
+
+      background:
+        rgba(255, 255, 255, 0.04);
+
+      font-size: 12px;
+
+      transition: 0.25s ease;
+
+      backdrop-filter: blur(12px);
+    }
+
+    .github-button:hover {
+      transform: translateY(-2px);
+
+      background:
+        rgba(255, 255, 255, 0.08);
+
+      border-color:
+        var(--border-hover);
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .hero {
+      width: min(1180px, calc(100% - 40px));
+
+      margin:
+        72px
+        auto
+        58px;
+
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      padding:
+        7px
+        12px;
+
+      border-radius: 999px;
+
+      border:
+        1px solid
+        rgba(124, 92, 255, 0.25);
+
+      background:
+        rgba(124, 92, 255, 0.08);
+
+      color: #c9c2ff;
+
+      font-size: 11px;
+
+      font-weight: 600;
+
+      margin-bottom: 20px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: var(--green);
+
+      box-shadow:
+        0 0 12px
+        rgba(53, 227, 154, 0.8);
+    }
+
+    .hero h1 {
+      font-size:
+        clamp(
+          45px,
+          7vw,
+          78px
+        );
+
+      line-height: 0.98;
+
+      letter-spacing: -4px;
+
+      font-weight: 850;
+
+      background:
+        linear-gradient(
+          110deg,
+          #ffffff 10%,
+          #d9d2ff 45%,
+          #7deaff 90%
+        );
+
+      -webkit-background-clip: text;
+
+      background-clip: text;
+
+      color: transparent;
+    }
+
+    .hero-description {
+      max-width: 650px;
+
+      margin:
+        22px
+        auto
+        0;
+
+      color: var(--muted);
+
+      font-size: 14px;
+
+      line-height: 1.75;
+    }
+
+    /* =========================================================
+       CONTROLS
+    ========================================================= */
+
+    .controls {
+      width: min(1180px, calc(100% - 40px));
+
+      margin:
+        0
+        auto
+        26px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 20px;
+    }
+
+    .app-count {
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    .app-count strong {
+      color: white;
+
+      font-size: 13px;
+    }
+
+    .search-box {
+      width: 320px;
+
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+
+      left: 14px;
+      top: 50%;
+
+      transform:
+        translateY(-50%);
+
+      color: #737c91;
+
+      font-size: 17px;
+
+      pointer-events: none;
+    }
+
+    .search-box input {
+      width: 100%;
+
+      height: 43px;
+
+      padding:
+        0
+        14px
+        0
+        40px;
+
+      border-radius: 13px;
+
+      border:
+        1px solid
+        var(--border);
+
+      outline: none;
+
+      color: white;
+
+      background:
+        rgba(255, 255, 255, 0.045);
+
+      font-size: 12px;
+
+      backdrop-filter: blur(12px);
+
+      transition: 0.25s ease;
+    }
+
+    .search-box input::placeholder {
+      color: #70788b;
+    }
+
+    .search-box input:focus {
+      border-color:
+        rgba(124, 92, 255, 0.55);
+
+      box-shadow:
+        0 0 0 4px
+        rgba(124, 92, 255, 0.08);
+    }
+
+    /* =========================================================
+       APP GRID
+    ========================================================= */
+
+    .apps-grid {
+      width: min(1180px, calc(100% - 40px));
+
+      margin: auto;
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 18px;
+
+      padding-bottom: 80px;
+    }
+
+    /* =========================================================
+       APP CARD
+    ========================================================= */
+
+    .app-card {
+      --accent: #7c5cff;
+
+      position: relative;
+
+      min-height: 270px;
+
+      padding: 22px;
+
+      border-radius: 23px;
+
+      overflow: hidden;
+
+      border:
+        1px solid
+        var(--border);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.065),
+          rgba(255, 255, 255, 0.018)
+        ),
+        var(--card);
+
+      box-shadow:
+        var(--shadow),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.035);
+
+      backdrop-filter: blur(18px);
+
+      transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+
+      animation:
+        cardAppear
+        0.55s
+        ease
+        both;
+    }
+
+    .app-card::before {
+      content: "";
+
+      position: absolute;
+
+      width: 160px;
+      height: 160px;
+
+      right: -85px;
+      top: -85px;
+
+      border-radius: 50%;
+
+      background:
+        var(--accent);
+
+      opacity: 0.11;
+
+      filter: blur(25px);
+
+      transition: 0.35s ease;
+
+      pointer-events: none;
+    }
+
+    .app-card::after {
+      content: "";
+
+      position: absolute;
+
+      left: 0;
+      right: 0;
+
+      bottom: 0;
+
+      height: 1px;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          transparent
+        );
+
+      opacity: 0.15;
+    }
+
+    .app-card:hover {
+      transform:
+        translateY(-8px);
+
+      border-color:
+        rgba(255, 255, 255, 0.17);
+
+      box-shadow:
+        0 28px 65px
+        rgba(0, 0, 0, 0.44),
+        0 0 40px
+        color-mix(
+          in srgb,
+          var(--accent) 11%,
+          transparent
+        );
+    }
+
+    .app-card:hover::before {
+      width: 230px;
+      height: 230px;
+
+      opacity: 0.19;
+    }
+
+    /* =========================================================
+       CARD TOP
+    ========================================================= */
+
+    .card-top {
+      display: flex;
+
+      align-items: flex-start;
+
+      justify-content: space-between;
+
+      gap: 15px;
+    }
+
+    .app-icon {
+      width: 60px;
+      height: 60px;
+
+      border-radius: 17px;
+
+      display: grid;
+
+      place-items: center;
+
+      font-size: 27px;
+
+      background:
+        linear-gradient(
+          145deg,
+          color-mix(
+            in srgb,
+            var(--accent) 20%,
+            transparent
+          ),
+          rgba(255, 255, 255, 0.035)
+        );
+
+      border:
+        1px solid
+        color-mix(
+          in srgb,
+          var(--accent) 30%,
+          rgba(255, 255, 255, 0.08)
+        );
+
+      box-shadow:
+        0 10px 25px
+        color-mix(
+          in srgb,
+          var(--accent) 12%,
+          transparent
+        ),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.08);
+    }
+
+    .app-number {
+      font-size: 10px;
+
+      font-weight: 700;
+
+      letter-spacing: 1px;
+
+      color: var(--muted-2);
+    }
+
+    /* =========================================================
+       CARD CONTENT
+    ========================================================= */
+
+    .app-card h2 {
+      margin-top: 21px;
+
+      font-size: 20px;
+
+      line-height: 1.2;
+
+      letter-spacing: -0.5px;
+    }
+
+    .app-card p {
+      margin-top: 8px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+
+      line-height: 1.65;
+
+      min-height: 42px;
+    }
+
+    /* =========================================================
+       TAGS
+    ========================================================= */
+
+    .tags {
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 7px;
+
+      margin-top: 15px;
+    }
+
+    .tag {
+      padding:
+        5px
+        8px;
+
+      border-radius: 7px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.055);
+
+      background:
+        rgba(255, 255, 255, 0.04);
+
+      color:
+        #aeb5c7;
+
+      font-size: 9px;
+    }
+
+    /* =========================================================
+       LAUNCH BUTTON
+    ========================================================= */
+
+    .launch-button {
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 7px;
+
+      margin-top: 19px;
+
+      padding:
+        9px
+        13px;
+
+      border-radius: 10px;
+
+      text-decoration: none;
+
+      color: white;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      background:
+        linear-gradient(
+          135deg,
+          color-mix(
+            in srgb,
+            var(--accent) 78%,
+            white 5%
+          ),
+          color-mix(
+            in srgb,
+            var(--accent) 52%,
+            black 15%
+          )
+        );
+
+      box-shadow:
+        0 8px 20px
+        color-mix(
+          in srgb,
+          var(--accent) 18%,
+          transparent
+        );
+
+      transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
+    }
+
+    .launch-button:hover {
+      transform:
+        translateX(3px);
+
+      filter:
+        brightness(1.12);
+    }
+
+    /* =========================================================
+       EMPTY SEARCH
+    ========================================================= */
+
+    .empty-state {
+      display: none;
+
+      width: min(1180px, calc(100% - 40px));
+
+      margin:
+        0
+        auto
+        80px;
+
+      padding: 60px 20px;
+
+      text-align: center;
+
+      border-radius: 20px;
+
+      border:
+        1px dashed
+        rgba(255, 255, 255, 0.12);
+
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 32px;
+
+      margin-bottom: 12px;
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+
+    footer {
+      width: min(1180px, calc(100% - 40px));
+
+      margin: auto;
+
+      padding:
+        25px
+        0
+        35px;
+
+      border-top:
+        1px solid
+        rgba(255, 255, 255, 0.06);
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 15px;
+
+      color:
+        #646d82;
+
+      font-size: 10px;
+    }
+
+    footer span:last-child {
+      color:
+        #7b8498;
+    }
+
+    /* =========================================================
+       ANIMATION
+    ========================================================= */
+
+    @keyframes cardAppear {
+      from {
+        opacity: 0;
+
+        transform:
+          translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+
+        transform:
+          translateY(0);
+      }
+    }
+
+    /* =========================================================
+       TABLET
+    ========================================================= */
+
+    @media (max-width: 900px) {
+
+      .apps-grid {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+    }
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @media (max-width: 620px) {
+
+      header,
+      .hero,
+      .controls,
+      .apps-grid,
+      .empty-state,
+      footer {
+        width:
+          calc(100% - 28px);
+      }
+
+      header {
+        padding-top: 20px;
+      }
+
+      .github-button {
+        display: none;
+      }
+
+      .hero {
+        margin:
+          48px
+          auto
+          42px;
+      }
+
+      .hero h1 {
+        font-size: 47px;
+
+        letter-spacing:
+          -2.5px;
+      }
+
+      .hero-description {
+        font-size: 12px;
+      }
+
+      .controls {
+        flex-direction: column;
+
+        align-items: stretch;
+      }
+
+      .search-box {
+        width: 100%;
+      }
+
+      .apps-grid {
+        grid-template-columns: 1fr;
+
+        gap: 14px;
+      }
+
+      .app-card {
+        min-height: 255px;
+      }
+
+      footer {
+        flex-direction: column;
+
+        align-items: flex-start;
+      }
+
+    }
+
+    /* =========================================================
+       REDUCED MOTION
+    ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+
+        transition: none !important;
+
+        scroll-behavior: auto !important;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+
+  <!-- =======================================================
+       HEADER
+  ======================================================== -->
+
+  <header>
+
+    <div class="topbar">
+
+      <div class="brand">
+
+        <div class="brand-logo">
+          K
+        </div>
+
+        <div>
+          <div class="brand-name">
+            Karthikeyan
+          </div>
+
+          <div class="brand-subtitle">
+            Apps & Experiments
+          </div>
+        </div>
+
+      </div>
+
+
+      <a
+        class="github-button"
+        href="https://github.com/karthi02052015"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub ↗
+      </a>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- =======================================================
+       HERO
+  ======================================================== -->
+
+  <section class="hero">
+
+    <div class="eyebrow">
+
+      <span class="status-dot"></span>
+
+      Personal App Collection
+
+    </div>
+
+
+    <h1>
+      Things I Built.
+    </h1>
+
+
+    <p class="hero-description">
+      A collection of apps, tools and experiments built with
+      curiosity, creativity and code. Explore the projects below
+      and launch them directly.
+    </p>
+
+  </section>
+
+
+
+  <!-- =======================================================
+       SEARCH / COUNT
+  ======================================================== -->
+
+  <section class="controls">
+
+    <div class="app-count">
+
+      <strong id="appCount">
+        12
+      </strong>
+
+      apps available
+
+    </div>
+
+
+    <div class="search-box">
+
+      <span class="search-icon">
+        ⌕
+      </span>
+
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search apps..."
+        autocomplete="off"
+        aria-label="Search apps"
+      />
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =======================================================
+       APP GRID
+  ======================================================== -->
+
+  <main
+    class="apps-grid"
+    id="appsGrid"
+  >
+
+
+    <!-- =====================================================
+         01 — CALCULUX
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="calculux calculator mathematics utility"
+      style="--accent:#7c5cff;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          🧮
+        </div>
+
+        <div class="app-number">
+          01
+        </div>
+
+      </div>
+
+
+      <h2>
+        Calculux
+      </h2>
+
+
+      <p>
+        A modern calculator designed for quick,
+        clean and powerful mathematical calculations.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Calculator
+        </span>
+
+        <span class="tag">
+          Utility
+        </span>
+
+        <span class="tag">
+          Math
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/calculux/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         02 — NETBOUND
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="netbound network networking ip subnet developer"
+      style="--accent:#28d9ff;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          🌐
+        </div>
+
+        <div class="app-number">
+          02
+        </div>
+
+      </div>
+
+
+      <h2>
+        NetBound
+      </h2>
+
+
+      <p>
+        Networking utilities for working with IP addresses,
+        subnets and network information.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Networking
+        </span>
+
+        <span class="tag">
+          IP
+        </span>
+
+        <span class="tag">
+          Developer
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/netbound/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         03 — PIXELQUEST2D
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="pixelquest2d pixel quest 2d game"
+      style="--accent:#ffad42;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          🎮
+        </div>
+
+        <div class="app-number">
+          03
+        </div>
+
+      </div>
+
+
+      <h2>
+        PixelQuest2D
+      </h2>
+
+
+      <p>
+        A 2D pixel-style game experiment built
+        for interactive gameplay and exploration.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Game
+        </span>
+
+        <span class="tag">
+          2D
+        </span>
+
+        <span class="tag">
+          Pixel
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/pixelquest2d/"
+      >
+        Play Game →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         04 — PAYLOADR
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="payloadr payload json api developer"
+      style="--accent:#ff5fa2;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          📦
+        </div>
+
+        <div class="app-number">
+          04
+        </div>
+
+      </div>
+
+
+      <h2>
+        Payloadr
+      </h2>
+
+
+      <p>
+        A developer-focused tool for working with
+        API payloads and structured data.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          API
+        </span>
+
+        <span class="tag">
+          JSON
+        </span>
+
+        <span class="tag">
+          Developer
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/payloadr/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         05 — DROPZONE AI
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="dropzone ai dropzoneai artificial intelligence ai"
+      style="--accent:#9b72ff;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          🤖
+        </div>
+
+        <div class="app-number">
+          05
+        </div>
+
+      </div>
+
+
+      <h2>
+        DropZoneAI
+      </h2>
+
+
+      <p>
+        An AI-powered experiment focused on
+        intelligent interaction and automation.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          AI
+        </span>
+
+        <span class="tag">
+          Experiment
+        </span>
+
+        <span class="tag">
+          Smart Tool
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/dropzoneai/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         06 — VOLTLAB
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="voltlab electricity electrical electronics"
+      style="--accent:#f5d35c;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          ⚡
+        </div>
+
+        <div class="app-number">
+          06
+        </div>
+
+      </div>
+
+
+      <h2>
+        VoltLab
+      </h2>
+
+
+      <p>
+        An interactive electrical and electronics
+        experiment for exploring voltage and circuits.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Electronics
+        </span>
+
+        <span class="tag">
+          Science
+        </span>
+
+        <span class="tag">
+          Lab
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/voltlab/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         07 — STATELIVE
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="statelive state live statistics dashboard"
+      style="--accent:#35e39a;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          📊
+        </div>
+
+        <div class="app-number">
+          07
+        </div>
+
+      </div>
+
+
+      <h2>
+        StateLive
+      </h2>
+
+
+      <p>
+        A live statistics and data visualization
+        application for monitoring information.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Dashboard
+        </span>
+
+        <span class="tag">
+          Data
+        </span>
+
+        <span class="tag">
+          Statistics
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/statelive/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         08 — LOGPEEK
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="logpeek log logs viewer developer"
+      style="--accent:#ff7859;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          ⌁
+        </div>
+
+        <div class="app-number">
+          08
+        </div>
+
+      </div>
+
+
+      <h2>
+        LogPeek
+      </h2>
+
+
+      <p>
+        Quickly inspect and explore application logs
+        through a lightweight developer utility.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Developer
+        </span>
+
+        <span class="tag">
+          Logs
+        </span>
+
+        <span class="tag">
+          Utility
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/logpeek/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         09 — TASKFLOW
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="taskflow task tasks todo productivity planner"
+      style="--accent:#35e39a;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          ✓
+        </div>
+
+        <div class="app-number">
+          09
+        </div>
+
+      </div>
+
+
+      <h2>
+        TaskFlow
+      </h2>
+
+
+      <p>
+        Organize tasks, manage priorities and keep
+        your daily work moving with a simple workflow.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Productivity
+        </span>
+
+        <span class="tag">
+          Tasks
+        </span>
+
+        <span class="tag">
+          Planner
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/taskflow/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         10 — MONEYFLOW
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="moneyflow money finance expense income budget tracker"
+      style="--accent:#ffad42;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          ₹
+        </div>
+
+        <div class="app-number">
+          10
+        </div>
+
+      </div>
+
+
+      <h2>
+        MoneyFlow
+      </h2>
+
+
+      <p>
+        Track income, expenses, spending and savings
+        in one simple personal finance application.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Finance
+        </span>
+
+        <span class="tag">
+          Money
+        </span>
+
+        <span class="tag">
+          Tracker
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/moneyflow/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         11 — EYEAURA SCANNER
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="eyeaura eye aura scanner eye scanner vision"
+      style="--accent:#48c7ff;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          👁
+        </div>
+
+        <div class="app-number">
+          11
+        </div>
+
+      </div>
+
+
+      <h2>
+        EyeAuraScanner
+      </h2>
+
+
+      <p>
+        A visual scanning experiment designed around
+        interactive eye and image analysis concepts.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Scanner
+        </span>
+
+        <span class="tag">
+          Vision
+        </span>
+
+        <span class="tag">
+          Experiment
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/eyaurascanner/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+
+    <!-- =====================================================
+         12 — FINITEFLOW
+    ====================================================== -->
+
+    <article
+      class="app-card"
+      data-name="finiteflow finite flow workflow"
+      style="--accent:#b36bff;"
+    >
+
+      <div class="card-top">
+
+        <div class="app-icon">
+          ∞
+        </div>
+
+        <div class="app-number">
+          12
+        </div>
+
+      </div>
+
+
+      <h2>
+        FiniteFlow
+      </h2>
+
+
+      <p>
+        A workflow-focused application experiment
+        built around organized processes and flow.
+      </p>
+
+
+      <div class="tags">
+
+        <span class="tag">
+          Workflow
+        </span>
+
+        <span class="tag">
+          Productivity
+        </span>
+
+        <span class="tag">
+          Tool
+        </span>
+
+      </div>
+
+
+      <a
+        class="launch-button"
+        href="./apps/finiteflow/"
+      >
+        Open App →
+      </a>
+
+    </article>
+
+
+  </main>
+
+
+
+  <!-- =======================================================
+       EMPTY SEARCH RESULT
+  ======================================================== -->
+
+  <section
+    class="empty-state"
+    id="emptyState"
+  >
+
+    <div class="empty-icon">
+      🔎
+    </div>
+
+    <div>
+      No apps found.
+    </div>
+
+    <small>
+      Try searching for another app.
+    </small>
+
+  </section>
+
+
+
+  <!-- =======================================================
+       FOOTER
+  ======================================================== -->
+
+  <footer>
+
+    <span>
+      ©
+      <span id="year"></span>
+      Karthikeyan
+    </span>
+
+    <span>
+      12 apps · Built with HTML, CSS & JavaScript
+    </span>
+
+  </footer>
+
+
+
+  <!-- =======================================================
+       JAVASCRIPT
+  ======================================================== -->
+
+  <script>
+
+    /* -------------------------------------------------------
+       ELEMENTS
+    ------------------------------------------------------- */
+
+    const searchInput =
+      document.getElementById(
+        "searchInput"
+      );
+
+    const appCards =
+      Array.from(
+        document.querySelectorAll(
+          ".app-card"
+        )
+      );
+
+    const appCount =
+      document.getElementById(
+        "appCount"
+      );
+
+    const emptyState =
+      document.getElementById(
+        "emptyState"
+      );
+
+    const year =
+      document.getElementById(
+        "year"
+      );
+
+
+    /* -------------------------------------------------------
+       YEAR
+    ------------------------------------------------------- */
+
+    year.textContent =
+      new Date().getFullYear();
+
+
+    /* -------------------------------------------------------
+       INITIAL APP COUNT
+    ------------------------------------------------------- */
+
+    appCount.textContent =
+      appCards.length;
+
+
+    /* -------------------------------------------------------
+       CARD ANIMATION DELAY
+    ------------------------------------------------------- */
+
+    appCards.forEach(
+      (card, index) => {
+
+        card.style.animationDelay =
+          `${index * 0.045}s`;
+
+      }
+    );
+
+
+    /* -------------------------------------------------------
+       SEARCH
+    ------------------------------------------------------- */
+
+    searchInput.addEventListener(
+      "input",
+      () => {
+
+        const query =
+          searchInput.value
+            .trim()
+            .toLowerCase();
+
+        let visibleCount = 0;
+
+
+        appCards.forEach(
+          card => {
+
+            const searchableText =
+              (
+                card.dataset.name +
+                " " +
+                card.textContent
+              )
+                .toLowerCase();
+
+
+            const matches =
+              query === "" ||
+              searchableText.includes(
+                query
+              );
+
+
+            if (matches) {
+
+              card.style.display =
+                "";
+
+              visibleCount++;
+
+            } else {
+
+              card.style.display =
+                "none";
+
+            }
+
+          }
+        );
+
+
+        appCount.textContent =
+          visibleCount;
+
+
+        if (
+          visibleCount === 0
+        ) {
+
+          emptyState.style.display =
+            "block";
+
+        } else {
+
+          emptyState.style.display =
+            "none";
+
+        }
+
+      }
+    );
+
+
+    /* -------------------------------------------------------
+       ESCAPE KEY — CLEAR SEARCH
+    ------------------------------------------------------- */
+
+    searchInput.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key === "Escape"
+        ) {
+
+          searchInput.value = "";
+
+          searchInput.dispatchEvent(
+            new Event("input")
+          );
+
+          searchInput.blur();
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
+```
