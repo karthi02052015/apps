@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Design tokens.
+ *
+ * Light and dark are two value sets for the same names, so no component needs
+ * a `dark:` variant for colour. Values are space-separated RGB channels so
+ * Tailwind's `/<alpha-value>` syntax works (`bg-surface/60`).
+ */
+@layer base {
+  :root {
+    --canvas: 248 250 252;
+    --surface: 255 255 255;
+    --surface-2: 248 250 252;
+    --surface-3: 241 245 249;
+    --line: 226 232 240;
+
+    --ink: 15 23 42;
+    --ink-2: 71 85 105;
+    --ink-3: 148 163 184;
+
+    --brand: 79 70 229;
+    --brand-soft: 238 242 255;
+    --brand-ink: 67 56 202;
+
+    --positive: 5 150 105;
+    --positive-soft: 236 253 245;
+
+    --negative: 220 38 38;
+    --negative-soft: 254 242 242;
+
+    --caution: 217 119 6;
+    --caution-soft: 255 251 235;
+
+    --neutralised: 71 85 105;
+    --neutralised-soft: 241 245 249;
+
+    color-scheme: light;
+  }
+
+  .dark {
+    --canvas: 2 6 23;
+    --surface: 15 23 42;
+    --surface-2: 20 30 54;
+    --surface-3: 30 41 59;
+    --line: 41 53 74;
+
+    --ink: 241 245 249;
+    --ink-2: 165 180 203;
+    --ink-3: 113 130 156;
+
+    --brand: 129 140 248;
+    --brand-soft: 30 32 74;
+    --brand-ink: 165 180 252;
+
+    --positive: 52 211 153;
+    --positive-soft: 6 44 37;
+
+    --negative: 248 113 113;
+    --negative-soft: 60 18 21;
+
+    --caution: 251 191 36;
+    --caution-soft: 56 38 7;
+
+    --neutralised: 165 180 203;
+    --neutralised-soft: 30 41 59;
+
+    color-scheme: dark;
+  }
+
+  * {
+    border-color: rgb(var(--line));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    /* Respect the iOS home indicator and notch. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* A single, consistent, always-visible focus ring. Never removed. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-canvas;
+  }
+
+  /* Money and other figures line up in columns. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  ::selection {
+    @apply bg-brand/20;
+  }
+
+  /* Scrollbars that do not shout. */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-ink-3/30;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-ink-3/50; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-surface shadow-card;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-surface-3;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background-image: linear-gradient(
+      90deg,
+      rgb(var(--surface-3) / 0) 0,
+      rgb(var(--ink-3) / 0.09) 50%,
+      rgb(var(--surface-3) / 0) 100%
+    );
+    animation: shimmer 1.6s infinite;
+  }
+
+  /* Hides content visually while keeping it available to screen readers. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
