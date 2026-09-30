@@ -9,37 +9,31 @@
 
   <meta
     name="description"
-    content="Explore apps, tools, experiments and projects built by Karthikeyan."
+    content="A collection of apps, experiments, utilities and creative projects built by Karthikeyan."
   />
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --bg: #07080d;
+      --bg-soft: #0c0e16;
+      --card: rgba(18, 21, 32, 0.72);
+      --card-hover: rgba(24, 28, 43, 0.9);
+
+      --text: #f5f7ff;
+      --muted: #9299ad;
+      --muted-2: #666d82;
+
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
+
+      --radius: 24px;
+      --max-width: 1320px;
     }
 
-    :root {
-      --bg: #060812;
-      --bg-2: #0b0f1d;
-
-      --text: #ffffff;
-      --muted: #9aa3b8;
-      --muted-2: #697287;
-
-      --border: rgba(255, 255, 255, 0.09);
-      --border-hover: rgba(255, 255, 255, 0.18);
-
-      --purple: #7c5cff;
-      --cyan: #28d9ff;
-      --green: #35e39a;
-      --orange: #ffad42;
-      --pink: #ff5fa2;
-
-      --card: rgba(16, 21, 39, 0.72);
-
-      --shadow:
-        0 20px 55px rgba(0, 0, 0, 0.38);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     html {
@@ -48,7 +42,6 @@
 
     body {
       min-height: 100vh;
-
       font-family:
         Inter,
         ui-sans-serif,
@@ -59,441 +52,382 @@
         sans-serif;
 
       color: var(--text);
-
       background:
         radial-gradient(
-          circle at 10% 5%,
-          rgba(124, 92, 255, 0.16),
+          circle at 15% 10%,
+          rgba(124, 92, 255, 0.13),
           transparent 28%
         ),
         radial-gradient(
-          circle at 90% 15%,
-          rgba(40, 217, 255, 0.10),
-          transparent 28%
+          circle at 85% 20%,
+          rgba(40, 217, 255, 0.08),
+          transparent 26%
         ),
         radial-gradient(
-          circle at 50% 100%,
-          rgba(255, 95, 162, 0.06),
+          circle at 50% 90%,
+          rgba(255, 95, 162, 0.07),
           transparent 30%
         ),
-        linear-gradient(
-          180deg,
-          var(--bg),
-          var(--bg-2)
-        );
+        var(--bg);
 
       overflow-x: hidden;
     }
 
-    /* Background glow */
-
     body::before {
       content: "";
-
       position: fixed;
-
-      width: 480px;
-      height: 480px;
-
-      top: -230px;
-      left: -180px;
-
-      border-radius: 50%;
-
-      background: rgba(124, 92, 255, 0.08);
-
-      filter: blur(100px);
-
+      inset: 0;
       pointer-events: none;
-
       z-index: -1;
+
+      background-image:
+        linear-gradient(
+          rgba(255, 255, 255, 0.018) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.018) 1px,
+          transparent 1px
+        );
+
+      background-size: 60px 60px;
+
+      mask-image: linear-gradient(
+        to bottom,
+        black,
+        transparent 85%
+      );
     }
 
-    body::after {
-      content: "";
-
-      position: fixed;
-
-      width: 450px;
-      height: 450px;
-
-      right: -180px;
-      bottom: -220px;
-
-      border-radius: 50%;
-
-      background: rgba(40, 217, 255, 0.055);
-
-      filter: blur(110px);
-
-      pointer-events: none;
-
-      z-index: -1;
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
-    /* Header */
+    button,
+    input {
+      font: inherit;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
 
     header {
-      width: min(1180px, calc(100% - 40px));
+      width: min(var(--max-width), calc(100% - 48px));
+      margin: 0 auto;
 
-      margin: auto;
+      padding: 28px 0;
 
-      padding:
-        30px
-        0
-        20px;
-    }
-
-    .topbar {
       display: flex;
-
       align-items: center;
-
       justify-content: space-between;
 
-      gap: 20px;
+      border-bottom: 1px solid var(--border);
     }
 
     .brand {
       display: flex;
-
       align-items: center;
-
-      gap: 13px;
+      gap: 12px;
     }
 
-    .brand-logo {
-      width: 48px;
-      height: 48px;
-
-      border-radius: 15px;
+    .brand-mark {
+      width: 42px;
+      height: 42px;
 
       display: grid;
-
       place-items: center;
 
-      font-size: 21px;
-
-      font-weight: 800;
+      border-radius: 13px;
 
       background:
         linear-gradient(
           135deg,
           #7c5cff,
-          #29d9ff
+          #a16bff
         );
 
       box-shadow:
-        0 10px 30px rgba(124, 92, 255, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        0 10px 30px rgba(124, 92, 255, 0.25);
+
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .brand-name {
-      font-size: 17px;
-
-      font-weight: 700;
-
-      line-height: 1.2;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
 
     .brand-subtitle {
-      margin-top: 3px;
-
-      font-size: 12px;
-
       color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .github-button {
-      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
 
-      color: white;
-
-      padding:
-        10px
-        15px;
-
-      border-radius: 12px;
+      padding: 10px 15px;
 
       border: 1px solid var(--border);
+      border-radius: 12px;
 
-      background:
-        rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.035);
 
-      font-size: 12px;
+      color: #e8ebf5;
 
-      transition: 0.25s ease;
+      font-size: 13px;
+      font-weight: 700;
 
-      backdrop-filter: blur(12px);
+      transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
     }
 
     .github-button:hover {
       transform: translateY(-2px);
-
-      background:
-        rgba(255, 255, 255, 0.08);
-
-      border-color:
-        var(--border-hover);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--border-hover);
     }
 
-    /* Hero */
+    .github-icon {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
 
     .hero {
-      width: min(1180px, calc(100% - 40px));
+      width: min(var(--max-width), calc(100% - 48px));
+      margin: 0 auto;
 
-      margin:
-        72px
-        auto
-        58px;
+      padding: 100px 0 65px;
 
       text-align: center;
     }
 
     .eyebrow {
       display: inline-flex;
-
       align-items: center;
-
       gap: 8px;
 
-      padding:
-        7px
-        12px;
+      padding: 8px 13px;
 
+      border: 1px solid rgba(124, 92, 255, 0.2);
       border-radius: 999px;
 
-      border:
-        1px solid
-        rgba(124, 92, 255, 0.25);
+      background: rgba(124, 92, 255, 0.07);
 
-      background:
-        rgba(124, 92, 255, 0.08);
-
-      color: #c9c2ff;
+      color: #b9abff;
 
       font-size: 11px;
+      font-weight: 800;
 
-      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
 
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
 
       border-radius: 50%;
 
-      background: var(--green);
+      background: #9c87ff;
 
       box-shadow:
-        0 0 12px
-        rgba(53, 227, 154, 0.8);
+        0 0 12px #9c87ff;
     }
 
     .hero h1 {
-      font-size:
-        clamp(
-          45px,
-          7vw,
-          78px
-        );
+      max-width: 900px;
+      margin: 0 auto;
 
-      line-height: 0.98;
+      font-size: clamp(52px, 8vw, 100px);
 
-      letter-spacing: -4px;
+      line-height: 0.95;
+      letter-spacing: -0.07em;
 
-      font-weight: 850;
+      font-weight: 900;
 
       background:
         linear-gradient(
-          110deg,
-          #ffffff 10%,
-          #d9d2ff 45%,
-          #7deaff 90%
+          135deg,
+          #ffffff 0%,
+          #e5e8ff 42%,
+          #9c87ff 100%
         );
 
       -webkit-background-clip: text;
-
       background-clip: text;
 
       color: transparent;
     }
 
-    .hero-description {
-      max-width: 650px;
+    .hero p {
+      max-width: 680px;
 
-      margin:
-        22px
-        auto
-        0;
+      margin: 28px auto 0;
 
       color: var(--muted);
 
-      font-size: 14px;
-
-      line-height: 1.75;
+      font-size: 16px;
+      line-height: 1.8;
     }
 
-    /* Controls */
+    /* =========================
+       CONTROLS
+    ========================= */
 
     .controls {
-      width: min(1180px, calc(100% - 40px));
-
-      margin:
-        0
-        auto
-        26px;
+      width: min(var(--max-width), calc(100% - 48px));
+      margin: 0 auto 35px;
 
       display: flex;
-
       align-items: center;
-
       justify-content: space-between;
-
       gap: 20px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      max-width: 430px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 17px;
+      top: 50%;
+
+      width: 17px;
+      height: 17px;
+
+      transform: translateY(-50%);
+
+      color: var(--muted-2);
+
+      pointer-events: none;
+    }
+
+    .search {
+      width: 100%;
+
+      padding: 14px 18px 14px 46px;
+
+      border: 1px solid var(--border);
+      border-radius: 15px;
+
+      outline: none;
+
+      color: var(--text);
+
+      background: rgba(255, 255, 255, 0.035);
+
+      transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .search::placeholder {
+      color: var(--muted-2);
+    }
+
+    .search:focus {
+      border-color: rgba(124, 92, 255, 0.45);
+
+      background: rgba(255, 255, 255, 0.05);
+
+      box-shadow:
+        0 0 0 4px rgba(124, 92, 255, 0.08);
     }
 
     .app-count {
       color: var(--muted);
 
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 600;
+
+      white-space: nowrap;
     }
 
     .app-count strong {
-      color: white;
-
-      font-size: 13px;
+      color: #e9ebf5;
     }
 
-    .search-box {
-      width: 320px;
-
-      position: relative;
-    }
-
-    .search-icon {
-      position: absolute;
-
-      left: 14px;
-      top: 50%;
-
-      transform:
-        translateY(-50%);
-
-      color: #737c91;
-
-      font-size: 17px;
-
-      pointer-events: none;
-    }
-
-    .search-box input {
-      width: 100%;
-
-      height: 43px;
-
-      padding:
-        0
-        14px
-        0
-        40px;
-
-      border-radius: 13px;
-
-      border:
-        1px solid
-        var(--border);
-
-      outline: none;
-
-      color: white;
-
-      background:
-        rgba(255, 255, 255, 0.045);
-
-      font-size: 12px;
-
-      backdrop-filter: blur(12px);
-
-      transition: 0.25s ease;
-    }
-
-    .search-box input::placeholder {
-      color: #70788b;
-    }
-
-    .search-box input:focus {
-      border-color:
-        rgba(124, 92, 255, 0.55);
-
-      box-shadow:
-        0 0 0 4px
-        rgba(124, 92, 255, 0.08);
-    }
-
-    /* App grid */
+    /* =========================
+       APP GRID
+    ========================= */
 
     .apps-grid {
-      width: min(1180px, calc(100% - 40px));
-
-      margin: auto;
+      width: min(var(--max-width), calc(100% - 48px));
+      margin: 0 auto;
 
       display: grid;
 
       grid-template-columns:
-        repeat(3, 1fr);
+        repeat(3, minmax(0, 1fr));
 
-      gap: 18px;
-
-      padding-bottom: 80px;
+      gap: 20px;
     }
 
-    /* App card */
+    /* =========================
+       APP CARD
+    ========================= */
 
     .app-card {
       --accent: #7c5cff;
 
       position: relative;
 
-      min-height: 270px;
+      min-height: 335px;
 
-      padding: 22px;
+      padding: 25px;
 
-      border-radius: 23px;
+      display: flex;
+      flex-direction: column;
 
-      overflow: hidden;
-
-      border:
-        1px solid
-        var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
 
       background:
         linear-gradient(
           145deg,
-          rgba(255, 255, 255, 0.065),
-          rgba(255, 255, 255, 0.018)
+          rgba(255, 255, 255, 0.045),
+          rgba(255, 255, 255, 0.015)
         ),
         var(--card);
 
-      box-shadow:
-        var(--shadow),
-        inset 0 1px 0
-        rgba(255, 255, 255, 0.035);
-
       backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      overflow: hidden;
 
       transition:
-        transform 0.3s ease,
-        border-color 0.3s ease,
-        box-shadow 0.3s ease;
-
-      animation:
-        cardAppear
-        0.55s
-        ease
-        both;
+        transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-color 0.35s ease,
+        background 0.35s ease,
+        box-shadow 0.35s ease;
     }
 
     .app-card::before {
@@ -501,24 +435,23 @@
 
       position: absolute;
 
-      width: 160px;
-      height: 160px;
+      width: 220px;
+      height: 220px;
 
-      right: -85px;
-      top: -85px;
+      top: -120px;
+      right: -100px;
 
       border-radius: 50%;
 
-      background:
-        var(--accent);
+      background: var(--accent);
 
-      opacity: 0.11;
+      opacity: 0.1;
 
-      filter: blur(25px);
+      filter: blur(55px);
 
-      transition: 0.35s ease;
-
-      pointer-events: none;
+      transition:
+        opacity 0.35s ease,
+        transform 0.35s ease;
     }
 
     .app-card::after {
@@ -528,10 +461,9 @@
 
       left: 0;
       right: 0;
-
       bottom: 0;
 
-      height: 1px;
+      height: 2px;
 
       background:
         linear-gradient(
@@ -541,511 +473,514 @@
           transparent
         );
 
-      opacity: 0.15;
+      opacity: 0;
+
+      transition: opacity 0.35s ease;
     }
 
     .app-card:hover {
-      transform:
-        translateY(-8px);
+      transform: translateY(-7px);
 
       border-color:
-        rgba(255, 255, 255, 0.17);
-
-      box-shadow:
-        0 28px 65px
-        rgba(0, 0, 0, 0.44),
-        0 0 40px
         color-mix(
           in srgb,
-          var(--accent) 11%,
+          var(--accent) 35%,
           transparent
         );
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.07),
+          rgba(255, 255, 255, 0.02)
+        ),
+        var(--card-hover);
+
+      box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.32),
+        0 0 45px
+          color-mix(
+            in srgb,
+            var(--accent) 10%,
+            transparent
+          );
     }
 
     .app-card:hover::before {
-      width: 230px;
-      height: 230px;
-
-      opacity: 0.19;
+      opacity: 0.17;
+      transform: scale(1.2);
     }
 
-    /* Card top */
+    .app-card:hover::after {
+      opacity: 0.75;
+    }
+
+    /* =========================
+       CARD TOP
+    ========================= */
 
     .card-top {
       display: flex;
-
       align-items: flex-start;
-
       justify-content: space-between;
 
       gap: 15px;
     }
 
+    .app-number {
+      color: var(--muted-2);
+
+      font-size: 11px;
+      font-weight: 800;
+
+      letter-spacing: 0.1em;
+    }
+
     .app-icon {
-      width: 60px;
-      height: 60px;
+      width: 58px;
+      height: 58px;
+
+      display: grid;
+      place-items: center;
 
       border-radius: 17px;
 
-      display: grid;
-
-      place-items: center;
-
-      font-size: 27px;
-
-      background:
-        linear-gradient(
-          145deg,
-          color-mix(
-            in srgb,
-            var(--accent) 20%,
-            transparent
-          ),
-          rgba(255, 255, 255, 0.035)
-        );
-
-      border:
-        1px solid
+      border: 1px solid
         color-mix(
           in srgb,
-          var(--accent) 30%,
-          rgba(255, 255, 255, 0.08)
+          var(--accent) 22%,
+          transparent
+        );
+
+      background:
+        color-mix(
+          in srgb,
+          var(--accent) 9%,
+          transparent
         );
 
       box-shadow:
-        0 10px 25px
-        color-mix(
-          in srgb,
-          var(--accent) 12%,
-          transparent
-        ),
         inset 0 1px 0
-        rgba(255, 255, 255, 0.08);
+          rgba(255, 255, 255, 0.06);
+
+      font-size: 25px;
+
+      transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease;
     }
 
-    .app-number {
-      font-size: 10px;
+    .app-card:hover .app-icon {
+      transform: scale(1.08) rotate(-3deg);
 
-      font-weight: 700;
-
-      letter-spacing: 1px;
-
-      color: var(--muted-2);
+      box-shadow:
+        0 10px 30px
+          color-mix(
+            in srgb,
+            var(--accent) 15%,
+            transparent
+          );
     }
 
-    /* Card content */
+    .app-title {
+      margin-top: 25px;
 
-    .app-card h2 {
-      margin-top: 21px;
+      font-size: 23px;
+      line-height: 1.15;
 
-      font-size: 20px;
+      letter-spacing: -0.04em;
 
-      line-height: 1.2;
-
-      letter-spacing: -0.5px;
+      font-weight: 850;
     }
 
-    .app-card p {
-      margin-top: 8px;
+    .app-description {
+      margin-top: 12px;
 
       color: var(--muted);
 
-      font-size: 12px;
+      font-size: 13px;
+      line-height: 1.7;
 
-      line-height: 1.65;
-
-      min-height: 42px;
+      max-width: 390px;
     }
 
-    /* Tags */
+    /* =========================
+       TAGS
+    ========================= */
 
     .tags {
       display: flex;
-
       flex-wrap: wrap;
 
       gap: 7px;
 
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
     .tag {
-      padding:
-        5px
-        8px;
+      padding: 6px 9px;
 
-      border-radius: 7px;
+      border-radius: 999px;
 
-      border:
-        1px solid
-        rgba(255, 255, 255, 0.055);
+      background: rgba(255, 255, 255, 0.04);
 
-      background:
-        rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.055);
 
-      color:
-        #aeb5c7;
+      color: #9da4b8;
 
-      font-size: 9px;
+      font-size: 10px;
+      font-weight: 700;
+
+      letter-spacing: 0.02em;
     }
 
-    /* Launch */
+    /* =========================
+       LAUNCH BUTTON
+    ========================= */
 
     .launch-button {
+      margin-top: auto;
+
+      padding-top: 24px;
+
       display: inline-flex;
-
       align-items: center;
+      justify-content: space-between;
 
-      gap: 7px;
+      color: #f1f2fa;
 
-      margin-top: 19px;
+      font-size: 13px;
+      font-weight: 800;
 
-      padding:
-        9px
-        13px;
+      transition:
+        color 0.25s ease,
+        gap 0.25s ease;
+    }
 
-      border-radius: 10px;
+    .launch-button::after {
+      content: "";
 
-      text-decoration: none;
+      width: 100%;
+      height: 1px;
 
-      color: white;
-
-      font-size: 11px;
-
-      font-weight: 700;
+      position: absolute;
+      left: 0;
+      bottom: 58px;
 
       background:
         linear-gradient(
-          135deg,
-          color-mix(
-            in srgb,
-            var(--accent) 78%,
-            white 5%
-          ),
-          color-mix(
-            in srgb,
-            var(--accent) 52%,
-            black 15%
-          )
-        );
-
-      box-shadow:
-        0 8px 20px
-        color-mix(
-          in srgb,
-          var(--accent) 18%,
+          90deg,
+          rgba(255, 255, 255, 0.07),
           transparent
         );
-
-      transition:
-        transform 0.2s ease,
-        filter 0.2s ease;
     }
 
     .launch-button:hover {
-      transform:
-        translateX(3px);
-
-      filter:
-        brightness(1.12);
+      color: var(--accent);
     }
 
-    /* Empty state */
+    /* =========================
+       EMPTY STATE
+    ========================= */
 
     .empty-state {
       display: none;
 
-      width: min(1180px, calc(100% - 40px));
-
-      margin:
-        0
-        auto
-        80px;
+      width: min(var(--max-width), calc(100% - 48px));
+      margin: 50px auto;
 
       padding: 60px 20px;
 
       text-align: center;
 
-      border-radius: 20px;
-
-      border:
-        1px dashed
-        rgba(255, 255, 255, 0.12);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
 
       color: var(--muted);
     }
 
-    .empty-icon {
-      font-size: 32px;
-
-      margin-bottom: 12px;
+    .empty-state.visible {
+      display: block;
     }
 
-    .empty-state small {
+    .empty-state strong {
       display: block;
 
-      margin-top: 6px;
+      margin-bottom: 8px;
 
-      color: var(--muted-2);
+      color: var(--text);
+
+      font-size: 18px;
     }
 
-    /* Footer */
+    /* =========================
+       FOOTER
+    ========================= */
 
     footer {
-      width: min(1180px, calc(100% - 40px));
+      width: min(var(--max-width), calc(100% - 48px));
+      margin: 80px auto 0;
 
-      margin: auto;
-
-      padding:
-        25px
-        0
-        35px;
-
-      border-top:
-        1px solid
-        rgba(255, 255, 255, 0.06);
+      padding: 30px 0 45px;
 
       display: flex;
-
-      align-items: center;
-
       justify-content: space-between;
+      gap: 20px;
 
-      gap: 15px;
+      border-top: 1px solid var(--border);
 
-      color:
-        #646d82;
+      color: var(--muted-2);
 
-      font-size: 10px;
+      font-size: 11px;
     }
 
     footer span:last-child {
-      color:
-        #7b8498;
+      text-align: right;
     }
 
-    /* Animation */
+    /* =========================
+       ANIMATION
+    ========================= */
 
-    @keyframes cardAppear {
+    .app-card {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: cardIn 0.65s ease forwards;
+    }
 
-      from {
-        opacity: 0;
+    .app-card:nth-child(1) {
+      animation-delay: 0.04s;
+    }
 
-        transform:
-          translateY(18px);
-      }
+    .app-card:nth-child(2) {
+      animation-delay: 0.08s;
+    }
 
+    .app-card:nth-child(3) {
+      animation-delay: 0.12s;
+    }
+
+    .app-card:nth-child(4) {
+      animation-delay: 0.16s;
+    }
+
+    .app-card:nth-child(5) {
+      animation-delay: 0.20s;
+    }
+
+    .app-card:nth-child(6) {
+      animation-delay: 0.24s;
+    }
+
+    .app-card:nth-child(7) {
+      animation-delay: 0.28s;
+    }
+
+    .app-card:nth-child(8) {
+      animation-delay: 0.32s;
+    }
+
+    .app-card:nth-child(9) {
+      animation-delay: 0.36s;
+    }
+
+    .app-card:nth-child(10) {
+      animation-delay: 0.40s;
+    }
+
+    @keyframes cardIn {
       to {
         opacity: 1;
-
-        transform:
-          translateY(0);
+        transform: translateY(0);
       }
-
     }
 
-    /* Tablet */
+    /* =========================
+       TABLET
+    ========================= */
 
-    @media (max-width: 900px) {
-
+    @media (max-width: 1050px) {
       .apps-grid {
         grid-template-columns:
-          repeat(2, 1fr);
+          repeat(2, minmax(0, 1fr));
       }
-
     }
 
-    /* Mobile */
+    /* =========================
+       MOBILE
+    ========================= */
 
-    @media (max-width: 620px) {
-
+    @media (max-width: 680px) {
       header,
       .hero,
       .controls,
       .apps-grid,
       .empty-state,
       footer {
-        width:
-          calc(100% - 28px);
+        width: min(100% - 28px, var(--max-width));
       }
 
       header {
-        padding-top: 20px;
+        padding: 20px 0;
       }
 
-      .github-button {
+      .github-button span {
         display: none;
       }
 
+      .github-button {
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        justify-content: center;
+      }
+
       .hero {
-        margin:
-          48px
-          auto
-          42px;
+        padding: 75px 0 45px;
       }
 
       .hero h1 {
-        font-size: 47px;
-
-        letter-spacing:
-          -2.5px;
+        font-size: clamp(52px, 17vw, 78px);
       }
 
-      .hero-description {
-        font-size: 12px;
+      .hero p {
+        font-size: 14px;
+        line-height: 1.7;
       }
 
       .controls {
         flex-direction: column;
-
         align-items: stretch;
       }
 
-      .search-box {
-        width: 100%;
+      .search-wrapper {
+        max-width: none;
+      }
+
+      .app-count {
+        text-align: right;
       }
 
       .apps-grid {
         grid-template-columns: 1fr;
-
-        gap: 14px;
+        gap: 15px;
       }
 
       .app-card {
-        min-height: 255px;
+        min-height: 315px;
+        padding: 22px;
       }
 
       footer {
         flex-direction: column;
-
-        align-items: flex-start;
+        line-height: 1.6;
       }
 
+      footer span:last-child {
+        text-align: left;
+      }
     }
 
-    /* Reduced motion */
+    /* =========================
+       REDUCED MOTION
+    ========================= */
 
     @media (prefers-reduced-motion: reduce) {
-
       *,
       *::before,
       *::after {
-        animation: none !important;
-
-        transition: none !important;
-
         scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
       }
-
     }
-
   </style>
 </head>
 
-
 <body>
 
-
-  <!-- =====================================================
+  <!-- =========================
        HEADER
-  ====================================================== -->
+  ========================= -->
 
   <header>
+    <a class="brand" href="./">
+      <div class="brand-mark">K</div>
 
-    <div class="topbar">
-
-      <div class="brand">
-
-        <div class="brand-logo">
-          K
-        </div>
-
-        <div>
-
-          <div class="brand-name">
-            Karthikeyan
-          </div>
-
-          <div class="brand-subtitle">
-            Apps & Experiments
-          </div>
-
-        </div>
-
+      <div class="brand-text">
+        <div class="brand-name">Karthikeyan</div>
+        <div class="brand-subtitle">Apps & Experiments</div>
       </div>
+    </a>
 
-
-      <a
-        class="github-button"
-        href="https://github.com/karthi02052015"
-        target="_blank"
-        rel="noopener noreferrer"
+    <a
+      class="github-button"
+      href="https://github.com/karthi02052015"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open GitHub profile"
+    >
+      <svg
+        class="github-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
       >
-        GitHub ↗
-      </a>
+        <path
+          d="M12 .5C5.65.5.5 5.65.5 12c0 5.09 3.29 9.4 7.86 10.92.57.1.78-.25.78-.55v-2.16c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.12 3.04.74.8 1.19 1.82 1.19 3.08 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.08.78 2.18v3.23c0 .3.21.65.79.54A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"
+        />
+      </svg>
 
-    </div>
-
+      <span>GitHub</span>
+    </a>
   </header>
 
 
-
-  <!-- =====================================================
+  <!-- =========================
        HERO
-  ====================================================== -->
+  ========================= -->
 
   <section class="hero">
 
     <div class="eyebrow">
-
-      <span class="status-dot"></span>
-
-      Personal App Collection
-
+      <span class="eyebrow-dot"></span>
+      Personal Lab
     </div>
 
+    <h1>Things I Built.</h1>
 
-    <h1>
-      Things I Built.
-    </h1>
-
-
-    <p class="hero-description">
-      A collection of apps, tools and experiments built with
-      curiosity, creativity and code. Explore the projects below
-      and launch them directly.
+    <p>
+      A collection of apps, experiments, utilities and creative
+      projects built with code, design and curiosity.
     </p>
 
   </section>
 
 
-
-  <!-- =====================================================
-       SEARCH
-  ====================================================== -->
+  <!-- =========================
+       SEARCH / CONTROLS
+  ========================= -->
 
   <section class="controls">
 
-    <div class="app-count">
+    <div class="search-wrapper">
 
-      <strong id="appCount">
-        10
-      </strong>
-
-      apps available
-
-    </div>
-
-
-    <div class="search-box">
-
-      <span class="search-icon">
-        ⌕
-      </span>
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-4-4"></path>
+      </svg>
 
       <input
         id="searchInput"
-        type="text"
+        class="search"
+        type="search"
         placeholder="Search apps..."
         autocomplete="off"
         aria-label="Search apps"
@@ -1053,68 +988,50 @@
 
     </div>
 
+    <div class="app-count">
+      Showing <strong id="visibleCount">10</strong>
+      of <strong id="totalCount">10</strong> apps
+    </div>
+
   </section>
 
 
+  <!-- =========================
+       APP GRID
+  ========================= -->
 
-  <!-- =====================================================
-       APPS
-  ====================================================== -->
-
-  <main
-    class="apps-grid"
-    id="appsGrid"
-  >
-
+  <main class="apps-grid" id="appsGrid">
 
     <!-- 01 CALCULUX -->
 
     <article
       class="app-card"
-      data-name="calculux calculator mathematics utility"
+      data-name="calculux calculator utility math"
       style="--accent:#7c5cff;"
     >
 
       <div class="card-top">
+        <div class="app-number">01</div>
 
         <div class="app-icon">
           🧮
         </div>
-
-        <div class="app-number">
-          01
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         Calculux
       </h2>
 
-
-      <p>
-        A modern calculator designed for quick,
-        clean and powerful mathematical calculations.
+      <p class="app-description">
+        A modern calculator designed for quick, clean and powerful
+        mathematical calculations.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Calculator
-        </span>
-
-        <span class="tag">
-          Utility
-        </span>
-
-        <span class="tag">
-          Math
-        </span>
-
+        <span class="tag">Calculator</span>
+        <span class="tag">Utility</span>
+        <span class="tag">Math</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1126,55 +1043,36 @@
     </article>
 
 
-
     <!-- 02 NETBOUND -->
 
     <article
       class="app-card"
-      data-name="netbound network networking ip subnet developer"
+      data-name="netbound networking ip developer network"
       style="--accent:#28d9ff;"
     >
 
       <div class="card-top">
+        <div class="app-number">02</div>
 
         <div class="app-icon">
           🌐
         </div>
-
-        <div class="app-number">
-          02
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         NetBound
       </h2>
 
-
-      <p>
-        Networking utilities for working with IP addresses,
-        subnets and network information.
+      <p class="app-description">
+        A networking utility for exploring IP addresses,
+        subnet information and network-related calculations.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Networking
-        </span>
-
-        <span class="tag">
-          IP
-        </span>
-
-        <span class="tag">
-          Developer
-        </span>
-
+        <span class="tag">Networking</span>
+        <span class="tag">IP</span>
+        <span class="tag">Developer</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1186,115 +1084,77 @@
     </article>
 
 
-
     <!-- 03 PIXELQUEST2D -->
 
     <article
       class="app-card"
-      data-name="pixelquest2d pixel quest 2d game"
+      data-name="pixelquest2d pixel quest 2d game gaming"
       style="--accent:#ffad42;"
     >
 
       <div class="card-top">
+        <div class="app-number">03</div>
 
         <div class="app-icon">
           🎮
         </div>
-
-        <div class="app-number">
-          03
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         PixelQuest2D
       </h2>
 
-
-      <p>
-        A 2D pixel-style game experiment built
-        for interactive gameplay and exploration.
+      <p class="app-description">
+        A 2D game experiment exploring gameplay mechanics,
+        pixel visuals and interactive experiences.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Game
-        </span>
-
-        <span class="tag">
-          2D
-        </span>
-
-        <span class="tag">
-          Pixel
-        </span>
-
+        <span class="tag">Game</span>
+        <span class="tag">2D</span>
+        <span class="tag">Pixel</span>
       </div>
-
 
       <a
         class="launch-button"
         href="./apps/pixelquest2d/"
       >
-        Play Game →
+        Open App →
       </a>
 
     </article>
-
 
 
     <!-- 04 PAYLOADR -->
 
     <article
       class="app-card"
-      data-name="payloadr payload json api developer"
+      data-name="payloadr payload api json developer"
       style="--accent:#ff5fa2;"
     >
 
       <div class="card-top">
+        <div class="app-number">04</div>
 
         <div class="app-icon">
           📦
         </div>
-
-        <div class="app-number">
-          04
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         Payloadr
       </h2>
 
-
-      <p>
-        A developer-focused tool for working with
-        API payloads and structured data.
+      <p class="app-description">
+        A developer-focused tool for working with API payloads,
+        JSON structures and data inspection.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          API
-        </span>
-
-        <span class="tag">
-          JSON
-        </span>
-
-        <span class="tag">
-          Developer
-        </span>
-
+        <span class="tag">API</span>
+        <span class="tag">JSON</span>
+        <span class="tag">Developer</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1306,55 +1166,36 @@
     </article>
 
 
-
     <!-- 05 DROPZONEAI -->
 
     <article
       class="app-card"
-      data-name="dropzoneai dropzone ai artificial intelligence"
+      data-name="dropzoneai dropzone ai artificial intelligence experiment smart tool"
       style="--accent:#9b72ff;"
     >
 
       <div class="card-top">
+        <div class="app-number">05</div>
 
         <div class="app-icon">
           🤖
         </div>
-
-        <div class="app-number">
-          05
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         DropZoneAI
       </h2>
 
-
-      <p>
-        An AI-powered experiment focused on
-        intelligent interaction and automation.
+      <p class="app-description">
+        An AI-focused experiment built around intelligent
+        interactions, automation and smart utilities.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          AI
-        </span>
-
-        <span class="tag">
-          Experiment
-        </span>
-
-        <span class="tag">
-          Smart Tool
-        </span>
-
+        <span class="tag">AI</span>
+        <span class="tag">Experiment</span>
+        <span class="tag">Smart Tool</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1366,55 +1207,36 @@
     </article>
 
 
-
     <!-- 06 VOLTLAB -->
 
     <article
       class="app-card"
-      data-name="voltlab electricity electrical electronics"
+      data-name="voltlab volt lab electronics science electricity"
       style="--accent:#f5d35c;"
     >
 
       <div class="card-top">
+        <div class="app-number">06</div>
 
         <div class="app-icon">
           ⚡
         </div>
-
-        <div class="app-number">
-          06
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         VoltLab
       </h2>
 
-
-      <p>
-        An interactive electrical and electronics
-        experiment for exploring voltage and circuits.
+      <p class="app-description">
+        An interactive electronics and science experiment
+        designed for exploring electrical concepts.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Electronics
-        </span>
-
-        <span class="tag">
-          Science
-        </span>
-
-        <span class="tag">
-          Lab
-        </span>
-
+        <span class="tag">Electronics</span>
+        <span class="tag">Science</span>
+        <span class="tag">Lab</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1426,55 +1248,36 @@
     </article>
 
 
-
     <!-- 07 STATELIVE -->
 
     <article
       class="app-card"
-      data-name="statelive state live statistics dashboard"
+      data-name="statelive state live dashboard data statistics analytics"
       style="--accent:#35e39a;"
     >
 
       <div class="card-top">
+        <div class="app-number">07</div>
 
         <div class="app-icon">
           📊
         </div>
-
-        <div class="app-number">
-          07
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         StateLive
       </h2>
 
-
-      <p>
-        A live statistics and data visualization
-        application for monitoring information.
+      <p class="app-description">
+        A live dashboard-style application for visualizing
+        statistics, information and changing data.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Dashboard
-        </span>
-
-        <span class="tag">
-          Data
-        </span>
-
-        <span class="tag">
-          Statistics
-        </span>
-
+        <span class="tag">Dashboard</span>
+        <span class="tag">Data</span>
+        <span class="tag">Statistics</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1486,55 +1289,36 @@
     </article>
 
 
-
     <!-- 08 LOGPEEK -->
 
     <article
       class="app-card"
-      data-name="logpeek log logs viewer developer"
+      data-name="logpeek log developer logs utility debugging"
       style="--accent:#ff7859;"
     >
 
       <div class="card-top">
+        <div class="app-number">08</div>
 
         <div class="app-icon">
           ⌁
         </div>
-
-        <div class="app-number">
-          08
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         LogPeek
       </h2>
 
-
-      <p>
-        Quickly inspect and explore application logs
-        through a lightweight developer utility.
+      <p class="app-description">
+        A lightweight developer utility for inspecting,
+        exploring and understanding application logs.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Developer
-        </span>
-
-        <span class="tag">
-          Logs
-        </span>
-
-        <span class="tag">
-          Utility
-        </span>
-
+        <span class="tag">Developer</span>
+        <span class="tag">Logs</span>
+        <span class="tag">Utility</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1546,59 +1330,41 @@
     </article>
 
 
-
     <!-- 09 EYEAURASCANNER -->
 
     <article
       class="app-card"
-      data-name="eyeaura scanner eye aura scanner vision"
+      data-name="eyeaura scanner eye aura scanner vision experiment"
       style="--accent:#48c7ff;"
     >
 
       <div class="card-top">
+        <div class="app-number">09</div>
 
         <div class="app-icon">
           👁
         </div>
-
-        <div class="app-number">
-          09
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         EyeAuraScanner
       </h2>
 
-
-      <p>
-        A visual scanning experiment designed around
-        interactive eye and image analysis concepts.
+      <p class="app-description">
+        An experimental visual scanning experience exploring
+        camera-style interfaces and interactive vision concepts.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Scanner
-        </span>
-
-        <span class="tag">
-          Vision
-        </span>
-
-        <span class="tag">
-          Experiment
-        </span>
-
+        <span class="tag">Scanner</span>
+        <span class="tag">Vision</span>
+        <span class="tag">Experiment</span>
       </div>
 
-
+      <!-- CORRECT LIVE URL -->
       <a
         class="launch-button"
-        href="./apps/eyeaura-scanner/"
+        href="https://karthi02052015.github.io/apps/apps/eyeaurascanner/"
       >
         Open App →
       </a>
@@ -1606,55 +1372,36 @@
     </article>
 
 
-
     <!-- 10 FINITEFLOW -->
 
     <article
       class="app-card"
-      data-name="finiteflow finite flow workflow"
+      data-name="finiteflow finite flow workflow productivity tool"
       style="--accent:#b36bff;"
     >
 
       <div class="card-top">
+        <div class="app-number">10</div>
 
         <div class="app-icon">
           ∞
         </div>
-
-        <div class="app-number">
-          10
-        </div>
-
       </div>
 
-
-      <h2>
+      <h2 class="app-title">
         FiniteFlow
       </h2>
 
-
-      <p>
-        A workflow-focused application experiment
-        built around organized processes and flow.
+      <p class="app-description">
+        A workflow-focused productivity experiment for
+        organizing tasks, processes and structured information.
       </p>
 
-
       <div class="tags">
-
-        <span class="tag">
-          Workflow
-        </span>
-
-        <span class="tag">
-          Productivity
-        </span>
-
-        <span class="tag">
-          Tool
-        </span>
-
+        <span class="tag">Workflow</span>
+        <span class="tag">Productivity</span>
+        <span class="tag">Tool</span>
       </div>
-
 
       <a
         class="launch-button"
@@ -1665,46 +1412,30 @@
 
     </article>
 
-
   </main>
 
 
-
-  <!-- =====================================================
-       EMPTY SEARCH
-  ====================================================== -->
+  <!-- =========================
+       EMPTY SEARCH STATE
+  ========================= -->
 
   <section
     class="empty-state"
     id="emptyState"
   >
-
-    <div class="empty-icon">
-      🔎
-    </div>
-
-    <div>
-      No apps found.
-    </div>
-
-    <small>
-      Try searching for another app.
-    </small>
-
+    <strong>No apps found</strong>
+    Try another search term.
   </section>
 
 
-
-  <!-- =====================================================
+  <!-- =========================
        FOOTER
-  ====================================================== -->
+  ========================= -->
 
   <footer>
 
     <span>
-      ©
-      <span id="year"></span>
-      Karthikeyan
+      © <span id="year"></span> Karthikeyan
     </span>
 
     <span>
@@ -1714,23 +1445,25 @@
   </footer>
 
 
-
-  <!-- =====================================================
+  <!-- =========================
        JAVASCRIPT
-  ====================================================== -->
+  ========================= -->
 
   <script>
 
     const searchInput =
       document.getElementById("searchInput");
 
-    const appCards =
+    const cards =
       Array.from(
         document.querySelectorAll(".app-card")
       );
 
-    const appCount =
-      document.getElementById("appCount");
+    const visibleCount =
+      document.getElementById("visibleCount");
+
+    const totalCount =
+      document.getElementById("totalCount");
 
     const emptyState =
       document.getElementById("emptyState");
@@ -1739,102 +1472,98 @@
       document.getElementById("year");
 
 
-    /* Current year */
+    /* =========================
+       YEAR
+    ========================= */
 
     year.textContent =
       new Date().getFullYear();
 
 
-    /* Initial count */
+    /* =========================
+       TOTAL APP COUNT
+    ========================= */
 
-    appCount.textContent =
-      appCards.length;
-
-
-    /* Card animation */
-
-    appCards.forEach(
-      (card, index) => {
-
-        card.style.animationDelay =
-          `${index * 0.045}s`;
-
-      }
-    );
+    totalCount.textContent =
+      cards.length;
 
 
-    /* Search */
+    visibleCount.textContent =
+      cards.length;
+
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    function filterApps() {
+
+      const query =
+        searchInput.value
+          .trim()
+          .toLowerCase();
+
+      let visible = 0;
+
+      cards.forEach((card) => {
+
+        const searchableText =
+          card.dataset.name +
+          " " +
+          card.textContent;
+
+        const matches =
+          searchableText
+            .toLowerCase()
+            .includes(query);
+
+        if (matches) {
+
+          card.style.display = "";
+
+          visible++;
+
+        } else {
+
+          card.style.display = "none";
+
+        }
+
+      });
+
+      visibleCount.textContent =
+        visible;
+
+      emptyState.classList.toggle(
+        "visible",
+        visible === 0
+      );
+
+    }
+
 
     searchInput.addEventListener(
       "input",
-      () => {
-
-        const query =
-          searchInput.value
-            .trim()
-            .toLowerCase();
-
-        let visibleCount = 0;
-
-
-        appCards.forEach(
-          card => {
-
-            const searchableText =
-              (
-                card.dataset.name +
-                " " +
-                card.textContent
-              ).toLowerCase();
-
-
-            const matches =
-              query === "" ||
-              searchableText.includes(query);
-
-
-            if (matches) {
-
-              card.style.display = "";
-
-              visibleCount++;
-
-            } else {
-
-              card.style.display = "none";
-
-            }
-
-          }
-        );
-
-
-        appCount.textContent =
-          visibleCount;
-
-
-        emptyState.style.display =
-          visibleCount === 0
-            ? "block"
-            : "none";
-
-      }
+      filterApps
     );
 
 
-    /* ESC clears search */
+    /* =========================
+       ESC TO CLEAR SEARCH
+    ========================= */
 
-    searchInput.addEventListener(
+    document.addEventListener(
       "keydown",
-      event => {
+      (event) => {
 
-        if (event.key === "Escape") {
+        if (
+          event.key === "Escape" &&
+          searchInput.value
+        ) {
 
           searchInput.value = "";
 
-          searchInput.dispatchEvent(
-            new Event("input")
-          );
+          filterApps();
 
           searchInput.blur();
 
