@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,14 +18,11 @@
       --bg-soft: #0c0e16;
       --card: rgba(18, 21, 32, 0.72);
       --card-hover: rgba(24, 28, 43, 0.9);
-
       --text: #f5f7ff;
       --muted: #9299ad;
       --muted-2: #666d82;
-
       --border: rgba(255, 255, 255, 0.08);
       --border-hover: rgba(255, 255, 255, 0.16);
-
       --radius: 24px;
       --max-width: 1320px;
     }
@@ -52,6 +49,7 @@
         sans-serif;
 
       color: var(--text);
+
       background:
         radial-gradient(
           circle at 15% 10%,
@@ -748,45 +746,18 @@
       animation: cardIn 0.65s ease forwards;
     }
 
-    .app-card:nth-child(1) {
-      animation-delay: 0.04s;
-    }
-
-    .app-card:nth-child(2) {
-      animation-delay: 0.08s;
-    }
-
-    .app-card:nth-child(3) {
-      animation-delay: 0.12s;
-    }
-
-    .app-card:nth-child(4) {
-      animation-delay: 0.16s;
-    }
-
-    .app-card:nth-child(5) {
-      animation-delay: 0.20s;
-    }
-
-    .app-card:nth-child(6) {
-      animation-delay: 0.24s;
-    }
-
-    .app-card:nth-child(7) {
-      animation-delay: 0.28s;
-    }
-
-    .app-card:nth-child(8) {
-      animation-delay: 0.32s;
-    }
-
-    .app-card:nth-child(9) {
-      animation-delay: 0.36s;
-    }
-
-    .app-card:nth-child(10) {
-      animation-delay: 0.40s;
-    }
+    .app-card:nth-child(1)  { animation-delay: 0.04s; }
+    .app-card:nth-child(2)  { animation-delay: 0.08s; }
+    .app-card:nth-child(3)  { animation-delay: 0.12s; }
+    .app-card:nth-child(4)  { animation-delay: 0.16s; }
+    .app-card:nth-child(5)  { animation-delay: 0.20s; }
+    .app-card:nth-child(6)  { animation-delay: 0.24s; }
+    .app-card:nth-child(7)  { animation-delay: 0.28s; }
+    .app-card:nth-child(8)  { animation-delay: 0.32s; }
+    .app-card:nth-child(9)  { animation-delay: 0.36s; }
+    .app-card:nth-child(10) { animation-delay: 0.40s; }
+    .app-card:nth-child(11) { animation-delay: 0.44s; }
+    .app-card:nth-child(12) { animation-delay: 0.48s; }
 
     @keyframes cardIn {
       to {
@@ -989,8 +960,8 @@
     </div>
 
     <div class="app-count">
-      Showing <strong id="visibleCount">10</strong>
-      of <strong id="totalCount">10</strong> apps
+      Showing <strong id="visibleCount">12</strong>
+      of <strong id="totalCount">12</strong> apps
     </div>
 
   </section>
@@ -1009,18 +980,12 @@
       data-name="calculux calculator utility math"
       style="--accent:#7c5cff;"
     >
-
       <div class="card-top">
         <div class="app-number">01</div>
-
-        <div class="app-icon">
-          🧮
-        </div>
+        <div class="app-icon">🧮</div>
       </div>
 
-      <h2 class="app-title">
-        Calculux
-      </h2>
+      <h2 class="app-title">Calculux</h2>
 
       <p class="app-description">
         A modern calculator designed for quick, clean and powerful
@@ -1033,13 +998,9 @@
         <span class="tag">Math</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/calculux/"
-      >
+      <a class="launch-button" href="./apps/calculux/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1050,18 +1011,12 @@
       data-name="netbound networking ip developer network"
       style="--accent:#28d9ff;"
     >
-
       <div class="card-top">
         <div class="app-number">02</div>
-
-        <div class="app-icon">
-          🌐
-        </div>
+        <div class="app-icon">🌐</div>
       </div>
 
-      <h2 class="app-title">
-        NetBound
-      </h2>
+      <h2 class="app-title">NetBound</h2>
 
       <p class="app-description">
         A networking utility for exploring IP addresses,
@@ -1074,13 +1029,9 @@
         <span class="tag">Developer</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/netbound/"
-      >
+      <a class="launch-button" href="./apps/netbound/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1091,18 +1042,12 @@
       data-name="pixelquest2d pixel quest 2d game gaming"
       style="--accent:#ffad42;"
     >
-
       <div class="card-top">
         <div class="app-number">03</div>
-
-        <div class="app-icon">
-          🎮
-        </div>
+        <div class="app-icon">🎮</div>
       </div>
 
-      <h2 class="app-title">
-        PixelQuest2D
-      </h2>
+      <h2 class="app-title">PixelQuest2D</h2>
 
       <p class="app-description">
         A 2D game experiment exploring gameplay mechanics,
@@ -1115,13 +1060,9 @@
         <span class="tag">Pixel</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/pixelquest2d/"
-      >
+      <a class="launch-button" href="./apps/pixelquest2d/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1132,18 +1073,12 @@
       data-name="payloadr payload api json developer"
       style="--accent:#ff5fa2;"
     >
-
       <div class="card-top">
         <div class="app-number">04</div>
-
-        <div class="app-icon">
-          📦
-        </div>
+        <div class="app-icon">📦</div>
       </div>
 
-      <h2 class="app-title">
-        Payloadr
-      </h2>
+      <h2 class="app-title">Payloadr</h2>
 
       <p class="app-description">
         A developer-focused tool for working with API payloads,
@@ -1156,13 +1091,9 @@
         <span class="tag">Developer</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/payloadr/"
-      >
+      <a class="launch-button" href="./apps/payloadr/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1173,18 +1104,12 @@
       data-name="dropzoneai dropzone ai artificial intelligence experiment smart tool"
       style="--accent:#9b72ff;"
     >
-
       <div class="card-top">
         <div class="app-number">05</div>
-
-        <div class="app-icon">
-          🤖
-        </div>
+        <div class="app-icon">🤖</div>
       </div>
 
-      <h2 class="app-title">
-        DropZoneAI
-      </h2>
+      <h2 class="app-title">DropZoneAI</h2>
 
       <p class="app-description">
         An AI-focused experiment built around intelligent
@@ -1197,13 +1122,9 @@
         <span class="tag">Smart Tool</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/dropzoneai/"
-      >
+      <a class="launch-button" href="./apps/dropzoneai/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1214,18 +1135,12 @@
       data-name="voltlab volt lab electronics science electricity"
       style="--accent:#f5d35c;"
     >
-
       <div class="card-top">
         <div class="app-number">06</div>
-
-        <div class="app-icon">
-          ⚡
-        </div>
+        <div class="app-icon">⚡</div>
       </div>
 
-      <h2 class="app-title">
-        VoltLab
-      </h2>
+      <h2 class="app-title">VoltLab</h2>
 
       <p class="app-description">
         An interactive electronics and science experiment
@@ -1238,13 +1153,9 @@
         <span class="tag">Lab</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/voltlab/"
-      >
+      <a class="launch-button" href="./apps/voltlab/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1255,18 +1166,12 @@
       data-name="statelive state live dashboard data statistics analytics"
       style="--accent:#35e39a;"
     >
-
       <div class="card-top">
         <div class="app-number">07</div>
-
-        <div class="app-icon">
-          📊
-        </div>
+        <div class="app-icon">📊</div>
       </div>
 
-      <h2 class="app-title">
-        StateLive
-      </h2>
+      <h2 class="app-title">StateLive</h2>
 
       <p class="app-description">
         A live dashboard-style application for visualizing
@@ -1279,13 +1184,9 @@
         <span class="tag">Statistics</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/statelive/"
-      >
+      <a class="launch-button" href="./apps/statelive/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1296,18 +1197,12 @@
       data-name="logpeek log developer logs utility debugging"
       style="--accent:#ff7859;"
     >
-
       <div class="card-top">
         <div class="app-number">08</div>
-
-        <div class="app-icon">
-          ⌁
-        </div>
+        <div class="app-icon">⌁</div>
       </div>
 
-      <h2 class="app-title">
-        LogPeek
-      </h2>
+      <h2 class="app-title">LogPeek</h2>
 
       <p class="app-description">
         A lightweight developer utility for inspecting,
@@ -1320,13 +1215,9 @@
         <span class="tag">Utility</span>
       </div>
 
-      <a
-        class="launch-button"
-        href="./apps/logpeek/"
-      >
+      <a class="launch-button" href="./apps/logpeek/">
         Open App →
       </a>
-
     </article>
 
 
@@ -1337,18 +1228,12 @@
       data-name="eyeaura scanner eye aura scanner vision experiment"
       style="--accent:#48c7ff;"
     >
-
       <div class="card-top">
         <div class="app-number">09</div>
-
-        <div class="app-icon">
-          👁
-        </div>
+        <div class="app-icon">👁</div>
       </div>
 
-      <h2 class="app-title">
-        EyeAuraScanner
-      </h2>
+      <h2 class="app-title">EyeAuraScanner</h2>
 
       <p class="app-description">
         An experimental visual scanning experience exploring
@@ -1361,14 +1246,12 @@
         <span class="tag">Experiment</span>
       </div>
 
-      <!-- CORRECT LIVE URL -->
       <a
         class="launch-button"
         href="https://karthi02052015.github.io/apps/apps/eyeaurascanner/"
       >
         Open App →
       </a>
-
     </article>
 
 
@@ -1379,18 +1262,12 @@
       data-name="finiteflow finite flow workflow productivity tool"
       style="--accent:#b36bff;"
     >
-
       <div class="card-top">
         <div class="app-number">10</div>
-
-        <div class="app-icon">
-          ∞
-        </div>
+        <div class="app-icon">∞</div>
       </div>
 
-      <h2 class="app-title">
-        FiniteFlow
-      </h2>
+      <h2 class="app-title">FiniteFlow</h2>
 
       <p class="app-description">
         A workflow-focused productivity experiment for
@@ -1403,13 +1280,77 @@
         <span class="tag">Tool</span>
       </div>
 
+      <a class="launch-button" href="./apps/finiteflow/">
+        Open App →
+      </a>
+    </article>
+
+
+    <!-- 11 VECTORFLOW -->
+
+    <article
+      class="app-card"
+      data-name="vectorflow vector flow vector graphics design svg creative tool"
+      style="--accent:#42e8c0;"
+    >
+      <div class="card-top">
+        <div class="app-number">11</div>
+        <div class="app-icon">✦</div>
+      </div>
+
+      <h2 class="app-title">VectorFlow</h2>
+
+      <p class="app-description">
+        A creative vector-focused tool for exploring shapes,
+        graphics, paths and visual design workflows.
+      </p>
+
+      <div class="tags">
+        <span class="tag">Vector</span>
+        <span class="tag">Design</span>
+        <span class="tag">Creative</span>
+      </div>
+
       <a
         class="launch-button"
-        href="./apps/finiteflow/"
+        href="https://karthi02052015.github.io/apps/apps/vectorflow"
       >
         Open App →
       </a>
+    </article>
 
+
+    <!-- 12 CAR CLASH ARENA -->
+
+    <article
+      class="app-card"
+      data-name="car clash arena car fighting racing battle game multiplayer ai"
+      style="--accent:#ff4f5e;"
+    >
+      <div class="card-top">
+        <div class="app-number">12</div>
+        <div class="app-icon">🏎️</div>
+      </div>
+
+      <h2 class="app-title">Car Clash Arena</h2>
+
+      <p class="app-description">
+        A fast-paced car battle arena featuring single-player
+        AI fights, team battles and chaotic vehicle combat.
+      </p>
+
+      <div class="tags">
+        <span class="tag">Game</span>
+        <span class="tag">Cars</span>
+        <span class="tag">Battle</span>
+      </div>
+
+      <a
+        class="launch-button"
+        href="https://karthi02052015.github.io/apps/apps/car"
+      >
+        Open App →
+      </a>
     </article>
 
   </main>
@@ -1439,7 +1380,7 @@
     </span>
 
     <span>
-      10 apps · Built with HTML, CSS & JavaScript
+      12 apps · Built with HTML, CSS & JavaScript
     </span>
 
   </footer>
@@ -1486,7 +1427,6 @@
 
     totalCount.textContent =
       cards.length;
-
 
     visibleCount.textContent =
       cards.length;
@@ -1576,3 +1516,4 @@
 
 </body>
 </html>
+```
