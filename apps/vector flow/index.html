@@ -1,0 +1,2477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VECTOR FLOW</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#01050e;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+#glCanvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+.topbar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:68px;
+    z-index:20;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 24px;
+
+    background:linear-gradient(
+        180deg,
+        rgba(0,7,20,.96),
+        rgba(0,7,20,.35)
+    );
+
+    border-bottom:1px solid rgba(60,170,255,.18);
+    backdrop-filter:blur(14px);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo{
+    width:16px;
+    height:16px;
+    border-radius:50%;
+
+    background:#39b8ff;
+
+    box-shadow:
+        0 0 8px #39b8ff,
+        0 0 22px #168fff,
+        0 0 45px #006cff;
+}
+
+.brand h1{
+    font-size:18px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.brand h1 span{
+    color:#32b7ff;
+}
+
+.stats{
+    display:flex;
+    gap:22px;
+}
+
+.stat{
+    text-align:right;
+}
+
+.stat small{
+    display:block;
+    color:#55728f;
+    font-size:8px;
+    text-transform:uppercase;
+    letter-spacing:1.3px;
+}
+
+.stat strong{
+    color:#e0f3ff;
+    font-size:13px;
+}
+
+.status{
+    position:fixed;
+    top:84px;
+    left:50%;
+    transform:translateX(-50%);
+
+    z-index:15;
+
+    padding:8px 15px;
+
+    border-radius:20px;
+
+    background:rgba(2,20,42,.8);
+    border:1px solid rgba(70,180,255,.3);
+
+    color:#68c8ff;
+
+    font-size:9px;
+    font-weight:bold;
+    letter-spacing:1px;
+    text-transform:uppercase;
+
+    box-shadow:
+        0 0 20px rgba(0,120,255,.15);
+}
+
+.camera{
+    position:fixed;
+
+    right:18px;
+    top:85px;
+
+    width:210px;
+
+    padding:8px;
+
+    background:rgba(2,12,28,.88);
+
+    border:1px solid rgba(60,170,255,.25);
+
+    border-radius:14px;
+
+    z-index:30;
+
+    display:none;
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.5);
+}
+
+.camera.show{
+    display:block;
+}
+
+#video{
+    width:100%;
+    height:auto;
+
+    display:block;
+
+    border-radius:9px;
+
+    transform:scaleX(-1);
+
+    background:#020812;
+}
+
+.handLabel{
+    text-align:center;
+
+    padding:8px 0 3px;
+
+    color:#5bc2ff;
+
+    font-size:10px;
+    font-weight:800;
+
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.handInfo{
+    text-align:center;
+
+    color:#6c8299;
+
+    font-size:8px;
+}
+
+.help{
+    position:fixed;
+
+    left:18px;
+    bottom:100px;
+
+    width:285px;
+
+    padding:14px;
+
+    z-index:15;
+
+    background:rgba(2,12,28,.75);
+
+    border:1px solid rgba(60,160,255,.15);
+
+    border-radius:13px;
+
+    backdrop-filter:blur(12px);
+}
+
+.help h3{
+    font-size:11px;
+    margin-bottom:7px;
+}
+
+.help p{
+    color:#718ba5;
+    font-size:9px;
+    line-height:1.7;
+}
+
+.help b{
+    color:#58c4ff;
+}
+
+.controls{
+    position:fixed;
+
+    left:50%;
+    bottom:16px;
+
+    transform:translateX(-50%);
+
+    z-index:30;
+
+    width:min(1120px,calc(100% - 20px));
+
+    padding:10px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+
+    overflow-x:auto;
+
+    border-radius:18px;
+
+    background:rgba(2,12,28,.9);
+
+    border:1px solid rgba(65,160,255,.2);
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.6);
+}
+
+.controls::-webkit-scrollbar{
+    display:none;
+}
+
+.group{
+    display:flex;
+    gap:5px;
+
+    padding-right:9px;
+    margin-right:3px;
+
+    border-right:1px solid rgba(100,160,210,.14);
+}
+
+.group:last-child{
+    border-right:none;
+}
+
+button{
+    border:0;
+    outline:0;
+
+    white-space:nowrap;
+
+    cursor:pointer;
+
+    padding:9px 12px;
+
+    border-radius:9px;
+
+    color:#91a9c1;
+
+    background:#0b213c;
+
+    border:1px solid rgba(70,140,200,.16);
+
+    font-size:10px;
+    font-weight:800;
+
+    transition:.15s;
+}
+
+button:hover{
+    color:white;
+    background:#153b66;
+}
+
+button.active{
+    color:white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #087fff,
+            #164bdc
+        );
+
+    border-color:#39aaff;
+
+    box-shadow:
+        0 0 18px rgba(0,130,255,.35);
+}
+
+button.hand{
+    color:white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0075d9,
+            #063b98
+        );
+}
+
+button.danger{
+    color:#ff7e99;
+    background:#351322;
+}
+
+@media(max-width:700px){
+
+    .topbar{
+        height:58px;
+        padding:0 12px;
+    }
+
+    .brand h1{
+        font-size:14px;
+    }
+
+    .stats{
+        gap:9px;
+    }
+
+    .help{
+        display:none;
+    }
+
+    .camera{
+        width:150px;
+        right:8px;
+        top:70px;
+    }
+
+    .status{
+        top:70px;
+        left:12px;
+        transform:none;
+    }
+
+    .controls{
+        bottom:7px;
+        justify-content:flex-start;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="glCanvas"></canvas>
+
+<header class="topbar">
+
+    <div class="brand">
+        <div class="logo"></div>
+
+        <h1>
+            VECTOR <span>FLOW</span>
+        </h1>
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            <small>Particles</small>
+            <strong id="particleCount">90,000</strong>
+        </div>
+
+        <div class="stat">
+            <small>FPS</small>
+            <strong id="fps">60</strong>
+        </div>
+
+        <div class="stat">
+            <small>Mode</small>
+            <strong id="mode">Laser</strong>
+        </div>
+
+    </div>
+
+</header>
+
+<div class="status" id="status">
+    Mouse Control
+</div>
+
+
+<!-- CAMERA -->
+
+<div class="camera" id="cameraPanel">
+
+    <video
+        id="video"
+        autoplay
+        muted
+        playsinline>
+    </video>
+
+    <div
+        class="handLabel"
+        id="handLabel">
+        Looking for hand
+    </div>
+
+    <div
+        class="handInfo"
+        id="handInfo">
+        Camera active
+    </div>
+
+</div>
+
+
+<div class="help">
+
+    <h3>VECTOR FLOW — HAND CONTROL</h3>
+
+    <p>
+        <b>☝ Point</b> Laser ·
+        <b>✊ Fist</b> Gather ·
+        <b>🖐 Palm</b> Vortex ·
+        <b>🤏 Pinch</b> Strong attraction.
+        Move your hand around the camera view.
+    </p>
+
+</div>
+
+
+<div class="controls">
+
+    <div class="group">
+
+        <button
+            id="laser"
+            class="active"
+            onclick="setMode('laser')">
+            ✦ Laser
+        </button>
+
+        <button
+            id="vortex"
+            onclick="setMode('vortex')">
+            ◉ Vortex
+        </button>
+
+        <button
+            id="gather"
+            onclick="setMode('gather')">
+            ◎ Gather
+        </button>
+
+    </div>
+
+
+    <div class="group">
+
+        <button onclick="makeShape('heart')">
+            ♥ Heart
+        </button>
+
+        <button onclick="makeShape('circle')">
+            ○ Circle
+        </button>
+
+        <button onclick="makeShape('triangle')">
+            △ Triangle
+        </button>
+
+    </div>
+
+
+    <div class="group">
+
+        <button onclick="bigBang()">
+            ✹ Big Bang
+        </button>
+
+        <button onclick="nova()">
+            ☄ Nova
+        </button>
+
+        <button onclick="toggleDoodle()">
+            ✎ Doodle
+        </button>
+
+    </div>
+
+
+    <div class="group">
+
+        <button onclick="addParticles()">
+            ＋ 10K
+        </button>
+
+        <button
+            id="handButton"
+            class="hand"
+            onclick="toggleHandAI()">
+            ✋ Hand AI
+        </button>
+
+        <button
+            class="danger"
+            onclick="resetParticles()">
+            Reset
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- MEDIAPIPE HANDS -->
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+
+<script>
+
+/* ==========================================================
+   VECTOR FLOW
+========================================================== */
+
+const canvas =
+    document.getElementById("glCanvas");
+
+const gl =
+    canvas.getContext("webgl", {
+        antialias:false,
+        alpha:false,
+        powerPreference:"high-performance"
+    });
+
+if(!gl){
+    alert("WebGL is not supported.");
+}
+
+
+/* ==========================================================
+   SETTINGS
+========================================================== */
+
+const MAX_PARTICLES = 250000;
+
+let particleCount = 90000;
+
+let currentMode = "laser";
+
+let handAI = false;
+
+let handDetected = false;
+
+let handX = 0.5;
+let handY = 0.5;
+
+let handStrength = 1;
+
+
+/* ==========================================================
+   RESIZE
+========================================================== */
+
+function resize(){
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            1.5
+        );
+
+    canvas.width =
+        innerWidth * dpr;
+
+    canvas.height =
+        innerHeight * dpr;
+
+    canvas.style.width =
+        innerWidth+"px";
+
+    canvas.style.height =
+        innerHeight+"px";
+
+    gl.viewport(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+}
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
+resize();
+
+
+/* ==========================================================
+   SHADERS
+========================================================== */
+
+const vertexShaderSource = `
+
+attribute vec2 a_position;
+attribute float a_size;
+attribute float a_alpha;
+
+uniform float u_pixelRatio;
+
+varying float v_alpha;
+
+void main(){
+
+    gl_Position =
+        vec4(
+            a_position,
+            0.0,
+            1.0
+        );
+
+    gl_PointSize =
+        a_size *
+        u_pixelRatio;
+
+    v_alpha =
+        a_alpha;
+}
+
+`;
+
+
+/*
+   BRIGHTER PARTICLES
+
+   Previous shader used a weak alpha.
+   This version creates a bright core
+   plus a large soft blue glow.
+*/
+
+const fragmentShaderSource = `
+
+precision mediump float;
+
+varying float v_alpha;
+
+void main(){
+
+    vec2 p =
+        gl_PointCoord -
+        vec2(0.5);
+
+    float d =
+        length(p);
+
+    if(d > 0.5)
+        discard;
+
+
+    /* Bright central core */
+
+    float core =
+        1.0 -
+        smoothstep(
+            0.0,
+            0.16,
+            d
+        );
+
+
+    /* Large glow */
+
+    float glow =
+        1.0 -
+        smoothstep(
+            0.08,
+            0.5,
+            d
+        );
+
+
+    vec3 coreColor =
+        vec3(
+            0.75,
+            0.95,
+            1.0
+        );
+
+
+    vec3 glowColor =
+        vec3(
+            0.02,
+            0.42,
+            1.0
+        );
+
+
+    vec3 color =
+        mix(
+            glowColor,
+            coreColor,
+            core
+        );
+
+
+    float alpha =
+        max(
+            glow * 0.9,
+            core
+        )
+        *
+        v_alpha
+        *
+        1.8;
+
+
+    gl_FragColor =
+        vec4(
+            color,
+            alpha
+        );
+
+}
+
+`;
+
+
+/* ==========================================================
+   SHADER
+========================================================== */
+
+function createShader(
+    type,
+    source
+){
+
+    const shader =
+        gl.createShader(type);
+
+    gl.shaderSource(
+        shader,
+        source
+    );
+
+    gl.compileShader(shader);
+
+    if(
+        !gl.getShaderParameter(
+            shader,
+            gl.COMPILE_STATUS
+        )
+    ){
+
+        console.error(
+            gl.getShaderInfoLog(shader)
+        );
+
+    }
+
+    return shader;
+}
+
+
+const vertexShader =
+    createShader(
+        gl.VERTEX_SHADER,
+        vertexShaderSource
+    );
+
+const fragmentShader =
+    createShader(
+        gl.FRAGMENT_SHADER,
+        fragmentShaderSource
+    );
+
+
+const program =
+    gl.createProgram();
+
+gl.attachShader(
+    program,
+    vertexShader
+);
+
+gl.attachShader(
+    program,
+    fragmentShader
+);
+
+gl.linkProgram(
+    program
+);
+
+gl.useProgram(
+    program
+);
+
+
+/* ==========================================================
+   ARRAYS
+========================================================== */
+
+const positions =
+    new Float32Array(
+        MAX_PARTICLES * 2
+    );
+
+const velocities =
+    new Float32Array(
+        MAX_PARTICLES * 2
+    );
+
+const sizes =
+    new Float32Array(
+        MAX_PARTICLES
+    );
+
+const alphas =
+    new Float32Array(
+        MAX_PARTICLES
+    );
+
+const seeds =
+    new Float32Array(
+        MAX_PARTICLES
+    );
+
+
+/* ==========================================================
+   INITIAL PARTICLES
+========================================================== */
+
+function initializeParticles(){
+
+    for(
+        let i=0;
+        i<MAX_PARTICLES;
+        i++
+    ){
+
+        const a =
+            Math.random() *
+            Math.PI *
+            2;
+
+        const r =
+            Math.sqrt(
+                Math.random()
+            ) * .95;
+
+        positions[i*2] =
+            Math.cos(a) * r;
+
+        positions[i*2+1] =
+            Math.sin(a) * r;
+
+
+        velocities[i*2] =
+            (Math.random()-.5)
+            * .0015;
+
+        velocities[i*2+1] =
+            (Math.random()-.5)
+            * .0015;
+
+
+        sizes[i] =
+            Math.random() * 2.4 + 1.0;
+
+
+        alphas[i] =
+            Math.random() * .5 + .5;
+
+
+        seeds[i] =
+            Math.random();
+
+    }
+
+}
+
+initializeParticles();
+
+
+/* ==========================================================
+   BUFFERS
+========================================================== */
+
+const positionBuffer =
+    gl.createBuffer();
+
+const sizeBuffer =
+    gl.createBuffer();
+
+const alphaBuffer =
+    gl.createBuffer();
+
+
+gl.bindBuffer(
+    gl.ARRAY_BUFFER,
+    positionBuffer
+);
+
+gl.bufferData(
+    gl.ARRAY_BUFFER,
+    positions,
+    gl.DYNAMIC_DRAW
+);
+
+
+const positionLocation =
+    gl.getAttribLocation(
+        program,
+        "a_position"
+    );
+
+gl.enableVertexAttribArray(
+    positionLocation
+);
+
+gl.vertexAttribPointer(
+    positionLocation,
+    2,
+    gl.FLOAT,
+    false,
+    0,
+    0
+);
+
+
+gl.bindBuffer(
+    gl.ARRAY_BUFFER,
+    sizeBuffer
+);
+
+gl.bufferData(
+    gl.ARRAY_BUFFER,
+    sizes,
+    gl.STATIC_DRAW
+);
+
+const sizeLocation =
+    gl.getAttribLocation(
+        program,
+        "a_size"
+    );
+
+gl.enableVertexAttribArray(
+    sizeLocation
+);
+
+gl.vertexAttribPointer(
+    sizeLocation,
+    1,
+    gl.FLOAT,
+    false,
+    0,
+    0
+);
+
+
+gl.bindBuffer(
+    gl.ARRAY_BUFFER,
+    alphaBuffer
+);
+
+gl.bufferData(
+    gl.ARRAY_BUFFER,
+    alphas,
+    gl.STATIC_DRAW
+);
+
+const alphaLocation =
+    gl.getAttribLocation(
+        program,
+        "a_alpha"
+    );
+
+gl.enableVertexAttribArray(
+    alphaLocation
+);
+
+gl.vertexAttribPointer(
+    alphaLocation,
+    1,
+    gl.FLOAT,
+    false,
+    0,
+    0
+);
+
+
+/* ==========================================================
+   BRIGHTNESS / BLENDING
+========================================================== */
+
+gl.enable(
+    gl.BLEND
+);
+
+gl.blendFunc(
+    gl.SRC_ALPHA,
+    gl.ONE
+);
+
+gl.clearColor(
+    .001,
+    .004,
+    .015,
+    1
+);
+
+
+/* ==========================================================
+   MOUSE
+========================================================== */
+
+let mouse = {
+    x:0,
+    y:0,
+    active:false
+};
+
+
+canvas.addEventListener(
+    "mousemove",
+    e => {
+
+        mouse.x =
+            e.clientX /
+            innerWidth *
+            2 - 1;
+
+        mouse.y =
+            1 -
+            e.clientY /
+            innerHeight *
+            2;
+
+        mouse.active = true;
+
+    }
+);
+
+
+canvas.addEventListener(
+    "mouseleave",
+    () => {
+
+        mouse.active = false;
+
+    }
+);
+
+
+/* ==========================================================
+   TOUCH
+========================================================== */
+
+canvas.addEventListener(
+    "touchmove",
+    e => {
+
+        const t =
+            e.touches[0];
+
+        mouse.x =
+            t.clientX /
+            innerWidth *
+            2 - 1;
+
+        mouse.y =
+            1 -
+            t.clientY /
+            innerHeight *
+            2;
+
+        mouse.active = true;
+
+    },
+    {
+        passive:true
+    }
+);
+
+
+/* ==========================================================
+   PARTICLE UPDATE
+========================================================== */
+
+function updateParticles(){
+
+    let fx =
+        mouse.x;
+
+    let fy =
+        mouse.y;
+
+    let active =
+        mouse.active;
+
+
+    /*
+       HAND HAS PRIORITY
+    */
+
+    if(
+        handAI &&
+        handDetected
+    ){
+
+        fx =
+            handX *
+            2 -
+            1;
+
+        fy =
+            1 -
+            handY *
+            2;
+
+        active = true;
+
+    }
+
+
+    for(
+        let i=0;
+        i<particleCount;
+        i++
+    ){
+
+        const idx =
+            i * 2;
+
+        let x =
+            positions[idx];
+
+        let y =
+            positions[idx+1];
+
+        let vx =
+            velocities[idx];
+
+        let vy =
+            velocities[idx+1];
+
+
+        /* Natural movement */
+
+        const s =
+            seeds[i];
+
+        vx +=
+            Math.sin(
+                y * 5 +
+                s * 15
+            ) * .000004;
+
+        vy +=
+            Math.cos(
+                x * 5 +
+                s * 11
+            ) * .000004;
+
+
+        /* Interaction */
+
+        if(active){
+
+            const dx =
+                fx - x;
+
+            const dy =
+                fy - y;
+
+            const distSq =
+                dx*dx +
+                dy*dy;
+
+            const radius =
+                .55;
+
+
+            if(
+                distSq <
+                radius*radius
+            ){
+
+                const dist =
+                    Math.sqrt(
+                        distSq
+                    ) + .00001;
+
+                const falloff =
+                    1 -
+                    dist/radius;
+
+
+                let power =
+                    .0012;
+
+
+                if(
+                    handAI &&
+                    handDetected
+                ){
+
+                    power *=
+                        handStrength;
+
+                }
+
+
+                if(
+                    currentMode ===
+                    "laser"
+                ){
+
+                    vx +=
+                        dx/dist *
+                        power *
+                        falloff;
+
+                    vy +=
+                        dy/dist *
+                        power *
+                        falloff;
+
+                }
+
+
+                else if(
+                    currentMode ===
+                    "gather"
+                ){
+
+                    vx +=
+                        dx/dist *
+                        power *
+                        2.4 *
+                        falloff;
+
+                    vy +=
+                        dy/dist *
+                        power *
+                        2.4 *
+                        falloff;
+
+                }
+
+
+                else if(
+                    currentMode ===
+                    "vortex"
+                ){
+
+                    vx +=
+                        -dy/dist *
+                        power *
+                        2.3 *
+                        falloff;
+
+                    vy +=
+                        dx/dist *
+                        power *
+                        2.3 *
+                        falloff;
+
+                }
+
+            }
+
+        }
+
+
+        /* Friction */
+
+        vx *= .985;
+        vy *= .985;
+
+
+        x += vx;
+        y += vy;
+
+
+        /* Wrap */
+
+        if(x < -1.05)
+            x = 1.05;
+
+        if(x > 1.05)
+            x = -1.05;
+
+        if(y < -1.05)
+            y = 1.05;
+
+        if(y > 1.05)
+            y = -1.05;
+
+
+        positions[idx] =
+            x;
+
+        positions[idx+1] =
+            y;
+
+        velocities[idx] =
+            vx;
+
+        velocities[idx+1] =
+            vy;
+
+    }
+
+}
+
+
+/* ==========================================================
+   RENDER
+========================================================== */
+
+let fpsFrames = 0;
+
+let fpsStart =
+    performance.now();
+
+
+function render(){
+
+    requestAnimationFrame(
+        render
+    );
+
+
+    updateParticles();
+
+
+    gl.clear(
+        gl.COLOR_BUFFER_BIT
+    );
+
+
+    gl.bindBuffer(
+        gl.ARRAY_BUFFER,
+        positionBuffer
+    );
+
+
+    gl.bufferSubData(
+        gl.ARRAY_BUFFER,
+        0,
+        positions.subarray(
+            0,
+            particleCount*2
+        )
+    );
+
+
+    gl.drawArrays(
+        gl.POINTS,
+        0,
+        particleCount
+    );
+
+
+    fpsFrames++;
+
+
+    const now =
+        performance.now();
+
+
+    if(
+        now -
+        fpsStart >
+        700
+    ){
+
+        const value =
+            Math.round(
+                fpsFrames /
+                (
+                    (now-fpsStart)
+                    /1000
+                )
+            );
+
+
+        document.getElementById(
+            "fps"
+        ).textContent =
+            value;
+
+
+        fpsFrames = 0;
+
+        fpsStart =
+            now;
+
+    }
+
+}
+
+render();
+
+
+/* ==========================================================
+   MODE
+========================================================== */
+
+function setMode(newMode){
+
+    currentMode =
+        newMode;
+
+
+    ["laser","vortex","gather"]
+        .forEach(
+            id =>
+                document
+                    .getElementById(id)
+                    .classList
+                    .remove("active")
+        );
+
+
+    document
+        .getElementById(newMode)
+        .classList
+        .add("active");
+
+
+    document.getElementById(
+        "mode"
+    ).textContent =
+        newMode
+            .charAt(0)
+            .toUpperCase()
+        +
+        newMode.slice(1);
+
+}
+
+
+/* ==========================================================
+   BIG BANG
+========================================================== */
+
+function bigBang(){
+
+    for(
+        let i=0;
+        i<particleCount;
+        i++
+    ){
+
+        const idx =
+            i*2;
+
+        const x =
+            positions[idx];
+
+        const y =
+            positions[idx+1];
+
+        const d =
+            Math.sqrt(
+                x*x+y*y
+            )+.001;
+
+        velocities[idx] +=
+            x/d *
+            (.012+
+            Math.random()*.025);
+
+        velocities[idx+1] +=
+            y/d *
+            (.012+
+            Math.random()*.025);
+
+    }
+
+}
+
+
+/* ==========================================================
+   NOVA
+========================================================== */
+
+function nova(){
+
+    for(
+        let i=0;
+        i<particleCount;
+        i++
+    ){
+
+        const idx =
+            i*2;
+
+        const x =
+            positions[idx];
+
+        const y =
+            positions[idx+1];
+
+        const d =
+            Math.sqrt(
+                x*x+y*y
+            )+.001;
+
+        const nx =
+            x/d;
+
+        const ny =
+            y/d;
+
+
+        velocities[idx] +=
+            nx*.017 -
+            ny*.013;
+
+        velocities[idx+1] +=
+            ny*.017 +
+            nx*.013;
+
+    }
+
+}
+
+
+/* ==========================================================
+   ADD PARTICLES
+========================================================== */
+
+function addParticles(){
+
+    const old =
+        particleCount;
+
+
+    particleCount =
+        Math.min(
+            MAX_PARTICLES,
+            particleCount+10000
+        );
+
+
+    for(
+        let i=old;
+        i<particleCount;
+        i++
+    ){
+
+        const idx =
+            i*2;
+
+        const a =
+            Math.random()*
+            Math.PI*2;
+
+        const r =
+            Math.sqrt(
+                Math.random()
+            );
+
+
+        positions[idx] =
+            Math.cos(a)*r;
+
+        positions[idx+1] =
+            Math.sin(a)*r;
+
+
+        velocities[idx] =
+            (Math.random()-.5)*.002;
+
+        velocities[idx+1] =
+            (Math.random()-.5)*.002;
+
+
+        sizes[i] =
+            Math.random()*2.4+1;
+
+        alphas[i] =
+            Math.random()*.5+.5;
+
+        seeds[i] =
+            Math.random();
+
+    }
+
+
+    document.getElementById(
+        "particleCount"
+    ).textContent =
+        particleCount.toLocaleString();
+
+}
+
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+function resetParticles(){
+
+    particleCount =
+        90000;
+
+    initializeParticles();
+
+    document.getElementById(
+        "particleCount"
+    ).textContent =
+        "90,000";
+
+}
+
+
+/* ==========================================================
+   SHAPES
+========================================================== */
+
+function makeShape(type){
+
+    for(
+        let i=0;
+        i<particleCount;
+        i++
+    ){
+
+        const t =
+            i/particleCount;
+
+        let x;
+        let y;
+
+
+        if(
+            type ===
+            "circle"
+        ){
+
+            const a =
+                t*Math.PI*2;
+
+            x =
+                Math.cos(a)*.7;
+
+            y =
+                Math.sin(a)*.7;
+
+        }
+
+
+        else if(
+            type ===
+            "heart"
+        ){
+
+            const a =
+                t*Math.PI*2;
+
+            const hx =
+                16*
+                Math.pow(
+                    Math.sin(a),
+                    3
+                );
+
+            const hy =
+                -(
+                    13*Math.cos(a)
+                    -
+                    5*Math.cos(2*a)
+                    -
+                    2*Math.cos(3*a)
+                    -
+                    Math.cos(4*a)
+                );
+
+
+            x =
+                hx*.045;
+
+            y =
+                hy*.045;
+
+        }
+
+
+        else{
+
+            const segment =
+                t*3;
+
+            const side =
+                Math.floor(segment);
+
+            const p =
+                segment-side;
+
+
+            let ax,ay,bx,by;
+
+
+            if(side===0){
+
+                ax=0;
+                ay=.7;
+
+                bx=.7;
+                by=-.5;
+
+            }
+            else if(side===1){
+
+                ax=.7;
+                ay=-.5;
+
+                bx=-.7;
+                by=-.5;
+
+            }
+            else{
+
+                ax=-.7;
+                ay=-.5;
+
+                bx=0;
+                by=.7;
+
+            }
+
+
+            x =
+                ax+(bx-ax)*p;
+
+            y =
+                ay+(by-ay)*p;
+
+        }
+
+
+        const idx =
+            i*2;
+
+
+        velocities[idx] +=
+            (x-positions[idx])
+            *.012;
+
+        velocities[idx+1] +=
+            (y-positions[idx+1])
+            *.012;
+
+    }
+
+}
+
+
+/* ==========================================================
+   DOODLE
+========================================================== */
+
+let doodle =
+    false;
+
+function toggleDoodle(){
+
+    doodle =
+        !doodle;
+
+    document.getElementById(
+        "status"
+    ).textContent =
+        doodle
+            ? "Doodle Mode"
+            : handAI
+                ? "Hand AI Active"
+                : "Mouse Control";
+
+}
+
+
+/* ==========================================================
+   HAND AI
+========================================================== */
+
+const video =
+    document.getElementById(
+        "video"
+    );
+
+const cameraPanel =
+    document.getElementById(
+        "cameraPanel"
+    );
+
+const handLabel =
+    document.getElementById(
+        "handLabel"
+    );
+
+const handInfo =
+    document.getElementById(
+        "handInfo"
+    );
+
+
+let mediaStream =
+    null;
+
+let handModel =
+    null;
+
+let handLoop =
+    null;
+
+
+/* ==========================================================
+   START HAND AI
+========================================================== */
+
+async function toggleHandAI(){
+
+    if(handAI){
+
+        stopHandAI();
+
+        return;
+
+    }
+
+
+    try{
+
+        if(
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ){
+
+            throw new Error(
+                "Camera API unavailable"
+            );
+
+        }
+
+
+        mediaStream =
+            await navigator.mediaDevices
+                .getUserMedia({
+
+                    video:{
+                        width:{
+                            ideal:640
+                        },
+
+                        height:{
+                            ideal:480
+                        },
+
+                        facingMode:"user"
+
+                    },
+
+                    audio:false
+
+                });
+
+
+        video.srcObject =
+            mediaStream;
+
+
+        await video.play();
+
+
+        handModel =
+            new Hands({
+
+                locateFile:
+                file =>
+                "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" +
+                file
+
+            });
+
+
+        handModel.setOptions({
+
+            maxNumHands:2,
+
+            modelComplexity:0,
+
+            minDetectionConfidence:.55,
+
+            minTrackingConfidence:.55
+
+        });
+
+
+        handModel.onResults(
+            onHands
+        );
+
+
+        handAI =
+            true;
+
+
+        cameraPanel
+            .classList
+            .add("show");
+
+
+        document.getElementById(
+            "handButton"
+        ).textContent =
+            "✋ Stop Hand AI";
+
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "Hand AI Active";
+
+
+        processCamera();
+
+
+    }
+    catch(error){
+
+        console.error(
+            "Hand AI:",
+            error
+        );
+
+
+        alert(
+            "Camera could not be started.\n\n" +
+            "Please allow camera access and run this page using localhost or HTTPS."
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   CAMERA LOOP
+========================================================== */
+
+let processing =
+    false;
+
+
+async function processCamera(){
+
+    if(!handAI)
+        return;
+
+
+    if(
+        video.readyState >= 2 &&
+        !processing
+    ){
+
+        processing =
+            true;
+
+        try{
+
+            await handModel.send({
+                image:video
+            });
+
+        }
+        catch(error){
+
+            console.error(
+                error
+            );
+
+        }
+
+        processing =
+            false;
+
+    }
+
+
+    handLoop =
+        requestAnimationFrame(
+            processCamera
+        );
+
+}
+
+
+/* ==========================================================
+   STOP
+========================================================== */
+
+function stopHandAI(){
+
+    handAI =
+        false;
+
+    handDetected =
+        false;
+
+
+    if(handLoop){
+
+        cancelAnimationFrame(
+            handLoop
+        );
+
+        handLoop =
+            null;
+
+    }
+
+
+    if(mediaStream){
+
+        mediaStream
+            .getTracks()
+            .forEach(
+                track =>
+                    track.stop()
+            );
+
+        mediaStream =
+            null;
+
+    }
+
+
+    video.srcObject =
+        null;
+
+
+    cameraPanel
+        .classList
+        .remove("show");
+
+
+    document.getElementById(
+        "handButton"
+    ).textContent =
+        "✋ Hand AI";
+
+
+    document.getElementById(
+        "status"
+    ).textContent =
+        "Mouse Control";
+
+}
+
+
+/* ==========================================================
+   HAND FUNCTIONS
+========================================================== */
+
+function dist(a,b){
+
+    const dx =
+        a.x-b.x;
+
+    const dy =
+        a.y-b.y;
+
+    return Math.sqrt(
+        dx*dx+dy*dy
+    );
+
+}
+
+
+function extended(
+    hand,
+    tip,
+    joint
+){
+
+    return (
+        hand[tip].y <
+        hand[joint].y
+    );
+
+}
+
+
+/* ==========================================================
+   HAND RESULTS
+========================================================== */
+
+function onHands(results){
+
+    if(
+        !results.multiHandLandmarks ||
+        results.multiHandLandmarks.length===0
+    ){
+
+        handDetected =
+            false;
+
+        handLabel.textContent =
+            "No Hand";
+
+        handInfo.textContent =
+            "Show your hand";
+
+        return;
+
+    }
+
+
+    handDetected =
+        true;
+
+
+    const hand =
+        results.multiHandLandmarks[0];
+
+
+    const wrist =
+        hand[0];
+
+    const thumb =
+        hand[4];
+
+    const index =
+        hand[8];
+
+    const middle =
+        hand[12];
+
+    const ring =
+        hand[16];
+
+    const pinky =
+        hand[20];
+
+
+    /*
+       Use the palm center rather than
+       only the fingertip. This makes
+       movement much more stable.
+    */
+
+    const palmX =
+        (
+            wrist.x +
+            index.x +
+            middle.x
+        ) / 3;
+
+
+    const palmY =
+        (
+            wrist.y +
+            index.y +
+            middle.y
+        ) / 3;
+
+
+    /*
+       Mirror camera horizontally
+       so movement feels natural.
+    */
+
+    handX =
+        1-palmX;
+
+    handY =
+        palmY;
+
+
+    const palmSize =
+        dist(
+            wrist,
+            middle
+        );
+
+
+    const pinch =
+        dist(
+            thumb,
+            index
+        );
+
+
+    const indexUp =
+        extended(
+            hand,
+            8,
+            6
+        );
+
+
+    const middleUp =
+        extended(
+            hand,
+            12,
+            10
+        );
+
+
+    const ringUp =
+        extended(
+            hand,
+            16,
+            14
+        );
+
+
+    const pinkyUp =
+        extended(
+            hand,
+            20,
+            18
+        );
+
+
+    let gesture =
+        "OPEN PALM";
+
+
+    /*
+       PINCH
+    */
+
+    if(
+        pinch <
+        palmSize*.48
+    ){
+
+        gesture =
+            "PINCH";
+
+        setHandMode(
+            "laser"
+        );
+
+        handStrength =
+            3.2;
+
+    }
+
+
+    /*
+       POINT
+    */
+
+    else if(
+        indexUp &&
+        !middleUp &&
+        !ringUp &&
+        !pinkyUp
+    ){
+
+        gesture =
+            "LASER POINT";
+
+        setHandMode(
+            "laser"
+        );
+
+        handStrength =
+            2.0;
+
+    }
+
+
+    /*
+       FIST
+    */
+
+    else if(
+        !indexUp &&
+        !middleUp &&
+        !ringUp &&
+        !pinkyUp
+    ){
+
+        gesture =
+            "FIST";
+
+        setHandMode(
+            "gather"
+        );
+
+        handStrength =
+            2.7;
+
+    }
+
+
+    /*
+       OPEN PALM
+    */
+
+    else{
+
+        gesture =
+            "OPEN PALM";
+
+        setHandMode(
+            "vortex"
+        );
+
+        handStrength =
+            1.7;
+
+    }
+
+
+    /*
+       TWO HANDS = SUPER POWER
+    */
+
+    if(
+        results.multiHandLandmarks.length >= 2
+    ){
+
+        handStrength *=
+            1.7;
+
+        gesture +=
+            " + 2 HANDS";
+
+    }
+
+
+    handLabel.textContent =
+        gesture;
+
+
+    handInfo.textContent =
+        "Tracking active";
+
+
+    document.getElementById(
+        "status"
+    ).textContent =
+        "✋ " + gesture;
+
+}
+
+
+/* ==========================================================
+   HAND MODE
+========================================================== */
+
+function setHandMode(newMode){
+
+    currentMode =
+        newMode;
+
+
+    document.getElementById(
+        "mode"
+    ).textContent =
+        newMode
+            .charAt(0)
+            .toUpperCase()
+        +
+        newMode.slice(1);
+
+
+    ["laser","vortex","gather"]
+        .forEach(
+            id => {
+
+                document
+                    .getElementById(id)
+                    .classList
+                    .remove("active");
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            newMode
+        )
+        .classList
+        .add("active");
+
+}
+
+
+/* ==========================================================
+   KEYBOARD
+========================================================== */
+
+window.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key==="1")
+            setMode("laser");
+
+        if(e.key==="2")
+            setMode("vortex");
+
+        if(e.key==="3")
+            setMode("gather");
+
+        if(e.key.toLowerCase()==="h")
+            makeShape("heart");
+
+        if(e.key.toLowerCase()==="c")
+            makeShape("circle");
+
+        if(e.key.toLowerCase()==="t")
+            makeShape("triangle");
+
+        if(e.key.toLowerCase()==="b")
+            bigBang();
+
+        if(e.key.toLowerCase()==="n")
+            nova();
+
+        if(e.key.toLowerCase()==="d")
+            toggleDoodle();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
