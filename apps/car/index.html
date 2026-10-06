@@ -2,321 +2,625 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
 <title>Car Clash Arena</title>
 
 <style>
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
+    box-sizing:border-box;
+    -webkit-user-select:none;
     user-select:none;
+    -webkit-touch-callout:none;
 }
 
-body{
-    background:#090b12;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
+html,body{
+    width:100%;
+    height:100%;
     overflow:hidden;
+    background:#070a10;
+    font-family:Arial,Helvetica,sans-serif;
+    touch-action:none;
 }
 
 button{
-    border:0;
-    cursor:pointer;
+    font-family:inherit;
+    -webkit-tap-highlight-color:transparent;
 }
 
 #app{
     width:100vw;
-    height:100vh;
+    height:100dvh;
     position:relative;
     overflow:hidden;
 }
 
-/* ================= MENU ================= */
+/* =====================================================
+   MENU
+===================================================== */
 
 #menu{
     position:absolute;
     inset:0;
-    z-index:20;
+    z-index:100;
     display:flex;
-    align-items:center;
     justify-content:center;
+    align-items:center;
+
     background:
-        radial-gradient(circle at center,#252d45 0,#0d111c 45%,#05060a 100%);
+        radial-gradient(
+            circle at 50% 35%,
+            #283752 0%,
+            #101725 38%,
+            #05070b 100%
+        );
+
+    padding:
+        env(safe-area-inset-top)
+        env(safe-area-inset-right)
+        env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
 }
 
 .menu-box{
     width:min(520px,92vw);
-    padding:35px;
-    border:2px solid #37445f;
-    border-radius:25px;
-    background:rgba(10,14,24,.94);
-    box-shadow:0 25px 80px rgba(0,0,0,.7);
-    text-align:center;
+    max-height:94dvh;
+    overflow:auto;
+
+    padding:clamp(20px,5vw,38px);
+
+    border-radius:26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24,31,45,.98),
+            rgba(8,12,20,.98)
+        );
+
+    border:1px solid #3b4962;
+
+    box-shadow:
+        0 25px 80px rgba(0,0,0,.7);
 }
 
 .logo{
-    font-size:42px;
-    font-weight:900;
-    letter-spacing:3px;
-    color:#ffcf3f;
-    text-shadow:0 5px 20px #ff7b00;
-    margin-bottom:8px;
+    text-align:center;
+
+    font-size:
+        clamp(30px,9vw,48px);
+
+    font-weight:1000;
+
+    letter-spacing:2px;
+
+    color:#ffbd32;
+
+    text-shadow:
+        0 4px 20px rgba(255,123,0,.55);
 }
 
 .subtitle{
-    color:#9da8bc;
-    margin-bottom:28px;
+    text-align:center;
+
+    margin-top:5px;
+    margin-bottom:25px;
+
+    color:#8491a7;
+
+    font-size:12px;
+    letter-spacing:3px;
 }
 
 .section-title{
-    text-align:left;
-    color:#aebbd0;
-    font-size:13px;
+    color:#98a5ba;
+
+    font-size:11px;
+
     font-weight:bold;
-    margin:18px 0 8px;
-    text-transform:uppercase;
+
+    margin:
+        18px 0 9px;
+
+    letter-spacing:1px;
 }
 
 .mode-row,
 .players-row{
     display:flex;
-    gap:10px;
+    gap:8px;
 }
 
 .mode-btn,
 .player-btn{
     flex:1;
-    padding:15px 8px;
-    color:white;
-    background:#171e2d;
-    border:1px solid #34405a;
-    border-radius:12px;
-    font-weight:bold;
+
+    min-height:52px;
+
+    border-radius:13px;
+
+    border:1px solid #35435b;
+
+    background:#171e2c;
+
+    color:#dce3ef;
+
+    font-size:13px;
+
+    font-weight:800;
 }
 
 .mode-btn.active,
 .player-btn.active{
-    background:#ff8a00;
-    border-color:#ffc14d;
+    background:
+        linear-gradient(
+            135deg,
+            #ffc13d,
+            #ff7300
+        );
+
     color:#111;
+
+    border-color:#ffd879;
 }
 
 #startBtn{
     width:100%;
-    margin-top:25px;
-    padding:18px;
-    border-radius:14px;
-    background:linear-gradient(135deg,#ffb300,#ff5e00);
+
+    min-height:60px;
+
+    margin-top:24px;
+
+    border:0;
+
+    border-radius:16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffc43d,
+            #ff6500
+        );
+
     color:#111;
-    font-size:19px;
-    font-weight:900;
-    box-shadow:0 8px 25px rgba(255,115,0,.35);
+
+    font-size:17px;
+
+    font-weight:1000;
+
+    box-shadow:
+        0 10px 30px rgba(255,100,0,.3);
 }
 
-#startBtn:hover{
-    transform:translateY(-2px);
-}
-
-/* ================= GAME ================= */
+/* =====================================================
+   GAME
+===================================================== */
 
 #game{
     position:absolute;
     inset:0;
     display:none;
-    background:#10151e;
+    overflow:hidden;
 }
 
-canvas{
+#canvas{
     position:absolute;
     inset:0;
+
+    width:100%;
+    height:100%;
+
+    display:block;
 }
 
-/* ================= HUD ================= */
+/* =====================================================
+   HUD
+===================================================== */
 
 #hud{
     position:absolute;
-    top:15px;
-    left:15px;
-    right:15px;
-    z-index:5;
+
+    z-index:10;
+
+    top:
+        calc(env(safe-area-inset-top) + 8px);
+
+    left:
+        calc(env(safe-area-inset-left) + 8px);
+
+    right:
+        calc(env(safe-area-inset-right) + 8px);
+
     display:flex;
+
     justify-content:space-between;
+
     pointer-events:none;
 }
 
 .hud-box{
-    min-width:190px;
-    padding:12px 15px;
-    border-radius:14px;
-    background:rgba(7,10,17,.8);
-    border:1px solid #34405a;
+    min-width:130px;
+
+    padding:8px 10px;
+
+    border-radius:12px;
+
+    background:rgba(6,9,15,.78);
+
+    border:1px solid rgba(100,120,150,.4);
+
+    backdrop-filter:blur(8px);
 }
 
 .hud-title{
-    font-size:12px;
-    color:#9ba7bb;
-    margin-bottom:6px;
+    font-size:9px;
+
+    color:#8e9aae;
+
+    margin-bottom:5px;
+
+    letter-spacing:1px;
 }
 
 .hp-bar{
-    width:160px;
-    height:10px;
-    background:#242b37;
-    border-radius:10px;
+    width:120px;
+    height:8px;
+
     overflow:hidden;
+
+    border-radius:10px;
+
+    background:#252c38;
 }
 
 .hp-fill{
-    height:100%;
     width:100%;
-    background:#38e078;
-    transition:.1s;
+    height:100%;
+
+    background:#43e477;
 }
 
-#score{
-    font-size:22px;
-    font-weight:900;
+.hp-text{
+    margin-top:4px;
+
+    font-size:10px;
+
+    color:#dce4ed;
 }
 
 #objective{
     text-align:right;
 }
 
-/* ================= CONTROLS ================= */
+#score{
+    font-size:18px;
+    font-weight:900;
+}
+
+/* =====================================================
+   MOBILE CONTROLS
+===================================================== */
 
 #controls{
     position:absolute;
     inset:0;
-    z-index:6;
+
+    z-index:20;
+
     pointer-events:none;
 }
 
-.control{
+/* joystick */
+
+#joystick{
     position:absolute;
-    pointer-events:auto;
-    width:62px;
-    height:62px;
+
+    left:
+        calc(
+            env(safe-area-inset-left) +
+            clamp(18px,5vw,45px)
+        );
+
+    bottom:
+        calc(
+            env(safe-area-inset-bottom) +
+            clamp(18px,5vw,35px)
+        );
+
+    width:
+        clamp(125px,31vw,170px);
+
+    height:
+        clamp(125px,31vw,170px);
+
     border-radius:50%;
-    background:rgba(25,31,44,.78);
-    border:2px solid #59667f;
-    color:white;
-    font-size:24px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(90,105,130,.28),
+            rgba(20,27,40,.5)
+        );
+
+    border:
+        2px solid
+        rgba(150,165,190,.3);
+
+    pointer-events:auto;
+}
+
+#joystickKnob{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:
+        clamp(55px,14vw,72px);
+
+    height:
+        clamp(55px,14vw,72px);
+
+    transform:
+        translate(-50%,-50%);
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #56647a,
+            #283345
+        );
+
+    border:2px solid #718097;
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.4);
+}
+
+/* action buttons */
+
+.action-btn{
+    position:absolute;
+
+    pointer-events:auto;
+
+    border-radius:50%;
+
     display:flex;
-    justify-content:center;
+
     align-items:center;
+    justify-content:center;
+
+    color:white;
+
+    font-weight:1000;
+
+    border:2px solid rgba(255,255,255,.3);
+
+    box-shadow:
+        0 7px 20px rgba(0,0,0,.4);
+
+    transition:
+        transform .08s,
+        filter .08s;
 }
 
-.control:active{
-    background:#ff8700;
-    color:#111;
-}
-
-#up{
-    bottom:125px;
-    left:95px;
-}
-
-#down{
-    bottom:25px;
-    left:95px;
-}
-
-#left{
-    bottom:75px;
-    left:25px;
-}
-
-#right{
-    bottom:75px;
-    left:165px;
+.action-btn:active{
+    transform:scale(.9);
+    filter:brightness(1.3);
 }
 
 #fire{
-    right:35px;
-    bottom:70px;
-    width:90px;
-    height:90px;
-    background:#ff4b20;
-    border-color:#ff9b72;
-    font-size:16px;
-    font-weight:900;
+    right:
+        calc(
+            env(safe-area-inset-right) +
+            clamp(20px,6vw,45px)
+        );
+
+    bottom:
+        calc(
+            env(safe-area-inset-bottom) +
+            clamp(25px,7vw,50px)
+        );
+
+    width:
+        clamp(78px,19vw,105px);
+
+    height:
+        clamp(78px,19vw,105px);
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ff7750,
+            #d82917
+        );
+
+    font-size:13px;
 }
 
 #boost{
-    right:140px;
-    bottom:45px;
-    width:65px;
-    height:65px;
-    background:#276fff;
-    border-color:#75a1ff;
-    font-size:13px;
-    font-weight:bold;
+    right:
+        calc(
+            env(safe-area-inset-right) +
+            clamp(115px,28vw,160px)
+        );
+
+    bottom:
+        calc(
+            env(safe-area-inset-bottom) +
+            clamp(20px,6vw,40px)
+        );
+
+    width:
+        clamp(58px,14vw,75px);
+
+    height:
+        clamp(58px,14vw,75px);
+
+    background:
+        radial-gradient(
+            circle,
+            #4c9cff,
+            #1450c5
+        );
+
+    font-size:10px;
 }
 
-/* ================= END ================= */
+/* =====================================================
+   RESULT
+===================================================== */
 
 #result{
     position:absolute;
     inset:0;
-    z-index:30;
+
+    z-index:200;
+
     display:none;
+
     align-items:center;
     justify-content:center;
-    background:rgba(0,0,0,.72);
+
+    padding:20px;
+
+    background:
+        rgba(0,0,0,.75);
+
+    backdrop-filter:blur(6px);
 }
 
 .result-box{
-    width:min(420px,90vw);
+    width:min(400px,90vw);
+
+    padding:30px 22px;
+
+    border-radius:24px;
+
     text-align:center;
-    padding:35px;
-    border-radius:25px;
-    background:#101622;
-    border:2px solid #394760;
+
+    background:#111824;
+
+    border:1px solid #40506a;
 }
 
 #resultTitle{
-    font-size:42px;
+    font-size:
+        clamp(32px,10vw,48px);
+
     margin-bottom:10px;
 }
 
 #resultText{
-    color:#aeb8ca;
-    margin-bottom:25px;
+    color:#aab5c7;
+
+    margin-bottom:22px;
 }
 
 #restartBtn{
     width:100%;
-    padding:16px;
-    border-radius:12px;
-    background:#ff9b00;
-    font-weight:900;
+
+    min-height:56px;
+
+    border-radius:14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffc13b,
+            #ff6b00
+        );
+
+    font-weight:1000;
 }
 
-/* mobile */
-@media(max-width:600px){
-    .logo{
-        font-size:32px;
+/* =====================================================
+   LANDSCAPE WARNING
+===================================================== */
+
+#rotateWarning{
+    position:absolute;
+    inset:0;
+
+    z-index:500;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    text-align:center;
+
+    padding:30px;
+
+    background:#070a10;
+
+    color:white;
+}
+
+.rotate-icon{
+    font-size:55px;
+    margin-bottom:15px;
+}
+
+.rotate-text{
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* phones in portrait */
+
+@media
+(max-width:700px)
+and
+(orientation:portrait){
+
+    #rotateWarning{
+        display:flex;
     }
 
-    .menu-box{
-        padding:25px 20px;
-    }
+}
 
-    #hud{
-        top:8px;
-        left:8px;
-        right:8px;
-    }
+/* very small landscape phones */
+
+@media
+(max-height:430px)
+and
+(orientation:landscape){
 
     .hud-box{
-        min-width:130px;
-        padding:8px;
+        padding:5px 8px;
     }
 
-    .hp-bar{
-        width:110px;
+    #joystick{
+        width:115px;
+        height:115px;
     }
+
+    #joystickKnob{
+        width:52px;
+        height:52px;
+    }
+}
+
+/* desktop */
+
+@media(min-width:1000px){
+
+    #controls{
+        opacity:.75;
+    }
+
 }
 </style>
 </head>
@@ -325,56 +629,110 @@ canvas{
 
 <div id="app">
 
-<!-- ================= MENU ================= -->
+<!-- =====================================================
+     ROTATE
+===================================================== -->
+
+<div id="rotateWarning">
+
+    <div>
+
+        <div class="rotate-icon">
+            📱↔️
+        </div>
+
+        <div class="rotate-text">
+            Rotate your phone<br>
+            to landscape mode
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MENU
+===================================================== -->
 
 <div id="menu">
 
     <div class="menu-box">
 
-        <div class="logo">CAR CLASH</div>
-        <div class="subtitle">ARENA COMBAT</div>
-
-        <div class="section-title">Game Mode</div>
-
-        <div class="mode-row">
-            <button class="mode-btn active" data-mode="single">
-                SINGLE PLAYER
-            </button>
-
-            <button class="mode-btn" data-mode="team">
-                TEAM BATTLE
-            </button>
+        <div class="logo">
+            CAR CLASH
         </div>
 
-        <div id="teamOptions">
+        <div class="subtitle">
+            ARENA COMBAT
+        </div>
+
+
+        <div class="section-title">
+            GAME MODE
+        </div>
+
+        <div class="mode-row">
+
+            <button
+                class="mode-btn active"
+                data-mode="single">
+
+                SINGLE PLAYER
+
+            </button>
+
+            <button
+                class="mode-btn"
+                data-mode="team">
+
+                TEAM BATTLE
+
+            </button>
+
+        </div>
+
+
+        <div id="teamOptions"
+             style="display:none">
 
             <div class="section-title">
-                Human Players
+                HUMAN PLAYERS
             </div>
 
             <div class="players-row">
 
-                <button class="player-btn active"
-                        data-players="1">
-                    1
+                <button
+                    class="player-btn active"
+                    data-players="1">
+
+                    1 PLAYER
+
                 </button>
 
-                <button class="player-btn"
-                        data-players="2">
-                    2
+                <button
+                    class="player-btn"
+                    data-players="2">
+
+                    2 PLAYERS
+
                 </button>
 
-                <button class="player-btn"
-                        data-players="3">
-                    3
+                <button
+                    class="player-btn"
+                    data-players="3">
+
+                    3 PLAYERS
+
                 </button>
 
             </div>
 
         </div>
 
+
         <button id="startBtn">
-            START BATTLE
+            🚗 START BATTLE
         </button>
 
     </div>
@@ -382,11 +740,16 @@ canvas{
 </div>
 
 
-<!-- ================= GAME ================= -->
+<!-- =====================================================
+     GAME
+===================================================== -->
 
 <div id="game">
 
     <canvas id="canvas"></canvas>
+
+
+    <!-- HUD -->
 
     <div id="hud">
 
@@ -397,20 +760,30 @@ canvas{
             </div>
 
             <div class="hp-bar">
-                <div id="playerHP"
-                     class="hp-fill">
+
+                <div
+                    id="playerHP"
+                    class="hp-fill">
                 </div>
+
             </div>
 
-            <div style="margin-top:6px">
-                <span id="hpText">100</span> HP
+            <div class="hp-text">
+
+                <span id="hpText">
+                    100
+                </span>
+
+                HP
+
             </div>
 
         </div>
 
 
-        <div class="hud-box"
-             id="objective">
+        <div
+            class="hud-box"
+            id="objective">
 
             <div class="hud-title">
                 BATTLE
@@ -425,19 +798,32 @@ canvas{
     </div>
 
 
+    <!-- CONTROLS -->
+
     <div id="controls">
 
-        <div id="up" class="control">▲</div>
-        <div id="down" class="control">▼</div>
-        <div id="left" class="control">◀</div>
-        <div id="right" class="control">▶</div>
+        <div id="joystick">
 
-        <div id="boost" class="control">
-            BOOST
+            <div id="joystickKnob"></div>
+
         </div>
 
-        <div id="fire" class="control">
-            FIRE
+
+        <div
+            id="boost"
+            class="action-btn">
+
+            ⚡
+
+        </div>
+
+
+        <div
+            id="fire"
+            class="action-btn">
+
+            🔥 FIRE
+
         </div>
 
     </div>
@@ -445,18 +831,20 @@ canvas{
 </div>
 
 
-<!-- ================= RESULT ================= -->
+<!-- =====================================================
+     RESULT
+===================================================== -->
 
 <div id="result">
 
     <div class="result-box">
 
         <div id="resultTitle">
-            VICTORY
+            🏆 VICTORY
         </div>
 
         <div id="resultText">
-            Enemy team destroyed.
+            Enemy team destroyed!
         </div>
 
         <button id="restartBtn">
@@ -472,189 +860,241 @@ canvas{
 
 <script>
 
-/* =========================================================
-   CAR CLASH ARENA
-   ========================================================= */
+/* =====================================================
+   CANVAS
+===================================================== */
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas =
+    document.getElementById("canvas");
 
-let W = 0;
-let H = 0;
+const ctx =
+    canvas.getContext("2d");
+
+let W=0;
+let H=0;
 
 function resize(){
 
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    W =
+        canvas.width =
+        window.innerWidth *
+        devicePixelRatio;
+
+    H =
+        canvas.height =
+        window.innerHeight *
+        devicePixelRatio;
+
+    canvas.style.width =
+        window.innerWidth+"px";
+
+    canvas.style.height =
+        window.innerHeight+"px";
+
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
+
+    W=window.innerWidth;
+    H=window.innerHeight;
 
 }
 
-window.addEventListener("resize",resize);
+window.addEventListener(
+    "resize",
+    resize
+);
+
 resize();
 
 
-/* =========================================================
-   GAME STATE
-   ========================================================= */
+/* =====================================================
+   GAME VARIABLES
+===================================================== */
 
-let gameRunning = false;
+let gameRunning=false;
 
-let gameMode = "single";
+let gameMode="single";
 
-let humanPlayers = 1;
+let humanPlayers=1;
 
-let cars = [];
-let bullets = [];
-let particles = [];
+let cars=[];
+let bullets=[];
+let particles=[];
 
-let player = null;
+let player=null;
 
-let keys = {};
+let playerKills=0;
+let enemyKills=0;
 
-let lastTime = 0;
-
-let playerKills = 0;
-let enemyKills = 0;
+let lastTime=0;
 
 
-/* =========================================================
-   INPUT
-   ========================================================= */
+/* =====================================================
+   MOBILE INPUT
+===================================================== */
 
-window.addEventListener("keydown",e=>{
+let joystick={
+    active:false,
+    x:0,
+    y:0
+};
 
-    keys[e.key.toLowerCase()] = true;
-
-});
-
-window.addEventListener("keyup",e=>{
-
-    keys[e.key.toLowerCase()] = false;
-
-});
+let firePressed=false;
+let boostPressed=false;
 
 
-/* =========================================================
+/* =====================================================
    MENU
-   ========================================================= */
+===================================================== */
 
-document.querySelectorAll(".mode-btn").forEach(btn=>{
+document
+.querySelectorAll(".mode-btn")
+.forEach(btn=>{
 
-    btn.onclick = ()=>{
+    btn.addEventListener(
+        "click",
+        ()=>{
 
-        document.querySelectorAll(".mode-btn")
-        .forEach(x=>x.classList.remove("active"));
+            document
+            .querySelectorAll(".mode-btn")
+            .forEach(b=>
+                b.classList.remove("active")
+            );
 
-        btn.classList.add("active");
+            btn.classList.add("active");
 
-        gameMode = btn.dataset.mode;
+            gameMode =
+                btn.dataset.mode;
 
-        document.getElementById("teamOptions")
-        .style.display =
-            gameMode === "team"
-            ? "block"
-            : "none";
+            document
+            .getElementById("teamOptions")
+            .style.display =
+                gameMode==="team"
+                ? "block"
+                : "none";
 
-    };
-
-});
-
-
-document.querySelectorAll(".player-btn").forEach(btn=>{
-
-    btn.onclick = ()=>{
-
-        document.querySelectorAll(".player-btn")
-        .forEach(x=>x.classList.remove("active"));
-
-        btn.classList.add("active");
-
-        humanPlayers =
-            Number(btn.dataset.players);
-
-    };
-
-});
-
-
-/* =========================================================
-   VECTOR
-   ========================================================= */
-
-function distance(a,b){
-
-    return Math.hypot(
-        a.x-b.x,
-        a.y-b.y
+        }
     );
 
-}
+});
 
 
-/* =========================================================
-   CAR
-   ========================================================= */
+document
+.querySelectorAll(".player-btn")
+.forEach(btn=>{
+
+    btn.addEventListener(
+        "click",
+        ()=>{
+
+            document
+            .querySelectorAll(".player-btn")
+            .forEach(b=>
+                b.classList.remove("active")
+            );
+
+            btn.classList.add("active");
+
+            humanPlayers =
+                Number(btn.dataset.players);
+
+        }
+    );
+
+});
+
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+let keys={};
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        keys[e.key.toLowerCase()]=true;
+
+    }
+);
+
+window.addEventListener(
+    "keyup",
+    e=>{
+
+        keys[e.key.toLowerCase()]=false;
+
+    }
+);
+
+
+/* =====================================================
+   CAR CLASS
+===================================================== */
 
 class Car{
 
-    constructor(x,y,team,isHuman=false){
+    constructor(
+        x,
+        y,
+        team,
+        human=false
+    ){
 
         this.x=x;
         this.y=y;
 
         this.team=team;
 
-        this.isHuman=isHuman;
+        this.human=human;
 
         this.angle=0;
 
         this.speed=0;
 
-        this.maxSpeed=3.4;
-
-        this.acceleration=.16;
-
-        this.friction=.94;
-
-        this.turnSpeed=.055;
-
-        this.width=38;
-        this.height=58;
+        this.maxSpeed=3.8;
 
         this.hp=100;
+
         this.maxHp=100;
 
         this.cooldown=0;
 
         this.dead=false;
 
-        this.aiTarget=null;
-
-        this.aiTimer=0;
-
         this.boost=100;
+
+        this.width=38;
+        this.height=56;
 
     }
 
 
-    update(dt){
+    update(){
 
         if(this.dead)
             return;
 
 
-        if(this.isHuman){
+        if(this.human){
 
-            this.controlPlayer();
+            this.playerControl();
 
         }else{
 
-            this.controlAI();
+            this.aiControl();
 
         }
 
 
-        this.speed *= this.friction;
+        this.speed*=.94;
 
 
         this.x +=
@@ -666,89 +1106,140 @@ class Car{
             this.speed;
 
 
-        this.x = Math.max(
-            35,
-            Math.min(W-35,this.x)
-        );
+        this.x =
+            Math.max(
+                32,
+                Math.min(
+                    W-32,
+                    this.x
+                )
+            );
 
-        this.y = Math.max(
-            35,
-            Math.min(H-35,this.y)
-        );
+
+        this.y =
+            Math.max(
+                32,
+                Math.min(
+                    H-32,
+                    this.y
+                )
+            );
 
 
         if(this.cooldown>0)
             this.cooldown--;
 
-
-        if(this.aiTimer>0)
-            this.aiTimer--;
-
     }
 
 
-    controlPlayer(){
+    playerControl(){
 
-        let forward =
+        /*
+         MOBILE JOYSTICK
+        */
+
+        if(
+            joystick.active
+        ){
+
+            let sx=
+                joystick.x;
+
+            let sy=
+                joystick.y;
+
+
+            let magnitude=
+                Math.hypot(
+                    sx,
+                    sy
+                );
+
+
+            if(magnitude>.1){
+
+                let desired=
+                    Math.atan2(
+                        sx,
+                        -sy
+                    );
+
+
+                let diff=
+                    normalizeAngle(
+                        desired-this.angle
+                    );
+
+
+                this.angle +=
+                    Math.max(
+                        -.07,
+                        Math.min(
+                            .07,
+                            diff
+                        )
+                    );
+
+
+                this.speed +=
+                    .18 *
+                    Math.min(
+                        1,
+                        magnitude
+                    );
+
+            }
+
+        }
+
+
+        /*
+         DESKTOP KEYBOARD
+        */
+
+        if(
             keys["w"] ||
-            keys["arrowup"];
+            keys["arrowup"]
+        ){
 
-        let backward =
+            this.speed+=.16;
+
+        }
+
+
+        if(
             keys["s"] ||
-            keys["arrowdown"];
+            keys["arrowdown"]
+        ){
 
-        let left =
+            this.speed-=.12;
+
+        }
+
+
+        if(
             keys["a"] ||
-            keys["arrowleft"];
+            keys["arrowleft"]
+        ){
 
-        let right =
+            this.angle-=.055;
+
+        }
+
+
+        if(
             keys["d"] ||
-            keys["arrowright"];
+            keys["arrowright"]
+        ){
 
-
-        if(forward){
-
-            this.speed +=
-                this.acceleration;
+            this.angle+=.055;
 
         }
 
 
-        if(backward){
-
-            this.speed -=
-                this.acceleration;
-
-        }
-
-
-        if(left){
-
-            this.angle -=
-                this.turnSpeed *
-                Math.max(
-                    .5,
-                    Math.abs(this.speed)/2
-                );
-
-        }
-
-
-        if(right){
-
-            this.angle +=
-                this.turnSpeed *
-                Math.max(
-                    .5,
-                    Math.abs(this.speed)/2
-                );
-
-        }
-
-
-        this.speed =
+        this.speed=
             Math.max(
-                -this.maxSpeed*.45,
+                -.9,
                 Math.min(
                     this.maxSpeed,
                     this.speed
@@ -757,6 +1248,7 @@ class Car{
 
 
         if(
+            firePressed ||
             keys[" "] ||
             keys["f"]
         ){
@@ -766,7 +1258,10 @@ class Car{
         }
 
 
-        if(keys["shift"]){
+        if(
+            boostPressed ||
+            keys["shift"]
+        ){
 
             this.useBoost();
 
@@ -775,75 +1270,80 @@ class Car{
     }
 
 
-    controlAI(){
+    aiControl(){
 
-        let target =
-            findNearestEnemy(this);
+        let enemies=
+            cars.filter(
+                c=>
+                    !c.dead &&
+                    !sameTeam(
+                        this,
+                        c
+                    )
+            );
 
 
-        if(!target)
+        if(!enemies.length)
             return;
 
 
-        this.aiTarget=target;
+        enemies.sort(
+            (a,b)=>
+                distance(this,a)-
+                distance(this,b)
+        );
 
 
-        let dx=target.x-this.x;
-        let dy=target.y-this.y;
+        let target=
+            enemies[0];
 
 
-        let desired =
-            Math.atan2(dx,-dy);
+        let dx=
+            target.x-this.x;
+
+        let dy=
+            target.y-this.y;
 
 
-        let diff =
+        let desired=
+            Math.atan2(
+                dx,
+                -dy
+            );
+
+
+        let diff=
             normalizeAngle(
                 desired-this.angle
             );
 
 
-        if(diff>.08){
-
-            this.angle +=
-                this.turnSpeed;
-
-        }
-
-        if(diff<-.08){
-
-            this.angle -=
-                this.turnSpeed;
-
-        }
+        this.angle +=
+            Math.max(
+                -.045,
+                Math.min(
+                    .045,
+                    diff
+                )
+            );
 
 
-        let d =
+        let d=
             Math.hypot(dx,dy);
 
 
-        if(d>230){
+        if(d>190)
+            this.speed+=.10;
 
-            this.speed +=
-                this.acceleration*.65;
-
-        }else if(d<140){
-
-            this.speed -=
-                this.acceleration*.35;
-
-        }else{
-
-            this.speed +=
-                this.acceleration*.2;
-
-        }
+        if(d<120)
+            this.speed-=.08;
 
 
-        this.speed =
+        this.speed=
             Math.max(
-                -this.maxSpeed*.3,
+                -.6,
                 Math.min(
-                    this.maxSpeed*.8,
+                    2.8,
                     this.speed
                 )
             );
@@ -851,24 +1351,12 @@ class Car{
 
         if(
             Math.abs(diff)<.18 &&
-            d<520
+            d<500
         ){
 
             this.shoot();
 
         }
-
-    }
-
-
-    useBoost(){
-
-        if(this.boost<=0)
-            return;
-
-        this.speed += .45;
-
-        this.boost -= .8;
 
     }
 
@@ -879,44 +1367,53 @@ class Car{
             return;
 
 
-        this.cooldown =
-            this.isHuman
-            ? 18
-            : 38;
-
-
-        let bx =
-            this.x +
-            Math.sin(this.angle)*38;
-
-        let by =
-            this.y -
-            Math.cos(this.angle)*38;
+        this.cooldown=
+            this.human
+            ? 15
+            : 35;
 
 
         bullets.push({
 
-            x:bx,
-            y:by,
+            x:
+                this.x+
+                Math.sin(this.angle)*36,
+
+            y:
+                this.y-
+                Math.cos(this.angle)*36,
 
             vx:
-                Math.sin(this.angle)*8,
+                Math.sin(this.angle)*9,
 
             vy:
-                -Math.cos(this.angle)*8,
+                -Math.cos(this.angle)*9,
 
             team:this.team,
 
             owner:this,
 
-            life:90,
-
             damage:
-                this.isHuman
-                ? 18
-                : 10
+                this.human
+                ? 17
+                : 10,
+
+            life:80
 
         });
+
+    }
+
+
+    useBoost(){
+
+        if(this.boost<=0)
+            return;
+
+
+        this.speed+=.4;
+
+        this.boost-=1;
 
     }
 
@@ -927,10 +1424,10 @@ class Car{
             return;
 
 
-        this.hp -= amount;
+        this.hp-=amount;
 
 
-        createExplosion(
+        explosion(
             this.x,
             this.y,
             5
@@ -944,24 +1441,29 @@ class Car{
             this.dead=true;
 
 
-            createExplosion(
+            explosion(
                 this.x,
                 this.y,
                 30
             );
 
 
-            if(attacker){
+            if(
+                attacker &&
+                isFriendly(attacker)
+            ){
 
-                if(attacker.team==="player"){
+                playerKills++;
 
-                    playerKills++;
+            }
 
-                }else{
 
-                    enemyKills++;
+            if(
+                attacker &&
+                !isFriendly(attacker)
+            ){
 
-                }
+                enemyKills++;
 
             }
 
@@ -986,98 +1488,121 @@ class Car{
             this.y
         );
 
-        ctx.rotate(this.angle);
+        ctx.rotate(
+            this.angle
+        );
 
 
-        /* shadow */
+        /*
+        shadow
+        */
 
         ctx.fillStyle=
             "rgba(0,0,0,.35)";
 
         ctx.fillRect(
-            -this.width/2+4,
-            -this.height/2+6,
-            this.width,
-            this.height
+            -17,
+            -25,
+            38,
+            58
         );
 
 
-        /* body */
+        /*
+        body
+        */
 
-        ctx.fillStyle =
-            this.team==="player"
-            ? "#ff9b00"
-            : "#ef3340";
+        let color="#e7343e";
 
 
-        if(this.team==="ally")
-            ctx.fillStyle="#38a8ff";
+        if(
+            this.team==="player" ||
+            this.team==="ally"
+        ){
+
+            color=
+                this.team==="player"
+                ? "#ff9d00"
+                : "#279cff";
+
+        }
+
+
+        ctx.fillStyle=color;
 
 
         ctx.beginPath();
 
         ctx.roundRect(
-            -this.width/2,
-            -this.height/2,
-            this.width,
-            this.height,
+            -19,
+            -28,
+            38,
+            56,
             8
         );
 
         ctx.fill();
 
 
-        /* roof */
+        /*
+        roof
+        */
 
-        ctx.fillStyle="#202733";
+        ctx.fillStyle="#1c2531";
 
         ctx.beginPath();
 
         ctx.roundRect(
-            -14,
+            -13,
             -15,
-            28,
-            28,
+            26,
+            27,
             6
         );
 
         ctx.fill();
 
 
-        /* windshield */
+        /*
+        glass
+        */
 
-        ctx.fillStyle="#6ed7ff";
+        ctx.fillStyle="#69d9ff";
 
         ctx.fillRect(
+            -9,
             -10,
-            -11,
-            20,
-            9
+            18,
+            8
         );
 
 
-        /* front */
+        /*
+        lights
+        */
 
-        ctx.fillStyle="#ffe36d";
+        ctx.fillStyle="#fff0a0";
 
         ctx.fillRect(
             -13,
-            -28,
+            -27,
             8,
             5
         );
 
         ctx.fillRect(
             5,
-            -28,
+            -27,
             8,
             5
         );
 
 
-        /* wheels */
+        /*
+        wheels
+        */
 
-        ctx.fillStyle="#090a0d";
+        ctx.fillStyle="#080a0e";
 
         ctx.fillRect(
             -22,
@@ -1095,14 +1620,14 @@ class Car{
 
         ctx.fillRect(
             -22,
-            5,
+            6,
             7,
             16
         );
 
         ctx.fillRect(
             15,
-            5,
+            6,
             7,
             16
         );
@@ -1111,28 +1636,30 @@ class Car{
         ctx.restore();
 
 
-        /* health */
+        /*
+        health bar
+        */
 
-        const barW=50;
-
-        ctx.fillStyle="#16191e";
+        ctx.fillStyle="#171b22";
 
         ctx.fillRect(
-            this.x-barW/2,
-            this.y-43,
-            barW,
+            this.x-25,
+            this.y-40,
+            50,
             5
         );
 
-        ctx.fillStyle =
-            this.team==="player"
-            ? "#49e36f"
-            : "#ff4650";
+
+        ctx.fillStyle=
+            isFriendly(this)
+            ? "#45e875"
+            : "#ff404a";
+
 
         ctx.fillRect(
-            this.x-barW/2,
-            this.y-43,
-            barW*(this.hp/this.maxHp),
+            this.x-25,
+            this.y-40,
+            50*(this.hp/100),
             5
         );
 
@@ -1141,9 +1668,49 @@ class Car{
 }
 
 
-/* =========================================================
-   ANGLE
-   ========================================================= */
+/* =====================================================
+   TEAM
+===================================================== */
+
+function isFriendly(car){
+
+    return(
+        car.team==="player" ||
+        car.team==="ally" ||
+        car.team==="player2" ||
+        car.team==="player3"
+    );
+
+}
+
+
+function sameTeam(a,b){
+
+    return(
+        isFriendly(a) &&
+        isFriendly(b)
+    ) ||
+    (
+        a.team==="enemy" &&
+        b.team==="enemy"
+    );
+
+}
+
+
+/* =====================================================
+   DISTANCE
+===================================================== */
+
+function distance(a,b){
+
+    return Math.hypot(
+        a.x-b.x,
+        a.y-b.y
+    );
+
+}
+
 
 function normalizeAngle(a){
 
@@ -1158,39 +1725,204 @@ function normalizeAngle(a){
 }
 
 
-/* =========================================================
-   FIND ENEMY
-   ========================================================= */
+/* =====================================================
+   START GAME
+===================================================== */
 
-function findNearestEnemy(car){
+function startGame(){
 
-    let enemies =
-        cars.filter(
-            c =>
-                !c.dead &&
-                c.team!==car.team
+    document
+    .getElementById("menu")
+    .style.display="none";
+
+
+    document
+    .getElementById("game")
+    .style.display="block";
+
+
+    document
+    .getElementById("result")
+    .style.display="none";
+
+
+    cars=[];
+    bullets=[];
+    particles=[];
+
+
+    playerKills=0;
+    enemyKills=0;
+
+
+    player=
+        new Car(
+            W/2,
+            H-130,
+            "player",
+            true
         );
 
 
-    if(!enemies.length)
-        return null;
+    cars.push(player);
 
 
-    enemies.sort(
-        (a,b)=>
-            distance(car,a)-
-            distance(car,b)
-    );
+    if(gameMode==="single"){
+
+        enemy(
+            100,
+            100
+        );
+
+        enemy(
+            W-100,
+            100
+        );
+
+        enemy(
+            W/2,
+            100
+        );
+
+    }else{
+
+        /*
+        Add human players
+        */
+
+        if(humanPlayers>=2){
+
+            cars.push(
+                new Car(
+                    W/2-80,
+                    H-120,
+                    "player2",
+                    true
+                )
+            );
+
+        }
 
 
-    return enemies[0];
+        if(humanPlayers>=3){
+
+            cars.push(
+                new Car(
+                    W/2+80,
+                    H-120,
+                    "player3",
+                    true
+                )
+            );
+
+        }
+
+
+        /*
+        Fill team with AI helpers
+        */
+
+        while(
+            cars.filter(
+                c=>isFriendly(c)
+            ).length<3
+        ){
+
+            cars.push(
+                new Car(
+                    W/2+
+                    (Math.random()-.5)*200,
+
+                    H-100,
+
+                    "ally",
+
+                    false
+                )
+            );
+
+        }
+
+
+        /*
+        enemies
+        */
+
+        enemy(100,100);
+        enemy(W-100,100);
+        enemy(W/2,90);
+
+    }
+
+
+    gameRunning=true;
+
+    lastTime=
+        performance.now();
+
+
+    requestAnimationFrame(loop);
 
 }
 
 
-/* =========================================================
+function enemy(x,y){
+
+    cars.push(
+        new Car(
+            x,
+            y,
+            "enemy",
+            false
+        )
+    );
+
+}
+
+
+/* =====================================================
+   GAME LOOP
+===================================================== */
+
+function loop(){
+
+    if(!gameRunning)
+        return;
+
+
+    update();
+
+    draw();
+
+
+    requestAnimationFrame(loop);
+
+}
+
+
+function update(){
+
+    for(
+        const car of cars
+    ){
+
+        car.update();
+
+    }
+
+
+    updateBullets();
+
+    updateParticles();
+
+    updateHUD();
+
+}
+
+
+/* =====================================================
    BULLETS
-   ========================================================= */
+===================================================== */
 
 function updateBullets(){
 
@@ -1200,23 +1932,23 @@ function updateBullets(){
         i--
     ){
 
-        let b=bullets[i];
+        const b=
+            bullets[i];
 
-        b.x += b.vx;
-        b.y += b.vy;
+
+        b.x+=b.vx;
+        b.y+=b.vy;
 
         b.life--;
 
 
-        let remove =
+        if(
             b.life<=0 ||
             b.x<0 ||
             b.x>W ||
             b.y<0 ||
-            b.y>H;
-
-
-        if(remove){
+            b.y>H
+        ){
 
             bullets.splice(i,1);
             continue;
@@ -1224,12 +1956,16 @@ function updateBullets(){
         }
 
 
-        for(let car of cars){
+        for(
+            const car of cars
+        ){
 
             if(
                 car.dead ||
-                car.team===b.team ||
-                car===b.owner
+                sameTeam(
+                    car,
+                    b.owner
+                )
             )
                 continue;
 
@@ -1246,6 +1982,7 @@ function updateBullets(){
                     b.owner
                 );
 
+
                 bullets.splice(i,1);
 
                 break;
@@ -1259,50 +1996,51 @@ function updateBullets(){
 }
 
 
-/* =========================================================
-   BULLET DRAW
-   ========================================================= */
-
 function drawBullets(){
 
-    for(let b of bullets){
+    for(
+        const b of bullets
+    ){
 
         ctx.beginPath();
 
         ctx.arc(
             b.x,
             b.y,
-            5,
+            4,
             0,
             Math.PI*2
         );
 
-        ctx.fillStyle =
-            b.team==="enemy"
-            ? "#ff4050"
-            : "#ffd23f";
-
-        ctx.shadowBlur=12;
-
-        ctx.shadowColor=
-            ctx.fillStyle;
+        ctx.fillStyle=
+            isFriendly(
+                b.owner
+            )
+            ? "#ffd34a"
+            : "#ff4040";
 
         ctx.fill();
-
-        ctx.shadowBlur=0;
 
     }
 
 }
 
 
-/* =========================================================
+/* =====================================================
    PARTICLES
-   ========================================================= */
+===================================================== */
 
-function createExplosion(x,y,count){
+function explosion(
+    x,
+    y,
+    amount
+){
 
-    for(let i=0;i<count;i++){
+    for(
+        let i=0;
+        i<amount;
+        i++
+    ){
 
         particles.push({
 
@@ -1316,7 +2054,7 @@ function createExplosion(x,y,count){
                 (Math.random()-.5)*5,
 
             life:
-                25+
+                20+
                 Math.random()*25,
 
             size:
@@ -1338,22 +2076,21 @@ function updateParticles(){
         i--
     ){
 
-        let p=particles[i];
+        let p=
+            particles[i];
+
 
         p.x+=p.vx;
         p.y+=p.vy;
 
-        p.vx*=.96;
-        p.vy*=.96;
+        p.vx*=.95;
+        p.vy*=.95;
 
         p.life--;
 
 
-        if(p.life<=0){
-
+        if(p.life<=0)
             particles.splice(i,1);
-
-        }
 
     }
 
@@ -1362,12 +2099,14 @@ function updateParticles(){
 
 function drawParticles(){
 
-    for(let p of particles){
+    for(
+        const p of particles
+    ){
 
         ctx.globalAlpha=
-            p.life/50;
+            p.life/45;
 
-        ctx.fillStyle="#ffb52e";
+        ctx.fillStyle="#ffb52d";
 
         ctx.beginPath();
 
@@ -1388,13 +2127,13 @@ function drawParticles(){
 }
 
 
-/* =========================================================
+/* =====================================================
    ARENA
-   ========================================================= */
+===================================================== */
 
 function drawArena(){
 
-    ctx.fillStyle="#101721";
+    ctx.fillStyle="#101720";
 
     ctx.fillRect(
         0,
@@ -1404,7 +2143,9 @@ function drawArena(){
     );
 
 
-    /* grid */
+    /*
+    grid
+    */
 
     ctx.strokeStyle=
         "rgba(100,130,160,.08)";
@@ -1412,7 +2153,7 @@ function drawArena(){
     ctx.lineWidth=1;
 
 
-    let grid=50;
+    const grid=50;
 
 
     for(
@@ -1447,9 +2188,11 @@ function drawArena(){
     }
 
 
-    /* border */
+    /*
+    arena border
+    */
 
-    ctx.strokeStyle="#42536c";
+    ctx.strokeStyle="#40516a";
 
     ctx.lineWidth=5;
 
@@ -1461,39 +2204,68 @@ function drawArena(){
     );
 
 
-    /* center */
+    /*
+    center circle
+    */
 
     ctx.beginPath();
 
     ctx.arc(
         W/2,
         H/2,
-        90,
+        75,
         0,
         Math.PI*2
     );
 
     ctx.strokeStyle=
-        "rgba(255,160,40,.18)";
+        "rgba(255,160,40,.16)";
 
     ctx.stroke();
 
 
-    /* obstacles */
+    /*
+    obstacles
+    */
 
     const obstacles=[
 
-        [W*.25,H*.3,70,35],
-        [W*.7,H*.3,70,35],
-        [W*.25,H*.7,70,35],
-        [W*.7,H*.7,70,35]
+        [
+            W*.25,
+            H*.30,
+            65,
+            30
+        ],
+
+        [
+            W*.75-65,
+            H*.30,
+            65,
+            30
+        ],
+
+        [
+            W*.25,
+            H*.70,
+            65,
+            30
+        ],
+
+        [
+            W*.75-65,
+            H*.70,
+            65,
+            30
+        ]
 
     ];
 
 
-    for(let o of obstacles){
+    for(
+        const o of obstacles
+    ){
 
-        ctx.fillStyle="#273244";
+        ctx.fillStyle="#293544";
 
         ctx.fillRect(
             o[0],
@@ -1502,7 +2274,8 @@ function drawArena(){
             o[3]
         );
 
-        ctx.strokeStyle="#44546b";
+
+        ctx.strokeStyle="#46576e";
 
         ctx.strokeRect(
             o[0],
@@ -1516,218 +2289,97 @@ function drawArena(){
 }
 
 
-/* =========================================================
-   GAME SETUP
-   ========================================================= */
+/* =====================================================
+   DRAW
+===================================================== */
 
-function startGame(){
+function draw(){
 
-    document.getElementById("menu")
-        .style.display="none";
+    drawArena();
 
-    document.getElementById("game")
-        .style.display="block";
-
-    document.getElementById("result")
-        .style.display="none";
+    drawBullets();
 
 
-    cars=[];
-    bullets=[];
-    particles=[];
+    for(
+        const car of cars
+    ){
 
-    playerKills=0;
-    enemyKills=0;
-
-
-    /* player */
-
-    player =
-        new Car(
-            W/2,
-            H-150,
-            "player",
-            true
-        );
-
-    cars.push(player);
-
-
-    if(gameMode==="single"){
-
-        /*
-          1 player
-          3 enemies
-        */
-
-        createEnemy(
-            150,
-            150
-        );
-
-        createEnemy(
-            W-150,
-            150
-        );
-
-        createEnemy(
-            W/2,
-            120
-        );
-
-    }else{
-
-        /*
-          Team battle
-        */
-
-        /*
-          1 player =
-          1 player + 2 AI helpers
-        */
-
-        /*
-          2 players =
-          2 human + 1 AI helper
-
-          Since this prototype is local,
-          player 2 and player 3 can be
-          controlled using alternate keys.
-        */
-
-        if(humanPlayers>=2){
-
-            cars.push(
-                new Car(
-                    W/2-100,
-                    H-130,
-                    "player2",
-                    true
-                )
-            );
-
-        }
-
-
-        if(humanPlayers>=3){
-
-            cars.push(
-                new Car(
-                    W/2+100,
-                    H-130,
-                    "player3",
-                    true
-                )
-            );
-
-        }
-
-
-        /* Fill team with AI */
-
-        while(
-            cars.filter(c=>
-                c.team==="player" ||
-                c.team==="ally" ||
-                c.team==="player2" ||
-                c.team==="player3"
-            ).length < 3
-        ){
-
-            cars.push(
-                new Car(
-                    100+
-                    Math.random()*(W-200),
-                    H-100-
-                    Math.random()*100,
-                    "ally",
-                    false
-                )
-            );
-
-        }
-
-
-        /* 3 enemy team */
-
-        createEnemy(
-            150,
-            150
-        );
-
-        createEnemy(
-            W-150,
-            150
-        );
-
-        createEnemy(
-            W/2,
-            100
-        );
+        car.draw();
 
     }
 
 
-    gameRunning=true;
-
-    lastTime=
-        performance.now();
-
-    requestAnimationFrame(loop);
+    drawParticles();
 
 }
 
 
-function createEnemy(x,y){
+/* =====================================================
+   HUD
+===================================================== */
 
-    let c =
-        new Car(
-            x,
-            y,
-            "enemy",
-            false
-        );
+function updateHUD(){
 
-    cars.push(c);
+    if(!player)
+        return;
+
+
+    document
+    .getElementById("playerHP")
+    .style.width =
+        player.hp+"%";
+
+
+    document
+    .getElementById("hpText")
+    .textContent =
+        Math.ceil(player.hp);
+
+
+    document
+    .getElementById("score")
+    .textContent =
+        playerKills+
+        " - "+
+        enemyKills;
 
 }
 
 
-/* =========================================================
-   WIN
-   ========================================================= */
+/* =====================================================
+   WIN / LOSE
+===================================================== */
 
 function checkWin(){
 
-    let enemies =
+    const enemies=
         cars.filter(
-            c =>
+            c=>
                 c.team==="enemy" &&
                 !c.dead
         );
 
 
-    let allies =
+    const friends=
         cars.filter(
-            c =>
-                (
-                    c.team==="player" ||
-                    c.team==="ally" ||
-                    c.team==="player2" ||
-                    c.team==="player3"
-                ) &&
+            c=>
+                isFriendly(c) &&
                 !c.dead
         );
 
 
-    if(enemies.length===0){
+    if(
+        enemies.length===0
+    ){
 
         endGame(true);
 
     }
 
 
-    if(allies.length===0){
+    if(
+        friends.length===0
+    ){
 
         endGame(false);
 
@@ -1740,202 +2392,262 @@ function endGame(win){
 
     gameRunning=false;
 
-    document.getElementById("result")
-        .style.display="flex";
+
+    document
+    .getElementById("result")
+    .style.display="flex";
 
 
-    document.getElementById("resultTitle")
-        .textContent =
-            win
-            ? "🏆 VICTORY"
-            : "💀 DEFEAT";
+    document
+    .getElementById("resultTitle")
+    .textContent=
+        win
+        ? "🏆 VICTORY"
+        : "💀 DEFEAT";
 
 
-    document.getElementById("resultText")
-        .textContent =
-            win
-            ? "Enemy team destroyed!"
-            : "Your team has been destroyed.";
+    document
+    .getElementById("resultText")
+    .textContent=
+        win
+        ? "Enemy team destroyed!"
+        : "Your team was destroyed.";
 
 }
 
 
-/* =========================================================
-   HUD
-   ========================================================= */
+/* =====================================================
+   JOYSTICK
+===================================================== */
 
-function updateHUD(){
+const joystickElement=
+    document.getElementById(
+        "joystick"
+    );
 
-    if(!player)
-        return;
+const knob=
+    document.getElementById(
+        "joystickKnob"
+    );
 
 
-    let hp =
-        Math.max(
-            0,
-            player.hp
+function joystickMove(e){
+
+    const rect=
+        joystickElement
+        .getBoundingClientRect();
+
+
+    const cx=
+        rect.left+
+        rect.width/2;
+
+    const cy=
+        rect.top+
+        rect.height/2;
+
+
+    let dx=
+        e.clientX-cx;
+
+    let dy=
+        e.clientY-cy;
+
+
+    const max=
+        rect.width*.32;
+
+
+    const len=
+        Math.hypot(
+            dx,
+            dy
         );
 
 
-    document.getElementById("playerHP")
-        .style.width =
-            hp+"%";
+    if(len>max){
 
+        dx=
+            dx/len*max;
 
-    document.getElementById("hpText")
-        .textContent =
-            Math.ceil(hp);
-
-
-    document.getElementById("score")
-        .textContent =
-            playerKills+
-            " - "+
-            enemyKills;
-
-}
-
-
-/* =========================================================
-   GAME LOOP
-   ========================================================= */
-
-function loop(time){
-
-    if(!gameRunning)
-        return;
-
-
-    let dt =
-        Math.min(
-            2,
-            (time-lastTime)/16.67
-        );
-
-    lastTime=time;
-
-
-    update(dt);
-
-    draw();
-
-
-    requestAnimationFrame(loop);
-
-}
-
-
-function update(dt){
-
-    for(let car of cars){
-
-        car.update(dt);
+        dy=
+            dy/len*max;
 
     }
 
 
-    updateBullets();
+    joystick.x=
+        dx/max;
 
-    updateParticles();
+    joystick.y=
+        dy/max;
 
-    updateHUD();
+
+    knob.style.transform=
+        `translate(
+            calc(-50% + ${dx}px),
+            calc(-50% + ${dy}px)
+        )`;
 
 }
 
 
-/* =========================================================
-   DRAW
-   ========================================================= */
+function joystickReset(){
 
-function draw(){
+    joystick.active=false;
 
-    drawArena();
+    joystick.x=0;
+    joystick.y=0;
 
-    drawBullets();
 
-    for(let car of cars){
+    knob.style.transform=
+        "translate(-50%,-50%)";
 
-        car.draw();
+}
+
+
+joystickElement.addEventListener(
+    "pointerdown",
+    e=>{
+
+        joystick.active=true;
+
+        joystickElement.setPointerCapture(
+            e.pointerId
+        );
+
+        joystickMove(e);
 
     }
-
-    drawParticles();
-
-}
+);
 
 
-/* =========================================================
-   TOUCH CONTROLS
-   ========================================================= */
+joystickElement.addEventListener(
+    "pointermove",
+    e=>{
 
-function bindControl(id,key){
+        if(
+            joystick.active
+        ){
 
-    const el=
-        document.getElementById(id);
+            joystickMove(e);
 
-
-    el.addEventListener(
-        "pointerdown",
-        e=>{
-            e.preventDefault();
-            keys[key]=true;
         }
-    );
+
+    }
+);
 
 
-    el.addEventListener(
-        "pointerup",
-        e=>{
-            e.preventDefault();
-            keys[key]=false;
-        }
-    );
+joystickElement.addEventListener(
+    "pointerup",
+    joystickReset
+);
 
 
-    el.addEventListener(
-        "pointerleave",
-        ()=>{
-            keys[key]=false;
-        }
-    );
-
-}
+joystickElement.addEventListener(
+    "pointercancel",
+    joystickReset
+);
 
 
-bindControl("up","w");
-bindControl("down","s");
-bindControl("left","a");
-bindControl("right","d");
+/* =====================================================
+   FIRE BUTTON
+===================================================== */
 
-bindControl("fire","f");
-bindControl("boost","shift");
-
-
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
-document.getElementById("startBtn")
-    .onclick=startGame;
+const fire=
+    document.getElementById("fire");
 
 
-document.getElementById("restartBtn")
-    .onclick=()=>{
+fire.addEventListener(
+    "pointerdown",
+    e=>{
 
-        document.getElementById("result")
-            .style.display="none";
+        e.preventDefault();
 
-        startGame();
+        firePressed=true;
 
-    };
+    }
+);
 
 
-/* =========================================================
-   DEFAULT MENU
-   ========================================================= */
+fire.addEventListener(
+    "pointerup",
+    e=>{
 
-document.getElementById("teamOptions")
-    .style.display="none";
+        e.preventDefault();
+
+        firePressed=false;
+
+    }
+);
+
+
+fire.addEventListener(
+    "pointercancel",
+    ()=>{
+        firePressed=false;
+    }
+);
+
+
+/* =====================================================
+   BOOST
+===================================================== */
+
+const boost=
+    document.getElementById("boost");
+
+
+boost.addEventListener(
+    "pointerdown",
+    e=>{
+
+        e.preventDefault();
+
+        boostPressed=true;
+
+    }
+);
+
+
+boost.addEventListener(
+    "pointerup",
+    e=>{
+
+        e.preventDefault();
+
+        boostPressed=false;
+
+    }
+);
+
+
+boost.addEventListener(
+    "pointercancel",
+    ()=>{
+        boostPressed=false;
+    }
+);
+
+
+/* =====================================================
+   START / RESTART
+===================================================== */
+
+document
+.getElementById("startBtn")
+.addEventListener(
+    "click",
+    startGame
+);
+
+
+document
+.getElementById("restartBtn")
+.addEventListener(
+    "click",
+    startGame
+);
 
 </script>
 
