@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Focus Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center p-6 font-sans">
+
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-black tracking-tight text-indigo-400">FOCUS MATRIX</h1>
+        <p class="text-xs text-zinc-400 mt-1">Pomodoro Timer & Daily Habit Synchronizer</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+        
+        <!-- Timer Card -->
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex flex-col items-center justify-center shadow-xl">
+            <div class="flex gap-2 mb-6">
+                <button onclick="setTimer(25)" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs rounded-lg font-semibold transition">Work (25m)</button>
+                <button onclick="setTimer(5)" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs rounded-lg font-semibold transition">Short Break (5m)</button>
+                <button onclick="setTimer(15)" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs rounded-lg font-semibold transition">Long Break (15m)</button>
+            </div>
+
+            <div id="timerDisplay" class="text-6xl font-extrabold tracking-widest text-indigo-400 mb-6 font-mono">25:00</div>
+
+            <div class="flex gap-4">
+                <button id="startPauseBtn" onclick="toggleTimer()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-xl font-bold transition">Start</button>
+                <button onclick="resetTimer()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-6 py-2 rounded-xl font-bold transition">Reset</button>
+            </div>
+        </div>
+
+        <!-- Task & Habit Checklist -->
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl flex flex-col">
+            <h2 class="text-lg font-bold text-zinc-200 mb-4">Today's Objectives</h2>
+            
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="taskInput" placeholder="Add a new focus task..." class="flex-1 bg-zinc-950 border border-zinc-800 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-zinc-200">
+                <button onclick="addTask()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition">+</button>
+            </div>
+
+            <div id="taskList" class="flex-1 overflow-y-auto space-y-2 max-h-48 pr-1">
+                <!-- Dynamic tasks populated here -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let timeLeft = 1500;
+        let timerInterval = null;
+        let isRunning = false;
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startPauseBtn = document.getElementById('startPauseBtn');
+        const taskInput = document.getElementById('taskInput');
+        const taskList = document.getElementById('taskList');
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function setTimer(mins) {
+            pauseTimer();
+            timeLeft = mins * 60;
+            updateDisplay();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            startPauseBtn.textContent = 'Pause';
+            startPauseBtn.className = 'bg-amber-600 hover:bg-amber-500 text-white px-6 py-2 rounded-xl font-bold transition';
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    pauseTimer();
+                    alert("Focus session complete! Take a well-deserved break.");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            startPauseBtn.textContent = 'Start';
+            startPauseBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-xl font-bold transition';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = 1500;
+            updateDisplay();
+        }
+
+        function addTask() {
+            const text = taskInput.value.trim();
+            if (!text) return;
+
+            const item = document.createElement('div');
+            item.className = 'flex items-center justify-between bg-zinc-950 px-3 py-2 rounded-xl border border-zinc-800 text-sm';
+            item.innerHTML = `
+                <span class="cursor-pointer hover:text-indigo-400 transition" onclick="this.classList.toggle('line-through'); this.classList.toggle('text-zinc-500')">${text}</span>
+                <button onclick="this.parentElement.remove()" class="text-zinc-500 hover:text-rose-400 font-bold text-xs">✕</button>
+            `;
+            taskList.appendChild(item);
+            taskInput.value = '';
+        }
+
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
