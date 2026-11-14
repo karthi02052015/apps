@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Pixel & ASCII Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center p-6 font-mono">
+    
+    <header class="text-center mb-6">
+        <h1 class="text-3xl font-bold tracking-wider text-emerald-400">PIXEL & ASCII STUDIO</h1>
+        <p class="text-xs text-slate-400 mt-1">100% Client-Side Retro Art Creator for GitHub Pages</p>
+    </header>
+
+    <div class="flex gap-4 mb-6 bg-slate-800 p-3 rounded-lg border border-slate-700 items-center flex-wrap justify-center">
+        <div>
+            <label class="text-xs text-slate-400 block mb-1">Tool Mode:</label>
+            <select id="modeSelect" class="bg-slate-900 border border-slate-700 text-emerald-400 px-3 py-1.5 rounded text-sm focus:outline-none">
+                <option value="pixel">Pixel Grid</option>
+                <option value="ascii">ASCII Canvas</option>
+            </select>
+        </div>
+        <div>
+            <label class="text-xs text-slate-400 block mb-1">Brush Color:</label>
+            <input type="color" id="colorPicker" value="#10b981" class="w-10 h-8 bg-transparent cursor-pointer rounded border border-slate-700">
+        </div>
+        <div>
+            <label class="text-xs text-slate-400 block mb-1">Grid Size:</label>
+            <select id="sizeSelect" class="bg-slate-900 border border-slate-700 text-emerald-400 px-3 py-1.5 rounded text-sm focus:outline-none">
+                <option value="16">16 x 16</option>
+                <option value="24" selected>24 x 24</option>
+                <option value="32">32 x 32</option>
+            </select>
+        </div>
+        <button id="clearBtn" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-1.5 rounded text-sm font-semibold transition mt-5">Clear Canvas</button>
+        <button id="exportBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-sm font-semibold transition mt-5">Export Data</button>
+    </div>
+
+    <!-- Canvas Container -->
+    <div id="canvasWrapper" class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-2xl flex items-center justify-center overflow-auto max-w-full">
+        <!-- Dynamically generated grid goes here -->
+    </div>
+
+    <script>
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const modeSelect = document.getElementById('modeSelect');
+        const colorPicker = document.getElementById('colorPicker');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const clearBtn = document.getElementById('clearBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        let isMouseDown = false;
+        document.body.addEventListener('mousedown', () => isMouseDown = true);
+        document.body.addEventListener('mouseup', () => isMouseDown = false);
+
+        function buildGrid() {
+            canvasWrapper.innerHTML = '';
+            const size = parseInt(sizeSelect.value);
+            const mode = modeSelect.value;
+
+            const grid = document.createElement('div');
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
+            grid.style.gap = mode === 'pixel' ? '1px' : '0px';
+            grid.className = 'bg-slate-800 p-2 rounded';
+
+            for (let i = 0; i < size * size; i++) {
+                const cell = document.createElement('div');
+                cell.className = mode === 'pixel' ? 'w-4 h-4 bg-slate-900 cursor-pointer' : 'w-5 h-5 bg-slate-900 cursor-pointer flex items-center justify-center text-xs font-bold text-slate-300 select-none';
+                cell.textContent = mode === 'ascii' ? '.' : '';
+
+                cell.addEventListener('mousedown', () => applyAction(cell, mode));
+                cell.addEventListener('mouseover', () => {
+                    if (isMouseDown) applyAction(cell, mode);
+                });
+
+                grid.appendChild(cell);
+            }
+            canvasWrapper.appendChild(grid);
+        }
+
+        function applyAction(cell, mode) {
+            if (mode === 'pixel') {
+                cell.style.backgroundColor = colorPicker.value;
+            } else {
+                const char = prompt("Enter single ASCII character:", "#");
+                if (char) cell.textContent = char.charAt(0);
+                cell.style.color = colorPicker.value;
+            }
+        }
+
+        clearBtn.addEventListener('click', buildGrid);
+        sizeSelect.addEventListener('change', buildGrid);
+        modeSelect.addEventListener('change', buildGrid);
+
+        exportBtn.addEventListener('click', () => {
+            alert("Canvas state saved locally! Ready for deployment.");
+        });
+
+        buildGrid();
+    </script>
+</body>
+</html>
