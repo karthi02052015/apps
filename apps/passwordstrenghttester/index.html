@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Server Crypto Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-neutral-950 text-neutral-100 min-h-screen flex flex-col items-center p-6 font-sans">
+
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-black tracking-tight text-emerald-400">CIPHERVAULT</h1>
+        <p class="text-xs text-neutral-400 mt-1">100% Client-Side Entropy & Secure Passphrase Utility</p>
+    </header>
+
+    <div class="w-full max-w-xl space-y-6">
+        
+        <!-- Password Strength Tester Card -->
+        <div class="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-3">Password Strength & Entropy</h2>
+            <input type="password" id="passInput" placeholder="Test a password securely..." class="w-full bg-neutral-950 border border-neutral-800 px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-200 mb-3">
+            
+            <div class="flex justify-between items-center text-xs">
+                <span id="strengthLabel" class="font-bold text-neutral-500">Strength: Empty</span>
+                <span id="entropyLabel" class="text-neutral-400">0 bits entropy</span>
+            </div>
+        </div>
+
+        <!-- Secure Passphrase Generator Card -->
+        <div class="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-3">Secure Passphrase Generator</h2>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="generatedOutput" readonly class="flex-1 bg-neutral-950 border border-neutral-800 px-4 py-2 rounded-xl text-sm font-mono text-emerald-400 select-all" value="Click generate below">
+                <button onclick="generatePassphrase()" class="bg-emerald-600 hover:bg-emerald-500 text-neutral-950 font-bold px-4 py-2 rounded-xl text-sm transition">Generate</button>
+            </div>
+            <p class="text-xs text-neutral-500">Generated locally using browser crypto random values. Zero server transmission.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const passInput = document.getElementById('passInput');
+        const strengthLabel = document.getElementById('strengthLabel');
+        const entropyLabel = document.getElementById('entropyLabel');
+        const generatedOutput = document.getElementById('generatedOutput');
+
+        passInput.addEventListener('input', () => {
+            const val = passInput.value;
+            if (!val) {
+                strengthLabel.textContent = "Strength: Empty";
+                strengthLabel.className = "font-bold text-neutral-500";
+                entropyLabel.textContent = "0 bits entropy";
+                return;
+            }
+
+            // Basic entropy estimation calculation
+            let charsetSize = 0;
+            if (/[a-z]/.test(val)) charsetSize += 26;
+            if (/[A-Z]/.test(val)) charsetSize += 26;
+            if (/[0-9]/.test(val)) charsetSize += 10;
+            if (/[^a-zA-Z0-9]/.test(val)) charsetSize += 32;
+
+            const entropy = Math.round(val.length * Math.log2(charsetSize || 1));
+            entropyLabel.textContent = `${entropy} bits entropy`;
+
+            if (entropy < 40) {
+                strengthLabel.textContent = "Strength: Weak 🔴";
+                strengthLabel.className = "font-bold text-rose-500";
+            } else if (entropy < 70) {
+                strengthLabel.textContent = "Strength: Moderate 🟡";
+                strengthLabel.className = "font-bold text-amber-500";
+            } else {
+                strengthLabel.textContent = "Strength: Excellent 🟢";
+                strengthLabel.className = "font-bold text-emerald-500";
+            }
+        });
+
+        function generatePassphrase() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&!";
+            const array = new Uint32Array(16);
+            window.crypto.getRandomValues(array);
+            let result = "";
+            for (let i = 0; i < 16; i++) {
+                result += chars[array[i] % chars.length];
+            }
+            generatedOutput.value = result;
+        }
+    </script>
+</body>
+</html>
