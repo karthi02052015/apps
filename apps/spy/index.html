@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPY — Tactical Turn-Based Hand Strategy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #070b14;
+      --bg-panel: #0f172a;
+      --accent-cyan: #22d3ee;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #a855f7;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-void);
+      color: #f8fafc;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Subtle tactical grid background */
+    .tactical-grid {
+      background-image: 
+        linear-gradient(to right, rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* Glowing neon border effects */
+    .glow-cyan {
+      box-shadow: 0 0 24px rgba(34, 211, 238, 0.25), inset 0 0 12px rgba(34, 211, 238, 0.1);
+    }
+
+    @keyframes pop-in {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .countdown-pop {
+      animation: pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Custom scrollbar for combat logs */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(51, 65, 85, 0.8);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(34, 211, 238, 0.6);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col tactical-grid">
+
+  <!-- ===================================================================== -->
+  <!-- 1. MANDATORY STARTUP SPLASH SCREEN                                    -->
+  <!-- ===================================================================== -->
+  <div id="splash-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-4 transition-opacity duration-500">
+    <div class="max-w-xl w-full bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-8 sm:p-10 text-center shadow-2xl glow-cyan relative overflow-hidden">
+      <!-- Decorative corner accents -->
+      <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-cyan-400/60 rounded-tl-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-cyan-400/60 rounded-br-3xl pointer-events-none"></div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-mono-tech uppercase tracking-widest mb-4">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        Tactical Hand Combat Protocol
+      </div>
+
+      <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-indigo-400 mb-3">
+        SPY
+      </h1>
+      <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto mb-8">
+        Outsmart the AI across tactical rounds of ballistics, directional shields, reload immunity, and kinetic reflection.
+      </p>
+
+      <!-- MANDATORY EXACT CREDITS -->
+      <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 mb-8 space-y-2 shadow-inner">
+        <p class="text-base sm:text-lg font-bold text-cyan-300 tracking-wide">
+          Game idea by Hasith Arya Mutyala
+        </p>
+        <div class="h-px w-24 bg-slate-800 mx-auto"></div>
+        <p class="text-base sm:text-lg font-bold text-emerald-300 tracking-wide">
+          The app created by D Karthikeya
+        </p>
+      </div>
+
+      <button id="start-game-btn" class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-lg tracking-wide shadow-lg shadow-cyan-500/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer">
+        START GAME
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. TOP HUD & CONTROLS BAR                                             -->
+  <!-- ===================================================================== -->
+  <header class="w-full border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-2.5 sm:px-6 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+      <!-- Brand & Round Indicator -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center font-extrabold text-slate-950 text-lg sm:text-xl shadow-md shrink-0">
+          S
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <span class="font-extrabold tracking-wider text-white text-base sm:text-lg">SPY</span>
+            <span id="round-badge" class="px-2 sm:px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 font-mono-tech text-[11px] sm:text-xs font-bold">
+              ROUND 1
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden md:block">Zero-Latency Tactical Duel</p>
+        </div>
+      </div>
+
+      <!-- Scoreboard -->
+      <div class="flex items-center gap-3 sm:gap-5 bg-slate-900/90 border border-slate-800 px-3 sm:px-4 py-1 sm:py-1.5 rounded-2xl order-2 sm:order-none">
+        <div class="text-center">
+          <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-emerald-400 font-bold">Player</div>
+          <div id="player-score" class="text-lg sm:text-2xl font-extrabold font-mono-tech text-white leading-tight">0</div>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="text-slate-600 font-extrabold text-[10px] sm:text-xs">VS</div>
+          <span id="match-goal-badge" class="text-[8px] sm:text-[9px] font-mono-tech uppercase tracking-wider text-cyan-400">FIRST TO 5</span>
+        </div>
+        <div class="text-center">
+          <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-rose-400 font-bold">AI</div>
+          <div id="ai-score" class="text-lg sm:text-2xl font-extrabold font-mono-tech text-white leading-tight">0</div>
+        </div>
+      </div>
+
+      <!-- Utility Controls: Goal Mode, Reset, Sound Toggle, Bar Layout Switcher, Rules -->
+      <div class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 order-3 sm:order-none overflow-x-auto pb-0.5 sm:pb-0">
+        <!-- Match Win Condition Switcher -->
+        <button id="toggle-goal-btn" class="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 text-[11px] sm:text-xs font-semibold text-cyan-300 transition cursor-pointer shrink-0" title="Switch between First to 5 Points and Endless Mode">
+          🏆 First to 5
+        </button>
+
+        <!-- Clean Match Reset Button -->
+        <button id="reset-match-btn" class="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-[11px] sm:text-xs font-semibold text-rose-300 transition cursor-pointer shrink-0" title="Reset Match Score, Ammo & VP">
+          ↺ Reset
+        </button>
+
+        <!-- Web Audio SFX Mute/Unmute Toggle -->
+        <button id="toggle-sound-btn" class="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] sm:text-xs font-semibold text-cyan-300 transition cursor-pointer shrink-0" title="Toggle Tactical Audio">
+          🔊 SFX
+        </button>
+
+        <!-- Small Bar vs Medium Bar Layout Switcher -->
+        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5 text-[11px] sm:text-xs shrink-0">
+          <button id="layout-small-btn" class="min-h-[34px] px-2 sm:px-2.5 py-1 rounded-lg font-semibold transition-colors bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 cursor-pointer" title="Compact Small Bar Controls">
+            Small
+          </button>
+          <button id="layout-medium-btn" class="min-h-[34px] px-2 sm:px-2.5 py-1 rounded-lg font-semibold transition-colors text-slate-400 hover:text-white cursor-pointer" title="Expanded Medium Bar Controls">
+            Medium
+          </button>
+        </div>
+
+        <button id="toggle-rules-btn" class="min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-200 transition cursor-pointer shrink-0">
+          Rules
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 3. MAIN ARENA STAGE (DUAL TACTICAL OPERATIVES & TELEMETRY)            -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4">
+
+    <!-- FULL-WIDTH DUAL COMBAT ARENA CANVAS (CENTERPIECE) -->
+    <section class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-2.5 sm:p-4 flex flex-col justify-between relative overflow-hidden glow-cyan">
+      <!-- Top Arena Bar: Player Lock State vs Center Phase vs AI Lock State -->
+      <div class="w-full flex items-center justify-between gap-1.5 sm:gap-2 z-10 mb-2">
+        <div class="flex items-center gap-1.5 bg-slate-950/90 border border-emerald-500/40 px-2 sm:px-3 py-1 rounded-xl min-w-0">
+          <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+          <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-emerald-300 shrink-0">PLAYER</span>
+          <span id="player-arena-lock" class="text-[10px] sm:text-[11px] font-mono-tech text-slate-300 truncate">READY</span>
+        </div>
+
+        <div id="arena-phase-pill" class="px-2 sm:px-3 py-1 rounded-full bg-slate-950 border border-cyan-500/40 text-[9px] sm:text-xs font-mono-tech font-bold text-cyan-300 uppercase tracking-wider sm:tracking-widest text-center shrink-0">
+          AWAITING MOVES
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-slate-950/90 border border-rose-500/40 px-2 sm:px-3 py-1 rounded-xl min-w-0">
+          <span id="ai-arena-lock" class="text-[10px] sm:text-[11px] font-mono-tech text-slate-300 truncate">READY</span>
+          <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-rose-300 shrink-0">AI</span>
+          <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+        </div>
+      </div>
+
+      <!-- Dual Combat Arena Canvas (Responsive height for mobile, tablet & laptop) -->
+      <div id="canvas-container" class="relative w-full h-[210px] sm:h-[270px] lg:h-[310px] rounded-xl overflow-hidden bg-slate-950/90 border border-slate-800/90">
+        <canvas id="combat-arena-canvas" class="w-full h-full block"></canvas>
+
+        <!-- Synchronized 3 -> 2 -> 1 Countdown Overlay (Moves remain hidden until 1!) -->
+        <div id="countdown-overlay" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-slate-950/45 backdrop-blur-[2px] z-20 pointer-events-none px-2 text-center">
+          <div class="px-3 sm:px-4 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-[10px] sm:text-[11px] font-mono-tech text-cyan-200 uppercase tracking-widest mb-1.5 sm:mb-2">
+            BOTH MOVES LOCKED — CHARGING ARENA
+          </div>
+          <div id="countdown-number" class="text-6xl sm:text-8xl font-black font-mono-tech text-white drop-shadow-[0_0_30px_rgba(34,211,238,0.95)]">
+            3
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Arena Tactical Readout -->
+      <div class="w-full mt-2 grid grid-cols-2 gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
+        <div class="bg-slate-950/85 border border-slate-800 rounded-xl px-2.5 sm:px-3 py-1.5 flex items-center justify-between gap-1 min-w-0">
+          <span class="text-slate-400 shrink-0">Player:</span>
+          <span id="player-reveal-label" class="font-mono-tech font-bold text-emerald-300 truncate">Concealed</span>
+        </div>
+        <div class="bg-slate-950/85 border border-slate-800 rounded-xl px-2.5 sm:px-3 py-1.5 flex items-center justify-between gap-1 min-w-0">
+          <span class="text-slate-400 shrink-0">AI Core:</span>
+          <span id="ai-reveal-label" class="font-mono-tech font-bold text-rose-300 truncate">Concealed</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELEMETRY STATUS ROW: PLAYER STATUS (LEFT) & AI STATUS (RIGHT) — Side-by-side on Tablet (md) & Laptop (lg) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+
+      <!-- PLAYER STATUS CARD -->
+      <section class="bg-slate-900/85 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col justify-between gap-2.5 sm:gap-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <h2 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-emerald-300">Player Telemetry</h2>
+          </div>
+          <span id="player-shields-used-badge" class="text-[11px] font-mono-tech text-slate-400">Shields Used: 0</span>
+        </div>
+
+        <!-- VP Gauge -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-slate-300">Vitality / Shield VP</span>
+            <span id="player-vp-text" class="font-mono-tech text-cyan-300 font-bold">50% / 50% (FULL)</span>
+          </div>
+          <div class="w-full h-2.5 sm:h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+            <div id="player-vp-bar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-300" style="width: 100%"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1 gap-2">
+            <span class="shrink-0">Shield Cost: -25% VP</span>
+            <span id="player-restore-hint" class="text-amber-400/90 text-right truncate">Restore: Available whenever VP &lt; 50%</span>
+          </div>
+        </div>
+
+        <!-- Ammo & Reflector Charges Grid -->
+        <div class="grid grid-cols-3 gap-1.5 sm:gap-2 pt-0.5">
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2 sm:p-2.5 text-center">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold truncate">Single Gun</div>
+            <div id="player-single-ammo" class="text-xs sm:text-sm font-mono-tech font-bold text-amber-300 mt-0.5">0%</div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+              <div id="player-single-bar" class="h-full bg-amber-400 transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2 sm:p-2.5 text-center">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold truncate">Double Gun</div>
+            <div id="player-double-ammo" class="text-xs sm:text-sm font-mono-tech font-bold text-orange-300 mt-0.5">0%</div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+              <div id="player-double-bar" class="h-full bg-orange-400 transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2 sm:p-2.5 text-center">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold truncate">Minigun</div>
+            <div id="player-minigun-ammo" class="text-xs sm:text-sm font-mono-tech font-bold text-rose-400 mt-0.5">0 Bullets</div>
+            <div class="text-[9px] sm:text-[10px] text-slate-500 mt-1">+4 / reload</div>
+          </div>
+        </div>
+
+        <!-- Superior Reflector Charges -->
+        <div class="flex items-center justify-between gap-1.5 sm:gap-2 bg-slate-950/70 border border-slate-800/90 rounded-xl px-2.5 sm:px-3 py-2 text-[11px] sm:text-xs">
+          <div class="shrink-0">
+            <span class="text-slate-400">Blitz:</span>
+            <span id="player-blitz-left" class="font-mono-tech font-bold text-purple-300">3/3</span>
+          </div>
+          <div class="h-3 w-px bg-slate-800"></div>
+          <div class="shrink-0">
+            <span class="text-slate-400">Dbl Ref:</span>
+            <span id="player-dblref-left" class="font-mono-tech font-bold text-fuchsia-300">3/3</span>
+          </div>
+          <div class="h-3 w-px bg-slate-800"></div>
+          <div class="truncate">
+            <span class="text-slate-400">State:</span>
+            <span id="player-selected-badge" class="font-bold text-emerald-300">Ready</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI STATUS CARD -->
+      <section class="bg-slate-900/85 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col justify-between gap-2.5 sm:gap-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+            <h2 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-rose-300">AI Core Telemetry</h2>
+          </div>
+          <span id="ai-shields-used-badge" class="text-[11px] font-mono-tech text-slate-400">Shields Used: 0</span>
+        </div>
+
+        <!-- AI VP Gauge -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-slate-300">AI Vitality / Shield VP</span>
+            <span id="ai-vp-text" class="font-mono-tech text-rose-300 font-bold">50% / 50% (FULL)</span>
+          </div>
+          <div class="w-full h-2.5 sm:h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+            <div id="ai-vp-bar" class="h-full bg-gradient-to-r from-rose-500 to-amber-400 transition-all duration-300" style="width: 100%"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1 gap-2">
+            <span class="shrink-0">Adaptive Counter-AI</span>
+            <span id="ai-restore-hint" class="text-slate-400 text-right truncate">Restore: Ready if VP &lt; 50%</span>
+          </div>
+        </div>
+
+        <!-- AI Ammo Grid -->
+        <div class="grid grid-cols-3 gap-1.5 sm:gap-2 pt-0.5">
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2 sm:p-2.5 text-center">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold truncate">Single Gun</div>
+            <div id="ai-single-ammo" class="text-xs sm:text-sm font-mono-tech font-bold text-amber-300 mt-0.5">0%</div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+              <div id="ai-single-bar" class="h-full bg-amber-400 transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2 sm:p-2.5 text-center">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold truncate">Double Gun</div>
+            <div id="ai-double-ammo" class="text-xs sm:text-sm font-mono-tech font-bold text-orange-300 mt-0.5">0%</div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+              <div id="ai-double-bar" class="h-full bg-orange-400 transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2 sm:p-2.5 text-center">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold truncate">Minigun</div>
+            <div id="ai-minigun-ammo" class="text-xs sm:text-sm font-mono-tech font-bold text-rose-400 mt-0.5">0 Bullets</div>
+            <div class="text-[9px] sm:text-[10px] text-slate-500 mt-1">+4 / reload</div>
+          </div>
+        </div>
+
+        <!-- AI Reflector Charges -->
+        <div class="flex items-center justify-between gap-1.5 sm:gap-2 bg-slate-950/70 border border-slate-800/90 rounded-xl px-2.5 sm:px-3 py-2 text-[11px] sm:text-xs">
+          <div class="shrink-0">
+            <span class="text-slate-400">Blitz:</span>
+            <span id="ai-blitz-left" class="font-mono-tech font-bold text-purple-300">3/3</span>
+          </div>
+          <div class="h-3 w-px bg-slate-800"></div>
+          <div class="shrink-0">
+            <span class="text-slate-400">Dbl Ref:</span>
+            <span id="ai-dblref-left" class="font-mono-tech font-bold text-fuchsia-300">3/3</span>
+          </div>
+          <div class="h-3 w-px bg-slate-800"></div>
+          <div class="truncate">
+            <span class="text-slate-400">Last:</span>
+            <span id="ai-last-move-badge" class="font-bold text-cyan-300">None</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- 4. COMBAT RESOLUTION BANNER & BATTLE LOG                            -->
+    <!-- =================================================================== -->
+    <section id="outcome-banner" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:px-5 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 transition-all">
+      <div class="flex items-center gap-2.5 sm:gap-3 text-left w-full sm:w-auto">
+        <div id="outcome-icon" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 font-bold text-base sm:text-lg shrink-0">
+          ⚡
+        </div>
+        <div class="min-w-0">
+          <div id="outcome-headline" class="font-extrabold text-xs sm:text-base text-white leading-snug">
+            Round 1 Ready — Choose Your Tactical Move
+          </div>
+          <div id="outcome-subtext" class="text-[11px] sm:text-xs text-slate-400 leading-snug">
+            Reloading or VP Restore automatically deploys a protective shield aura against enemy fire.
+          </div>
+        </div>
+      </div>
+
+      <button id="toggle-history-btn" class="w-full sm:w-auto min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-700 text-xs font-mono-tech text-slate-300 shrink-0 cursor-pointer">
+        Combat Log (<span id="log-count">0</span>)
+      </button>
+    </section>
+
+    <!-- Collapsible Combat Log Drawer -->
+    <div id="combat-log-panel" class="hidden bg-slate-950/95 border border-slate-800 rounded-2xl p-3 max-h-40 overflow-y-auto space-y-1.5 text-xs font-mono-tech">
+      <div class="text-slate-500 italic">No rounds played yet.</div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- 5. BUTTON-BASED PLAYER ACTION DECK (SMALL BAR / MEDIUM BAR)         -->
+    <!-- =================================================================== -->
+    <section id="player-controls-deck" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 sm:p-4 transition-all">
+      <div class="flex items-center justify-between mb-2.5 sm:mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-slate-300">Command Deck</span>
+          <span id="deck-mode-label" class="text-[10px] sm:text-[11px] font-mono-tech px-2 py-0.5 rounded bg-slate-800 text-cyan-300">
+            Small Bar Mode
+          </span>
+        </div>
+        <span class="text-[11px] text-slate-400 hidden lg:inline">Keys: [1-3] Guns · [4-6] Reloads · [7-9] Shields · [0/-/=] Reflect &amp; VP</span>
+      </div>
+
+      <!-- Categorized Action Grid: 2 cols on Mobile, 2 cols on Tablet, 4 cols on Laptop -->
+      <div id="action-buttons-container" class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <!-- Populated dynamically by JS to support Small Bar vs Medium Bar density and live validation -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 5B. MATCH VICTORY / DEFEAT OVERLAY MODAL                              -->
+  <!-- ===================================================================== -->
+  <div id="match-over-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-md w-full p-7 text-center shadow-2xl glow-cyan space-y-5">
+      <div id="match-over-icon" class="text-5xl">🏆</div>
+      <div>
+        <div class="text-xs font-mono-tech uppercase tracking-widest text-cyan-400 mb-1">Match Concluded</div>
+        <h3 id="match-over-title" class="text-3xl font-extrabold text-white">VICTORY!</h3>
+        <p id="match-over-subtitle" class="text-sm text-slate-300 mt-2">You reached 5 points first and defeated the AI Core.</p>
+      </div>
+      <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex items-center justify-around font-mono-tech">
+        <div>
+          <div class="text-[10px] uppercase text-emerald-400">Player</div>
+          <div id="final-player-score" class="text-2xl font-extrabold text-white">5</div>
+        </div>
+        <div class="text-slate-600 font-bold">FINAL</div>
+        <div>
+          <div class="text-[10px] uppercase text-rose-400">AI Core</div>
+          <div id="final-ai-score" class="text-2xl font-extrabold text-white">0</div>
+        </div>
+      </div>
+      <button id="play-again-btn" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-base tracking-wide shadow-lg cursor-pointer transition transform hover:scale-[1.02] active:scale-[0.98]">
+        PLAY AGAIN (RESET MATCH)
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 6. RULES MODAL                                                        -->
+  <!-- ===================================================================== -->
+  <div id="rules-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 max-h-[85vh] overflow-y-auto shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-xl font-extrabold text-cyan-300">SPY — Official Combat & Resource Rules</h3>
+        <button id="close-rules-btn" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-white cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+          <h4 class="font-bold text-amber-300 mb-1">1. Weapons & Reload Mechanics</h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>Single Gun Reload:</strong> Adds +50% charge (2 reloads = 100% ready to fire).</li>
+            <li><strong>Double Gun Reload:</strong> Adds +100% charge (1 reload = 100% ready to fire).</li>
+            <li><strong>Minigun Reload:</strong> Grants +4 Minigun bullets (1 shot = 1 bullet).</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+          <h4 class="font-bold text-cyan-300 mb-1">2. Shields, VP & Reflector Limits</h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li>Both Player and AI start at <strong>50% VP</strong> (100% Full Gauge).</li>
+            <li>Using any standard Shield (Single, Double, Minigun) costs <strong>25% VP</strong> (50% → 25% → 0%).</li>
+            <li><strong>VP Restore:</strong> Usable whenever VP drops below 50% (at <strong>25%</strong> or <strong>0%</strong>). Restores VP back to 50% and grants a protective shield dome during that turn.</li>
+            <li><strong>Blitz</strong> & <strong>Double Reflector</strong>: Maximum of <strong>3 uses each</strong> per game.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+          <h4 class="font-bold text-emerald-300 mb-1">3. Combat Resolution Matrix</h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>Reload / VP Restore Immunity:</strong> Built-in protective shield! Cannot die if shot during that turn (0 pts; shooter spends ammo; reload/restore succeeds).</li>
+            <li><strong>Gun vs. Gun:</strong> Tie (0 points, both spend ammo).</li>
+            <li><strong>Gun vs. Matching Shield:</strong> Reflects bullet! Gun holder dies, Shield holder gets <strong>+1 Point</strong>.</li>
+            <li><strong>Gun vs. Mismatched Shield:</strong> Shield fails! Shield holder dies, Gun holder gets <strong>+1 Point</strong>.</li>
+            <li><strong>Blitz / Double Reflector vs. Any Gun:</strong> Reflects any gun! Gun holder dies, Reflector holder gets <strong>+1 Point</strong>.</li>
+            <li><strong>Superior vs. Superior:</strong> Two Blitzes, two Double Reflectors, or Blitz vs. Double Reflector = Tie (both die, 0 points).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- APPLICATION LOGIC, WEB AUDIO SYNTH & DUAL ARENA COMBAT ANIMATOR       -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // SECTION A: ACTION DEFINITIONS & KEYBOARD SHORTCUT MAP
+    // =========================================================================
+    const ACTIONS = {
+      SINGLE_GUN: {
+        id: 'SINGLE_GUN',
+        keyHint: '1',
+        name: 'Single Gun',
+        shortName: 'Single Gun',
+        category: 'WEAPONS',
+        desc: 'Fires Single Gun (requires 100% Single Gun charge).'
+      },
+      DOUBLE_GUN: {
+        id: 'DOUBLE_GUN',
+        keyHint: '2',
+        name: 'Double Gun',
+        shortName: 'Double Gun',
+        category: 'WEAPONS',
+        desc: 'Fires Double Gun (requires 100% Double Gun charge).'
+      },
+      MINIGUN: {
+        id: 'MINIGUN',
+        keyHint: '3',
+        name: 'Minigun',
+        shortName: 'Minigun',
+        category: 'WEAPONS',
+        desc: 'Fires 1 Minigun bullet (requires >= 1 bullet).'
+      },
+      SINGLE_RELOAD: {
+        id: 'SINGLE_RELOAD',
+        keyHint: '4',
+        name: 'Single Gun Reload',
+        shortName: 'Single Reload',
+        category: 'RELOADS',
+        desc: '+50% Single Gun charge & active Reload Shield Immunity.'
+      },
+      DOUBLE_RELOAD: {
+        id: 'DOUBLE_RELOAD',
+        keyHint: '5',
+        name: 'Double Gun Reload',
+        shortName: 'Double Reload',
+        category: 'RELOADS',
+        desc: '+100% Double Gun charge & active Reload Shield Immunity.'
+      },
+      MINIGUN_RELOAD: {
+        id: 'MINIGUN_RELOAD',
+        keyHint: '6',
+        name: 'Minigun Reload',
+        shortName: 'Minigun Reload',
+        category: 'RELOADS',
+        desc: '+4 Minigun bullets & active Reload Shield Immunity.'
+      },
+      SINGLE_SHIELD: {
+        id: 'SINGLE_SHIELD',
+        keyHint: '7',
+        name: 'Single Gun Shield',
+        shortName: 'Single Shield',
+        category: 'SHIELDS',
+        desc: 'X-Barrier reflects Single Gun (-25% VP). Fails vs Double/Minigun.'
+      },
+      DOUBLE_SHIELD: {
+        id: 'DOUBLE_SHIELD',
+        keyHint: '8',
+        name: 'Double Gun Shield',
+        shortName: 'Double Shield',
+        category: 'SHIELDS',
+        desc: 'Twin-Wall reflects Double Gun (-25% VP). Fails vs Single/Minigun.'
+      },
+      MINIGUN_SHIELD: {
+        id: 'MINIGUN_SHIELD',
+        keyHint: '9',
+        name: 'Minigun Shield',
+        shortName: 'Minigun Shield',
+        category: 'SHIELDS',
+        desc: 'T-Fortress reflects Minigun (-25% VP). Fails vs Single/Double Gun.'
+      },
+      BLITZ: {
+        id: 'BLITZ',
+        keyHint: '0',
+        name: 'Blitz / Super Reflect',
+        shortName: 'Blitz Reflect',
+        category: 'REFLECTORS',
+        desc: 'V-Slash reflects ANY Gun (Max 3 uses/game).'
+      },
+      DOUBLE_REFLECTOR: {
+        id: 'DOUBLE_REFLECTOR',
+        keyHint: '-',
+        name: 'Double Reflector',
+        shortName: 'Dbl Reflector',
+        category: 'REFLECTORS',
+        desc: 'Dual Kinetic Field reflects ANY Gun (Max 3 uses/game).'
+      },
+      VP_RESTORE: {
+        id: 'VP_RESTORE',
+        keyHint: '=',
+        name: 'VP Restore',
+        shortName: 'VP Restore',
+        category: 'RESTORE',
+        desc: 'Restores VP to 50% (Usable whenever VP is 25% or 0%) + Shield Immunity.'
+      }
+    };
+
+    const KEY_TO_ACTION = {
+      '1': 'SINGLE_GUN',
+      '2': 'DOUBLE_GUN',
+      '3': 'MINIGUN',
+      '4': 'SINGLE_RELOAD',
+      '5': 'DOUBLE_RELOAD',
+      '6': 'MINIGUN_RELOAD',
+      '7': 'SINGLE_SHIELD',
+      '8': 'DOUBLE_SHIELD',
+      '9': 'MINIGUN_SHIELD',
+      '0': 'BLITZ',
+      '-': 'DOUBLE_REFLECTOR',
+      '=': 'VP_RESTORE'
+    };
+
+    const GUN_ACTIONS = ['SINGLE_GUN', 'DOUBLE_GUN', 'MINIGUN'];
+    const RELOAD_ACTIONS = ['SINGLE_RELOAD', 'DOUBLE_RELOAD', 'MINIGUN_RELOAD'];
+    const STANDARD_SHIELD_ACTIONS = ['SINGLE_SHIELD', 'DOUBLE_SHIELD', 'MINIGUN_SHIELD'];
+    const SUPERIOR_REFLECTORS = ['BLITZ', 'DOUBLE_REFLECTOR'];
+
+    // =========================================================================
+    // SECTION B: WEB AUDIO SOUND EFFECTS SYNTHESIZER (ZERO EXTERNAL URLS)
+    // =========================================================================
+    class TacticalAudio {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type, duration, gainVal = 0.12, endFreq = null) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (endFreq) {
+          osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+        }
+
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      playLock() {
+        this.playTone(520, 'sine', 0.1, 0.1, 780);
+      }
+
+      playCountdownTick(num) {
+        if (num === 1) {
+          this.playTone(880, 'triangle', 0.18, 0.15, 1180);
+        } else {
+          this.playTone(440, 'sine', 0.12, 0.1);
+        }
+      }
+      playGunShot(actionId, panOffset = 0) {
+        const pitchShift = panOffset;
+        if (actionId === 'MINIGUN') {
+          for (let i = 0; i < 4; i++) {
+            setTimeout(() => this.playTone(240 + pitchShift, 'sawtooth', 0.08, 0.11, 65), i * 65);
+          }
+        } else if (actionId === 'DOUBLE_GUN') {
+          this.playTone(340 + pitchShift, 'sawtooth', 0.16, 0.13, 70);
+          setTimeout(() => this.playTone(380 + pitchShift, 'sawtooth', 0.16, 0.13, 75), 75);
+        } else {
+          this.playTone(320 + pitchShift, 'sawtooth', 0.2, 0.14, 65);
+        }
+      }
+
+      playShieldReflect() {
+        this.playTone(620, 'sine', 0.22, 0.16, 1320);
+        setTimeout(() => this.playTone(980, 'triangle', 0.2, 0.12, 1560), 80);
+      }
+
+      playReloadOrRestore() {
+        this.playTone(360, 'sine', 0.15, 0.1, 540);
+        setTimeout(() => this.playTone(540, 'sine', 0.2, 0.12, 810), 110);
+      }
+
+      playExplosion() {
+        this.playTone(130, 'sawtooth', 0.35, 0.18, 35);
+      }
+    }
+
+    const sfx = new TacticalAudio();
+
+    // =========================================================================
+    // SECTION C: GAME STATE & VALIDATION ENGINE
+    // =========================================================================
+    let countdownIntervalId = null;
+
+    const state = {
+      round: 1,
+      targetScore: 5, // 5 = First to 5 Points, Infinity = Endless Mode
+      isMatchOver: false,
+      layoutMode: 'SMALL',
+      isCountingDown: false,
+      logs: [],
+      playerHistory: [],
+      player: {
+        score: 0,
+        vp: 50,
+        shieldsUsed: 0,
+        singleAmmo: 0,
+        doubleAmmo: 0,
+        minigunBullets: 0,
+        blitzLeft: 3,
+        doubleRefLeft: 3,
+        lastAction: null
+      },
+      ai: {
+        score: 0,
+        vp: 50,
+        shieldsUsed: 0,
+        singleAmmo: 0,
+        doubleAmmo: 0,
+        minigunBullets: 0,
+        blitzLeft: 3,
+        doubleRefLeft: 3,
+        lastAction: null
+      }
+    };
+
+    function clearActiveCountdown() {
+      if (countdownIntervalId !== null) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+      }
+      state.isCountingDown = false;
+      const overlay = document.getElementById('countdown-overlay');
+      if (overlay) overlay.classList.add('hidden');
+    }
+
+    function resetMatchState() {
+      clearActiveCountdown();
+      state.round = 1;
+      state.isMatchOver = false;
+      state.logs = [];
+      state.playerHistory = [];
+
+      Object.assign(state.player, {
+        score: 0,
+        vp: 50,
+        shieldsUsed: 0,
+        singleAmmo: 0,
+        doubleAmmo: 0,
+        minigunBullets: 0,
+        blitzLeft: 3,
+        doubleRefLeft: 3,
+        lastAction: null
+      });
+
+      Object.assign(state.ai, {
+        score: 0,
+        vp: 50,
+        shieldsUsed: 0,
+        singleAmmo: 0,
+        doubleAmmo: 0,
+        minigunBullets: 0,
+        blitzLeft: 3,
+        doubleRefLeft: 3,
+        lastAction: null
+      });
+
+      arenaAnim.phase = 'IDLE';
+      arenaAnim.playerAction = null;
+      arenaAnim.aiAction = null;
+      arenaAnim.outcome = null;
+      arenaAnim.particles = [];
+
+      document.getElementById('match-over-modal').classList.add('hidden');
+      document.getElementById('player-arena-lock').textContent = 'READY';
+      document.getElementById('ai-arena-lock').textContent = 'READY';
+      document.getElementById('arena-phase-pill').textContent = 'AWAITING BOTH MOVES';
+      document.getElementById('player-reveal-label').textContent = 'Concealed';
+      document.getElementById('ai-reveal-label').textContent = 'Concealed';
+      document.getElementById('player-selected-badge').textContent = 'Awaiting Move';
+      document.getElementById('ai-last-move-badge').textContent = 'None';
+      document.getElementById('outcome-icon').textContent = '⚡';
+      document.getElementById('outcome-headline').textContent = 'Round 1 Ready — Choose Your Tactical Move';
+      document.getElementById('outcome-subtext').textContent = 'Reloading or VP Restore automatically deploys a protective shield aura against enemy fire.';
+      document.getElementById('log-count').textContent = '0';
+      document.getElementById('combat-log-panel').innerHTML = '<div class="text-slate-500 italic">No rounds played yet.</div>';
+
+      updateHudUI();
+    }
+
+    function canPerformAction(actor, actionId) {
+      switch (actionId) {
+        case 'SINGLE_GUN':
+          return actor.singleAmmo >= 100;
+        case 'DOUBLE_GUN':
+          return actor.doubleAmmo >= 100;
+        case 'MINIGUN':
+          return actor.minigunBullets >= 1;
+        case 'SINGLE_RELOAD':
+          return actor.singleAmmo < 100;
+        case 'DOUBLE_RELOAD':
+          return actor.doubleAmmo < 100;
+        case 'MINIGUN_RELOAD':
+          return true;
+        case 'SINGLE_SHIELD':
+        case 'DOUBLE_SHIELD':
+        case 'MINIGUN_SHIELD':
+          return actor.vp >= 25;
+        case 'BLITZ':
+          return actor.blitzLeft > 0;
+        case 'DOUBLE_REFLECTOR':
+          return actor.doubleRefLeft > 0;
+        case 'VP_RESTORE':
+          return actor.vp < 50;
+        default:
+          return false;
+      }
+    }
+
+    function getDisableReason(actor, actionId) {
+      if (canPerformAction(actor, actionId)) return '';
+      switch (actionId) {
+        case 'SINGLE_GUN': return `Need 100% Charge (${actor.singleAmmo}%)`;
+        case 'DOUBLE_GUN': return `Need 100% Charge (${actor.doubleAmmo}%)`;
+        case 'MINIGUN': return 'Need >= 1 Bullet';
+        case 'SINGLE_RELOAD': return 'Already at 100%';
+        case 'DOUBLE_RELOAD': return 'Already at 100%';
+        case 'SINGLE_SHIELD':
+        case 'DOUBLE_SHIELD':
+        case 'MINIGUN_SHIELD': return 'Need >= 25% VP';
+        case 'BLITZ': return '0/3 Charges Left';
+        case 'DOUBLE_REFLECTOR': return '0/3 Charges Left';
+        case 'VP_RESTORE': return 'VP Already Full (50%)';
+        default: return 'Unavailable';
+      }
+    }
+
+    // =========================================================================
+    // SECTION D: RESOURCE MUTATION & COMBAT RESOLUTION MATRIX
+    // =========================================================================
+    function applyActionResourceCostAndGain(actor, actionId) {
+      actor.lastAction = actionId;
+      switch (actionId) {
+        case 'SINGLE_GUN':
+          actor.singleAmmo = 0;
+          break;
+        case 'DOUBLE_GUN':
+          actor.doubleAmmo = 0;
+          break;
+        case 'MINIGUN':
+          actor.minigunBullets = Math.max(0, actor.minigunBullets - 1);
+          break;
+        case 'SINGLE_RELOAD':
+          actor.singleAmmo = Math.min(100, actor.singleAmmo + 50);
+          break;
+        case 'DOUBLE_RELOAD':
+          actor.doubleAmmo = 100;
+          break;
+        case 'MINIGUN_RELOAD':
+          actor.minigunBullets += 4;
+          break;
+        case 'SINGLE_SHIELD':
+        case 'DOUBLE_SHIELD':
+        case 'MINIGUN_SHIELD':
+          actor.vp = Math.max(0, actor.vp - 25);
+          actor.shieldsUsed += 1;
+          break;
+        case 'BLITZ':
+          actor.blitzLeft = Math.max(0, actor.blitzLeft - 1);
+          break;
+        case 'DOUBLE_REFLECTOR':
+          actor.doubleRefLeft = Math.max(0, actor.doubleRefLeft - 1);
+          break;
+        case 'VP_RESTORE':
+          actor.vp = 50;
+          break;
+      }
+    }
+
+    function isMatchingShield(gunId, shieldId) {
+      return (
+        (gunId === 'SINGLE_GUN' && shieldId === 'SINGLE_SHIELD') ||
+        (gunId === 'DOUBLE_GUN' && shieldId === 'DOUBLE_SHIELD') ||
+        (gunId === 'MINIGUN' && shieldId === 'MINIGUN_SHIELD')
+      );
+    }
+
+    function resolveCombat(pAct, aAct) {
+      const pGun = GUN_ACTIONS.includes(pAct);
+      const aGun = GUN_ACTIONS.includes(aAct);
+      const pImmune = RELOAD_ACTIONS.includes(pAct) || pAct === 'VP_RESTORE';
+      const aImmune = RELOAD_ACTIONS.includes(aAct) || aAct === 'VP_RESTORE';
+      const pStdShield = STANDARD_SHIELD_ACTIONS.includes(pAct);
+      const aStdShield = STANDARD_SHIELD_ACTIONS.includes(aAct);
+      const pSupRef = SUPERIOR_REFLECTORS.includes(pAct);
+      const aSupRef = SUPERIOR_REFLECTORS.includes(aAct);
+
+      // 1. Gun vs. Gun -> Tie (0 points)
+      if (pGun && aGun) {
+        return {
+          winner: 'TIE',
+          clashType: 'GUN_CLASH_TIE',
+          headline: 'FIREFIGHT TIE! Both Shots Collided Mid-Air',
+          subtext: `${ACTIONS[pAct].shortName} clashed with ${ACTIONS[aAct].shortName}. 0 points awarded.`
+        };
+      }
+
+      // 2. Superior Reflector vs. Superior Reflector -> Tie (0 points)
+      if (pSupRef && aSupRef) {
+        return {
+          winner: 'TIE',
+          clashType: 'SUPERIOR_CLASH_TIE',
+          headline: 'KINETIC OVERLOAD TIE! Both Reflectors Shattered',
+          subtext: `${ACTIONS[pAct].shortName} vs. ${ACTIONS[aAct].shortName} cancelled out. 0 points awarded.`
+        };
+      }
+
+      // 3. Player Fires a Gun vs. AI Non-Gun
+      if (pGun && !aGun) {
+        if (aImmune) {
+          return {
+            winner: 'NONE',
+            clashType: 'AI_IMMUNE_BLOCK',
+            headline: 'BLOCKED! AI Protected by Reload/Restore Shield',
+            subtext: `AI's ${ACTIONS[aAct].shortName} shield dome absorbed your ${ACTIONS[pAct].shortName}. 0 points.`
+          };
+        }
+        if (aSupRef) {
+          return {
+            winner: 'AI',
+            clashType: 'AI_REFLECT_KILL',
+            headline: 'REFLECTED! AI Deflected Your Shot (+1 AI Point)',
+            subtext: `AI used ${ACTIONS[aAct].shortName} to bounce ${ACTIONS[pAct].shortName} straight back!`
+          };
+        }
+        if (aStdShield) {
+          if (isMatchingShield(pAct, aAct)) {
+            return {
+              winner: 'AI',
+              clashType: 'AI_SHIELD_REFLECT',
+              headline: 'COUNTERED! AI Matched Your Gun (+1 AI Point)',
+              subtext: `AI's ${ACTIONS[aAct].shortName} reflected your ${ACTIONS[pAct].shortName} back at you!`
+            };
+          }
+          return {
+            winner: 'PLAYER',
+            clashType: 'PLAYER_PIERCE_KILL',
+            headline: 'DIRECT HIT! Wrong AI Shield (+1 Player Point)',
+            subtext: `Your ${ACTIONS[pAct].shortName} pierced right through AI's ${ACTIONS[aAct].shortName}!`
+          };
+        }
+      }
+
+      // 4. AI Fires a Gun vs. Player Non-Gun
+      if (aGun && !pGun) {
+        if (pImmune) {
+          return {
+            winner: 'NONE',
+            clashType: 'PLAYER_IMMUNE_BLOCK',
+            headline: 'BLOCKED! Your Reload/Restore Shield Held',
+            subtext: `Your ${ACTIONS[pAct].shortName} shield dome blocked AI's ${ACTIONS[aAct].shortName}. 0 points.`
+          };
+        }
+        if (pSupRef) {
+          return {
+            winner: 'PLAYER',
+            clashType: 'PLAYER_REFLECT_KILL',
+            headline: 'SUPER REFLECT! Shot Returned (+1 Player Point)',
+            subtext: `Your ${ACTIONS[pAct].shortName} bounced AI's ${ACTIONS[aAct].shortName} straight back!`
+          };
+        }
+        if (pStdShield) {
+          if (isMatchingShield(aAct, pAct)) {
+            return {
+              winner: 'PLAYER',
+              clashType: 'PLAYER_SHIELD_REFLECT',
+              headline: 'PERFECT BLOCK! Shot Reflected (+1 Player Point)',
+              subtext: `Your ${ACTIONS[pAct].shortName} matched and reflected AI's ${ACTIONS[aAct].shortName}!`
+            };
+          }
+          return {
+            winner: 'AI',
+            clashType: 'AI_PIERCE_KILL',
+            headline: 'SHIELD BREACHED! Wrong Shield (+1 AI Point)',
+            subtext: `AI's ${ACTIONS[aAct].shortName} broke right through your ${ACTIONS[pAct].shortName}!`
+          };
+        }
+      }
+
+      // 5. Neither side fired a Gun (Reloads, Shields, Reflectors, VP Restore)
+      return {
+        winner: 'NONE',
+        clashType: 'NEUTRAL_SETUP',
+        headline: 'TACTICAL STANDOFF — Resources Updated',
+        subtext: `Player deployed ${ACTIONS[pAct].shortName} while AI deployed ${ACTIONS[aAct].shortName}. 0 points.`
+      };
+    }
+
+    // =========================================================================
+    // SECTION E: ADAPTIVE TACTICAL AI DECISION ENGINE
+    // =========================================================================
+    function chooseAiAction() {
+      const ai = state.ai;
+      const pl = state.player;
+      const hist = state.playerHistory;
+      const validAiMoves = Object.keys(ACTIONS).filter(id => canPerformAction(ai, id));
+
+      const playerCanShoot =
+        pl.singleAmmo >= 100 || pl.doubleAmmo >= 100 || pl.minigunBullets >= 1;
+
+      const aiCanShoot =
+        ai.singleAmmo >= 100 || ai.doubleAmmo >= 100 || ai.minigunBullets >= 1;
+
+      // Round 1 opening variety
+      if (state.round === 1) {
+        const openers = ['MINIGUN_RELOAD', 'DOUBLE_RELOAD', 'SINGLE_RELOAD'];
+        return openers[Math.floor(Math.random() * openers.length)];
+      }
+
+      // Analyze Player's recent history (last 3 turns) for spam detection & baiting
+      const last1 = hist[hist.length - 1] || null;
+      const last2 = hist[hist.length - 2] || null;
+      const isSpammingSameMove = last1 && last2 && last1 === last2;
+      const recentReflectors = hist.slice(-3).filter(m => SUPERIOR_REFLECTORS.includes(m)).length;
+      const playerHasReflectors = pl.blitzLeft > 0 || pl.doubleRefLeft > 0;
+
+      const weighted = [];
+      validAiMoves.forEach(move => {
+        let weight = 8;
+
+        // 1. Pattern Countering: Player repeated the exact same move twice in a row
+        if (isSpammingSameMove) {
+          if (GUN_ACTIONS.includes(last1)) {
+            if (
+              (last1 === 'SINGLE_GUN' && move === 'SINGLE_SHIELD') ||
+              (last1 === 'DOUBLE_GUN' && move === 'DOUBLE_SHIELD') ||
+              (last1 === 'MINIGUN' && move === 'MINIGUN_SHIELD') ||
+              SUPERIOR_REFLECTORS.includes(move)
+            ) {
+              weight += 42;
+            }
+          } else if (RELOAD_ACTIONS.includes(last1) || last1 === 'VP_RESTORE') {
+            // Player is spamming reloads/restores: safe turn for AI to reload or restore VP too
+            if (RELOAD_ACTIONS.includes(move) || move === 'VP_RESTORE') {
+              weight += 36;
+            }
+          } else if (STANDARD_SHIELD_ACTIONS.includes(last1) || SUPERIOR_REFLECTORS.includes(last1)) {
+            // Player keeps turtling with shields/reflectors: bait out their charge by reloading instead of wasting bullets!
+            if (RELOAD_ACTIONS.includes(move)) {
+              weight += 45;
+            }
+          }
+        }
+
+        // 2. Reflector Baiting Logic:
+        // If AI is loaded AND Player is loaded with superior reflectors available, AI reloads to bait out Player's limited Blitz/DblReflector!
+        if (aiCanShoot && playerCanShoot && playerHasReflectors && recentReflectors >= 1) {
+          if (RELOAD_ACTIONS.includes(move)) {
+            weight += 34;
+          }
+          if (GUN_ACTIONS.includes(move)) {
+            weight = Math.max(2, weight - 12);
+          }
+        }
+
+        // 3. Match Point Aggression / Caution
+        const aiOnMatchPoint = state.targetScore !== Infinity && ai.score === state.targetScore - 1;
+        const plOnMatchPoint = state.targetScore !== Infinity && pl.score === state.targetScore - 1;
+
+        if (plOnMatchPoint && playerCanShoot) {
+          // Survive match point with targeted shields or reflectors
+          if (STANDARD_SHIELD_ACTIONS.includes(move) || SUPERIOR_REFLECTORS.includes(move)) {
+            weight += 24;
+          }
+        }
+        if (aiOnMatchPoint && aiCanShoot && !playerCanShoot) {
+          // Go for the winning shot when player has no ammo
+          if (GUN_ACTIONS.includes(move)) {
+            weight += 40;
+          }
+        }
+
+        // 4. Standard Tactical Ballistics & Defense Heuristics
+        if (GUN_ACTIONS.includes(move)) {
+          weight += playerCanShoot ? 16 : 36;
+        }
+        if (move === 'SINGLE_SHIELD') {
+          weight += pl.singleAmmo >= 100 ? 30 : 1;
+        }
+        if (move === 'DOUBLE_SHIELD') {
+          weight += pl.doubleAmmo >= 100 ? 32 : 1;
+        }
+        if (move === 'MINIGUN_SHIELD') {
+          weight += pl.minigunBullets >= 1 ? 32 : 1;
+        }
+        if (SUPERIOR_REFLECTORS.includes(move)) {
+          weight += playerCanShoot ? 18 : 2;
+        }
+        if (RELOAD_ACTIONS.includes(move)) {
+          weight += !aiCanShoot ? 28 : 12;
+        }
+        if (move === 'VP_RESTORE') {
+          weight += ai.vp === 0 ? 36 : 16;
+        }
+
+        for (let i = 0; i < weight; i++) weighted.push(move);
+      });
+
+      return weighted[Math.floor(Math.random() * weighted.length)] || validAiMoves[0];
+    }
+
+    // =========================================================================
+    // SECTION F: DUAL COMBAT ARENA CANVAS RENDERER & ANIMATION ENGINE
+    // =========================================================================
+    const canvas = document.getElementById('combat-arena-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const arenaAnim = {
+      phase: 'IDLE',
+      timer: 0,
+      playerAction: null,
+      aiAction: null,
+      outcome: null,
+      particles: []
+    };
+
+    function resizeArenaCanvas() {
+      const container = document.getElementById('canvas-container');
+      if (!container) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = container.clientWidth * dpr;
+      canvas.height = container.clientHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener('resize', resizeArenaCanvas);
+
+    function spawnSparks(x, y, color, count = 18) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const speed = 2 + Math.random() * 5;
+        arenaAnim.particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1.0,
+          color
+        });
+      }
+    }
+
+    function drawOperative(x, y, side, accentColor, isShaken = false, actionId = null, phase = 'IDLE', t = 0) {
+      const dir = side === 'PLAYER' ? 1 : -1;
+      const shakeX = isShaken ? (Math.random() - 0.5) * 12 : 0;
+      const shakeY = isShaken ? (Math.random() - 0.5) * 12 : 0;
+
+      // Scale robot proportionally to canvas height so mobile, tablet & laptop look crisp
+      const canvasH = canvas.clientHeight || 280;
+      const responsiveScale = Math.max(0.62, Math.min(0.92, canvasH / 325));
+
+      // Subtle fighting-stance bounce
+      const bounce = phase === 'LOCKED'
+        ? Math.sin(t * 16) * 3.5
+        : Math.sin(t * 4.5 + (side === 'PLAYER' ? 0 : Math.PI)) * 2.5;
+
+      const isAttacking = phase === 'CLASH' && actionId && GUN_ACTIONS.includes(actionId);
+      const isDefending = phase === 'CLASH' && actionId && !GUN_ACTIONS.includes(actionId);
+
+      // Palette tailored to Player (Emerald/Cyan) vs AI (Rose/Crimson) while keeping crisp cartoon line-art
+      const armorMain = side === 'PLAYER' ? '#e2e8f0' : '#f1f5f9';
+      const armorShade = side === 'PLAYER' ? '#94a3b8' : '#cbd5e1';
+      const trimColor = accentColor;
+      const outline = '#090d16';
+
+      ctx.save();
+      ctx.translate(x + shakeX, y + 8 * responsiveScale + shakeY + bounce);
+      // Mirror horizontally so Player faces right (+1) and AI faces left (-1)
+      ctx.scale(dir * responsiveScale, responsiveScale);
+
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = outline;
+
+      // Ground shadow
+      ctx.save();
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.55)';
+      ctx.beginPath();
+      ctx.ellipse(0, 66 - bounce * 0.6, 44, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // --- 1. BACK ARM (Raised forward in fighting stance) ---
+      ctx.save();
+      const backArmAngle = isAttacking ? -0.18 : isDefending ? -0.45 : Math.sin(t * 4.5) * 0.06;
+      ctx.translate(16, -8);
+      ctx.rotate(backArmAngle);
+
+      // Shoulder pad
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Forearm
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(4, -8, 26, 15, 7);
+      ctx.fill();
+      ctx.stroke();
+
+      // Clenched Fist (or weapon barrel glow when firing)
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.arc(34, -2, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Knuckle lines
+      ctx.beginPath();
+      ctx.moveTo(31, -8);
+      ctx.lineTo(31, 3);
+      ctx.moveTo(36, -7);
+      ctx.lineTo(36, 4);
+      ctx.stroke();
+      ctx.restore();
+
+      // --- 2. LEGS IN WIDE FIGHTING STANCE ---
+      // Back Leg (Left on canvas)
+      ctx.save();
+      ctx.translate(-12, 22);
+      // Thigh
+      ctx.fillStyle = armorShade;
+      ctx.beginPath();
+      ctx.roundRect(-24, -4, 26, 13, 6);
+      ctx.fill();
+      ctx.stroke();
+      // Knee joint
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.arc(-22, 6, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Shin
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(-29, 8, 14, 26, 6);
+      ctx.fill();
+      ctx.stroke();
+      // Boot
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.ellipse(-26, 36, 16, 8, 0, Math.PI, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Front Leg (Right on canvas)
+      ctx.save();
+      ctx.translate(10, 22);
+      // Thigh
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(-2, -2, 26, 13, 6);
+      ctx.fill();
+      ctx.stroke();
+      // Knee joint
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.arc(22, 8, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Shin
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(16, 10, 14, 25, 6);
+      ctx.fill();
+      ctx.stroke();
+      // Boot
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.ellipse(27, 37, 16, 8, 0, Math.PI, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // --- 3. TORSO & PELVIS ---
+      // Pelvis
+      ctx.fillStyle = armorShade;
+      ctx.beginPath();
+      ctx.roundRect(-15, 14, 30, 14, 7);
+      ctx.fill();
+      ctx.stroke();
+
+      // Waist segment
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.roundRect(-13, 7, 26, 10, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Chest armor
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(-20, -16, 40, 27, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      // --- 4. OVERSIZED ROUNDED MONITOR HEAD (SIGNATURE FEATURE) ---
+      const headTilt = isShaken ? -0.15 : isAttacking ? 0.08 : Math.sin(t * 4.5) * 0.03;
+      ctx.save();
+      ctx.translate(0, -44);
+      ctx.rotate(headTilt);
+
+      // Left & Right Ear Pods
+      ctx.fillStyle = armorShade;
+      ctx.beginPath();
+      ctx.roundRect(-41, -13, 12, 26, 6);
+      ctx.roundRect(29, -13, 12, 26, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.arc(-38, 0, 6, 0, Math.PI * 2);
+      ctx.arc(38, 0, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Outer Helmet Shell
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(-34, -27, 68, 52, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      // Inner Screen Bezel
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.roundRect(-26, -19, 52, 36, 13);
+      ctx.fill();
+      ctx.stroke();
+
+      // Fierce Angled Eyes (Matching the illustration's determined brow)
+      ctx.fillStyle = isShaken ? '#facc15' : trimColor;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+
+      // Left Eye
+      ctx.beginPath();
+      ctx.moveTo(-18, -9);
+      ctx.lineTo(-4, -3);
+      ctx.quadraticCurveTo(-11, 2, -18, -3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Eye
+      ctx.beginPath();
+      ctx.moveTo(18, -9);
+      ctx.lineTo(4, -3);
+      ctx.quadraticCurveTo(11, 2, 18, -3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Determined Smirk / Gritted Mouth
+      ctx.fillStyle = '#f8fafc';
+      ctx.strokeStyle = trimColor;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (isShaken) {
+        // Shocked/damaged jagged mouth
+        ctx.roundRect(-11, 4, 22, 8, 3);
+      } else {
+        // Slanted determined mouth matching reference image
+        ctx.moveTo(-12, 10);
+        ctx.lineTo(10, 4);
+        ctx.quadraticCurveTo(14, 8, 11, 11);
+        ctx.lineTo(-10, 12);
+        ctx.closePath();
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.restore(); // End Head
+
+      // --- 5. FRONT ARM (Guard Fist across chest) ---
+      ctx.save();
+      const frontArmAngle = isAttacking ? -0.35 : isDefending ? 0.25 : -Math.sin(t * 4.5) * 0.05;
+      ctx.translate(-17, -9);
+      ctx.rotate(frontArmAngle);
+
+      // Front Shoulder Pad
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 3;
+      ctx.fillStyle = trimColor;
+      ctx.beginPath();
+      ctx.arc(0, 0, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Upper Arm
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(-7, 4, 15, 20, 7);
+      ctx.fill();
+      ctx.stroke();
+
+      // Forearm bent inward across torso
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.roundRect(-5, 14, 24, 14, 7);
+      ctx.fill();
+      ctx.stroke();
+
+      // Clenched Guard Fist with thumb & finger segments
+      ctx.fillStyle = armorMain;
+      ctx.beginPath();
+      ctx.arc(21, 20, 11.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(17, 13);
+      ctx.lineTo(17, 26);
+      ctx.moveTo(22, 13);
+      ctx.lineTo(22, 26);
+      ctx.moveTo(26, 15);
+      ctx.lineTo(26, 25);
+      ctx.stroke();
+
+      ctx.restore(); // End Front Arm
+      ctx.restore(); // End Robot
+    }
+
+    function drawDefensiveEffect(x, y, side, actionId, t) {
+      const dir = side === 'PLAYER' ? 1 : -1;
+      ctx.save();
+
+      if (RELOAD_ACTIONS.includes(actionId) || actionId === 'VP_RESTORE') {
+        // Protective Spherical Shield Dome
+        const domeColor = actionId === 'VP_RESTORE' ? '#34d399' : '#38bdf8';
+        ctx.strokeStyle = domeColor;
+        ctx.lineWidth = 3;
+        ctx.fillStyle = actionId === 'VP_RESTORE' ? 'rgba(52, 211, 153, 0.16)' : 'rgba(56, 189, 248, 0.16)';
+        ctx.beginPath();
+        ctx.arc(x, y, 48 + Math.sin(t * 10) * 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = domeColor;
+        ctx.font = '700 10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(actionId === 'VP_RESTORE' ? 'VP RESTORE DOME' : 'RELOAD SHIELD', x, y - 56);
+      } else if (actionId === 'SINGLE_SHIELD') {
+        // X-Barrier
+        const bx = x + dir * 48;
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(bx - 16, y - 34);
+        ctx.lineTo(bx + 16, y + 34);
+        ctx.moveTo(bx + 16, y - 34);
+        ctx.lineTo(bx - 16, y + 34);
+        ctx.stroke();
+      } else if (actionId === 'DOUBLE_SHIELD') {
+        // Parallel Twin-Wall
+        const bx = x + dir * 46;
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 4.5;
+        ctx.beginPath();
+        ctx.moveTo(bx, y - 38);
+        ctx.lineTo(bx, y + 38);
+        ctx.moveTo(bx + dir * 12, y - 38);
+        ctx.lineTo(bx + dir * 12, y + 38);
+        ctx.stroke();
+      } else if (actionId === 'MINIGUN_SHIELD') {
+        // 90-Degree T-Fortress
+        const bx = x + dir * 50;
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(bx, y - 40);
+        ctx.lineTo(bx, y + 40);
+        ctx.moveTo(bx - dir * 24, y);
+        ctx.lineTo(bx, y);
+        ctx.stroke();
+      } else if (actionId === 'BLITZ') {
+        // Energized V-Slash
+        const bx = x + dir * 48;
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(bx - dir * 18, y - 38);
+        ctx.lineTo(bx + dir * 16, y);
+        ctx.lineTo(bx - dir * 18, y + 38);
+        ctx.stroke();
+      } else if (actionId === 'DOUBLE_REFLECTOR') {
+        // Dual Kinetic Arcs
+        ctx.strokeStyle = '#e879f9';
+        ctx.lineWidth = 4;
+        [44, 60].forEach(offset => {
+          ctx.beginPath();
+          ctx.arc(x, y, offset, dir > 0 ? -0.75 : Math.PI - 0.75, dir > 0 ? 0.75 : Math.PI + 0.75);
+          ctx.stroke();
+        });
+      }
+
+      ctx.restore();
+    }
+
+    function drawFloatingCallout(centerX, topY, outcome, elapsed) {
+      if (!outcome || elapsed < 0.15) return;
+
+      let label = 'STANDOFF';
+      let color = '#94a3b8';
+      let subLabel = '0 PTS';
+
+      switch (outcome.clashType) {
+        case 'PLAYER_REFLECT_KILL':
+        case 'PLAYER_SHIELD_REFLECT':
+          label = 'REFLECTED!';
+          subLabel = '+1 PLAYER POINT!';
+          color = '#34d399';
+          break;
+        case 'AI_REFLECT_KILL':
+        case 'AI_SHIELD_REFLECT':
+          label = 'REFLECTED!';
+          subLabel = '+1 AI POINT!';
+          color = '#fb7185';
+          break;
+        case 'PLAYER_PIERCE_KILL':
+          label = 'SHIELD PIERCED!';
+          subLabel = '+1 PLAYER POINT!';
+          color = '#34d399';
+          break;
+        case 'AI_PIERCE_KILL':
+          label = 'SHIELD PIERCED!';
+          subLabel = '+1 AI POINT!';
+          color = '#fb7185';
+          break;
+        case 'PLAYER_IMMUNE_BLOCK':
+        case 'AI_IMMUNE_BLOCK':
+          label = 'DOME BLOCKED!';
+          subLabel = 'RELOAD IMMUNITY (0 PTS)';
+          color = '#38bdf8';
+          break;
+        case 'GUN_CLASH_TIE':
+          label = 'FIREFIGHT TIE!';
+          subLabel = 'SHOTS CANCELLED (0 PTS)';
+          color = '#facc15';
+          break;
+        case 'SUPERIOR_CLASH_TIE':
+          label = 'REFLECTOR TIE!';
+          subLabel = 'KINETIC OVERLOAD (0 PTS)';
+          color = '#e879f9';
+          break;
+        default:
+          label = 'TACTICAL SETUP';
+          subLabel = 'RESOURCES UPDATED';
+          color = '#cbd5e1';
+          break;
+      }
+
+      const animProgress = Math.min(1, (elapsed - 0.15) / 0.25);
+      const fadeOut = elapsed > 1.3 ? Math.max(0, 1 - (elapsed - 1.3) / 0.35) : 1;
+      const floatY = topY - animProgress * 12;
+
+      ctx.save();
+      ctx.globalAlpha = animProgress * fadeOut;
+      ctx.textAlign = 'center';
+
+      // Pill backdrop for crisp legibility
+      ctx.font = '800 18px "JetBrains Mono", monospace';
+      const mainWidth = ctx.measureText(label).width;
+      const boxW = Math.max(mainWidth + 32, 185);
+      const boxH = 44;
+
+      ctx.fillStyle = 'rgba(7, 11, 20, 0.88)';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(centerX - boxW / 2, floatY - 22, boxW, boxH, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      // Main impact callout
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 12;
+      ctx.fillText(label, centerX, floatY - 3);
+
+      // Sub-callout
+      ctx.shadowBlur = 0;
+      ctx.font = '700 10px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText(subLabel, centerX, floatY + 13);
+      ctx.restore();
+    }
+
+    function renderArenaLoop() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      const isCompact = w < 520;
+      const leftX = isCompact ? w * 0.22 : w * 0.2;
+      const rightX = isCompact ? w * 0.78 : w * 0.8;
+      const centerX = w * 0.5;
+      const midY = h * 0.48;
+
+      // Center divider line
+      ctx.save();
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.16)';
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(centerX, 16);
+      ctx.lineTo(centerX, h - 16);
+      ctx.stroke();
+      ctx.restore();
+
+      const now = performance.now() / 1000;
+
+      if (arenaAnim.phase === 'IDLE') {
+        drawOperative(leftX, midY, 'PLAYER', '#34d399', false, null, 'IDLE', now);
+        drawOperative(rightX, midY, 'AI', '#fb7185', false, null, 'IDLE', now);
+      } else if (arenaAnim.phase === 'LOCKED') {
+        // Charging energy rings while moves are concealed
+        drawOperative(leftX, midY, 'PLAYER', '#34d399', false, null, 'LOCKED', now);
+        drawOperative(rightX, midY, 'AI', '#fb7185', false, null, 'LOCKED', now);
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.55)';
+        ctx.lineWidth = 2.5;
+        const r = 56 + Math.sin(now * 12) * 7;
+        ctx.beginPath();
+        ctx.arc(leftX, midY, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(rightX, midY, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      } else if (arenaAnim.phase === 'CLASH') {
+        const elapsed = (performance.now() - arenaAnim.timer) / 1000;
+        const pAct = arenaAnim.playerAction;
+        const aAct = arenaAnim.aiAction;
+        const out = arenaAnim.outcome;
+
+        const pHit = out && (out.winner === 'AI' || out.winner === 'TIE');
+        const aHit = out && (out.winner === 'PLAYER' || out.winner === 'TIE');
+
+        drawOperative(leftX, midY, 'PLAYER', '#34d399', pHit && elapsed > 0.35 && elapsed < 0.75, pAct, 'CLASH', now);
+        drawOperative(rightX, midY, 'AI', '#fb7185', aHit && elapsed > 0.35 && elapsed < 0.75, aAct, 'CLASH', now);
+
+        if (pAct && !GUN_ACTIONS.includes(pAct)) {
+          drawDefensiveEffect(leftX, midY, 'PLAYER', pAct, now);
+        }
+        if (aAct && !GUN_ACTIONS.includes(aAct)) {
+          drawDefensiveEffect(rightX, midY, 'AI', aAct, now);
+        }
+
+        // Projectile trajectories
+        const pIsGun = GUN_ACTIONS.includes(pAct);
+        const aIsGun = GUN_ACTIONS.includes(aAct);
+
+        if (pIsGun && aIsGun) {
+          const prog = Math.min(1, elapsed / 0.4);
+          drawProjectile(leftX + 42, centerX, midY, pAct, prog);
+          drawProjectile(rightX - 42, centerX, midY, aAct, prog);
+          if (prog >= 0.98 && elapsed < 0.44) {
+            spawnSparks(centerX, midY, '#facc15', 22);
+          }
+        } else if (pIsGun) {
+          if (out.clashType === 'AI_REFLECT_KILL' || out.clashType === 'AI_SHIELD_REFLECT') {
+            if (elapsed < 0.4) {
+              drawProjectile(leftX + 42, rightX - 54, midY, pAct, elapsed / 0.4);
+            } else {
+              const backProg = Math.min(1, (elapsed - 0.4) / 0.4);
+              drawProjectile(rightX - 54, leftX + 26, midY, pAct, backProg, true);
+            }
+          } else {
+            const targetX = out.clashType === 'AI_IMMUNE_BLOCK' ? rightX - 56 : rightX - 24;
+            drawProjectile(leftX + 42, targetX, midY, pAct, Math.min(1, elapsed / 0.45));
+          }
+        } else if (aIsGun) {
+          if (out.clashType === 'PLAYER_REFLECT_KILL' || out.clashType === 'PLAYER_SHIELD_REFLECT') {
+            if (elapsed < 0.4) {
+              drawProjectile(rightX - 42, leftX + 54, midY, aAct, elapsed / 0.4);
+            } else {
+              const backProg = Math.min(1, (elapsed - 0.4) / 0.4);
+              drawProjectile(leftX + 54, rightX - 26, midY, aAct, backProg, true);
+            }
+          } else {
+            const targetX = out.clashType === 'PLAYER_IMMUNE_BLOCK' ? leftX + 56 : leftX + 24;
+            drawProjectile(rightX - 42, targetX, midY, aAct, Math.min(1, elapsed / 0.45));
+          }
+        }
+
+        // Action Labels beneath the robots
+        ctx.save();
+        ctx.font = isCompact ? '700 10px "JetBrains Mono", monospace' : '700 12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#6ee7b7';
+        ctx.fillText(ACTIONS[pAct].shortName.toUpperCase(), leftX, h - 12);
+        ctx.fillStyle = '#fda4af';
+        ctx.fillText(ACTIONS[aAct].shortName.toUpperCase(), rightX, h - 12);
+        ctx.restore();
+
+        // Floating On-Canvas Combat Callout
+        drawFloatingCallout(centerX, isCompact ? 34 : 46, out, elapsed);
+
+        if (elapsed > 1.65) {
+          arenaAnim.phase = 'IDLE';
+        }
+      }
+
+      // Render sparks
+      for (let i = arenaAnim.particles.length - 1; i >= 0; i--) {
+        const pt = arenaAnim.particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.life -= 0.04;
+        if (pt.life <= 0) {
+          arenaAnim.particles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = pt.life;
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      requestAnimationFrame(renderArenaLoop);
+    }
+
+    // =========================================================================
+    // SECTION G: UI RENDERING & TURN COUNTDOWN FLOW
+    // =========================================================================
+    function renderActionDeck() {
+      const container = document.getElementById('action-buttons-container');
+      const isMedium = state.layoutMode === 'MEDIUM';
+
+      const groups = [
+        { title: '1. Weapons', color: 'amber', ids: ['SINGLE_GUN', 'DOUBLE_GUN', 'MINIGUN'] },
+        { title: '2. Reloads (+Shield)', color: 'cyan', ids: ['SINGLE_RELOAD', 'DOUBLE_RELOAD', 'MINIGUN_RELOAD'] },
+        { title: '3. Shields (-25% VP)', color: 'blue', ids: ['SINGLE_SHIELD', 'DOUBLE_SHIELD', 'MINIGUN_SHIELD'] },
+        { title: '4. Reflectors & VP', color: 'purple', ids: ['BLITZ', 'DOUBLE_REFLECTOR', 'VP_RESTORE'] }
+      ];
+
+      container.innerHTML = groups.map(group => {
+        const buttonsHtml = group.ids.map(id => {
+          const act = ACTIONS[id];
+          const enabled = canPerformAction(state.player, id) && !state.isCountingDown && !state.isMatchOver;
+          const reason = getDisableReason(state.player, id);
+
+          let badgeText = '';
+          if (id === 'SINGLE_GUN') badgeText = `${state.player.singleAmmo}%`;
+          if (id === 'DOUBLE_GUN') badgeText = `${state.player.doubleAmmo}%`;
+          if (id === 'MINIGUN') badgeText = `${state.player.minigunBullets}`;
+          if (id === 'BLITZ') badgeText = `${state.player.blitzLeft}/3`;
+          if (id === 'DOUBLE_REFLECTOR') badgeText = `${state.player.doubleRefLeft}/3`;
+          if (id === 'VP_RESTORE') badgeText = `${state.player.vp}%`;
+
+          return `
+            <button
+              data-action="${id}"
+              ${enabled ? '' : 'disabled'}
+              class="action-btn w-full min-h-[44px] text-left rounded-xl border transition-all ${
+                isMedium ? 'p-2.5 sm:p-3' : 'px-2.5 sm:px-3 py-2'
+              } ${
+                enabled
+                  ? 'bg-slate-950/90 hover:bg-slate-800 border-slate-700 hover:border-cyan-400/60 text-white cursor-pointer active:scale-[0.98]'
+                  : 'bg-slate-950/40 border-slate-800/70 text-slate-600 cursor-not-allowed'
+              }"
+            >
+              <div class="flex items-center justify-between gap-1.5 sm:gap-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <kbd class="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono-tech font-bold rounded bg-slate-800/90 border border-slate-700 text-slate-300 shrink-0">${act.keyHint}</kbd>
+                  <span class="font-bold truncate ${isMedium ? 'text-xs sm:text-sm' : 'text-[11px] sm:text-xs'}">${act.shortName}</span>
+                </div>
+                ${badgeText ? `<span class="text-[10px] font-mono-tech px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-cyan-300 shrink-0">${badgeText}</span>` : ''}
+              </div>
+              ${isMedium ? `<p class="text-[10px] sm:text-[11px] text-slate-400 mt-1 leading-snug">${enabled ? act.desc : reason}</p>` : ''}
+              ${!isMedium && !enabled ? `<div class="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 truncate">${reason}</div>` : ''}
+            </button>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-slate-950/60 border border-slate-800/90 rounded-2xl p-2 sm:p-2.5 flex flex-col gap-1.5 sm:gap-2">
+            <div class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400 px-1 truncate">${group.title}</div>
+            <div class="flex flex-col gap-1.5">${buttonsHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const actionId = btn.getAttribute('data-action');
+          if (actionId && !state.isCountingDown && !state.isMatchOver && canPerformAction(state.player, actionId)) {
+            startTurnCountdown(actionId);
+          }
+        });
+      });
+    }
+
+    function updateHudUI() {
+      const p = state.player;
+      const a = state.ai;
+
+      const isMatchPoint =
+        state.targetScore !== Infinity &&
+        (p.score === state.targetScore - 1 || a.score === state.targetScore - 1);
+
+      document.getElementById('round-badge').textContent = isMatchPoint
+        ? `ROUND ${state.round} · MATCH POINT`
+        : `ROUND ${state.round}`;
+      document.getElementById('round-badge').className = isMatchPoint
+        ? 'px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/60 text-amber-300 font-mono-tech text-xs font-bold animate-pulse'
+        : 'px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 font-mono-tech text-xs font-bold';
+
+      document.getElementById('match-goal-badge').textContent =
+        state.targetScore === Infinity ? 'ENDLESS MODE' : `FIRST TO ${state.targetScore}`;
+      document.getElementById('player-score').textContent = p.score;
+      document.getElementById('ai-score').textContent = a.score;
+
+      // Player Stats
+      document.getElementById('player-shields-used-badge').textContent = `Shields Used: ${p.shieldsUsed}`;
+      document.getElementById('player-vp-text').textContent = p.vp === 50 ? '50% / 50% (FULL)' : `${p.vp}% / 50%`;
+      document.getElementById('player-vp-bar').style.width = `${(p.vp / 50) * 100}%`;
+
+      document.getElementById('player-single-ammo').textContent = `${p.singleAmmo}%`;
+      document.getElementById('player-single-bar').style.width = `${p.singleAmmo}%`;
+      document.getElementById('player-double-ammo').textContent = `${p.doubleAmmo}%`;
+      document.getElementById('player-double-bar').style.width = `${p.doubleAmmo}%`;
+      document.getElementById('player-minigun-ammo').textContent = `${p.minigunBullets} Bullets`;
+
+      document.getElementById('player-blitz-left').textContent = `${p.blitzLeft}/3`;
+      document.getElementById('player-dblref-left').textContent = `${p.doubleRefLeft}/3`;
+
+      const pRestoreHint = document.getElementById('player-restore-hint');
+      if (canPerformAction(p, 'VP_RESTORE')) {
+        pRestoreHint.textContent = `VP Restore: UNLOCKED (${p.vp}% → 50%)!`;
+        pRestoreHint.className = 'text-emerald-400 font-bold';
+      } else {
+        pRestoreHint.textContent = 'VP is Full (50%) — Use a shield to spend VP';
+        pRestoreHint.className = 'text-slate-500';
+      }
+
+      // AI Stats
+      document.getElementById('ai-shields-used-badge').textContent = `Shields Used: ${a.shieldsUsed}`;
+      document.getElementById('ai-vp-text').textContent = a.vp === 50 ? '50% / 50% (FULL)' : `${a.vp}% / 50%`;
+      document.getElementById('ai-vp-bar').style.width = `${(a.vp / 50) * 100}%`;
+
+      document.getElementById('ai-single-ammo').textContent = `${a.singleAmmo}%`;
+      document.getElementById('ai-single-bar').style.width = `${a.singleAmmo}%`;
+      document.getElementById('ai-double-ammo').textContent = `${a.doubleAmmo}%`;
+      document.getElementById('ai-double-bar').style.width = `${a.doubleAmmo}%`;
+      document.getElementById('ai-minigun-ammo').textContent = `${a.minigunBullets} Bullets`;
+
+      document.getElementById('ai-blitz-left').textContent = `${a.blitzLeft}/3`;
+      document.getElementById('ai-dblref-left').textContent = `${a.doubleRefLeft}/3`;
+      document.getElementById('ai-restore-hint').textContent = canPerformAction(a, 'VP_RESTORE')
+        ? `Restore: UNLOCKED (${a.vp}%)`
+        : 'VP Full (50%)';
+
+      renderActionDeck();
+    }
+
+    function startTurnCountdown(playerActionId) {
+      if (state.isCountingDown || state.isMatchOver) return;
+      clearActiveCountdown();
+
+      state.isCountingDown = true;
+      const aiActionId = chooseAiAction();
+
+      sfx.playLock();
+      renderActionDeck();
+
+      // Lock & Conceal both moves during 3 -> 2 -> 1
+      document.getElementById('player-arena-lock').textContent = 'LOCKED [HIDDEN]';
+      document.getElementById('ai-arena-lock').textContent = 'LOCKED [HIDDEN]';
+      document.getElementById('arena-phase-pill').textContent = 'COUNTDOWN IN PROGRESS';
+      document.getElementById('player-reveal-label').textContent = 'Locked (Concealed)';
+      document.getElementById('ai-reveal-label').textContent = 'Locked (Concealed)';
+      document.getElementById('player-selected-badge').textContent = 'Locked';
+
+      arenaAnim.phase = 'LOCKED';
+
+      const overlay = document.getElementById('countdown-overlay');
+      const numEl = document.getElementById('countdown-number');
+      overlay.classList.remove('hidden');
+
+      let count = 3;
+      numEl.textContent = count;
+      sfx.playCountdownTick(count);
+
+      countdownIntervalId = setInterval(() => {
+        count -= 1;
+        if (count >= 1) {
+          numEl.textContent = count;
+          numEl.classList.remove('countdown-pop');
+          void numEl.offsetWidth;
+          numEl.classList.add('countdown-pop');
+          sfx.playCountdownTick(count);
+        } else {
+          clearActiveCountdown();
+          executeRevealAndClash(playerActionId, aiActionId);
+        }
+      }, 420);
+    }
+
+    function checkAndTriggerMatchEnd() {
+      if (state.targetScore === Infinity) return false;
+      if (state.player.score >= state.targetScore || state.ai.score >= state.targetScore) {
+        state.isMatchOver = true;
+        const playerWon = state.player.score >= state.targetScore;
+
+        document.getElementById('match-over-icon').textContent = playerWon ? '🏆' : '💀';
+        document.getElementById('match-over-title').textContent = playerWon ? 'VICTORY!' : 'DEFEAT!';
+        document.getElementById('match-over-title').className = playerWon
+          ? 'text-3xl font-extrabold text-emerald-400'
+          : 'text-3xl font-extrabold text-rose-400';
+        document.getElementById('match-over-subtitle').textContent = playerWon
+          ? `You reached ${state.targetScore} points in ${state.round - 1} rounds and outsmarted the AI Core!`
+          : `The AI Core reached ${state.targetScore} points first. Adjust your counter-strategy and try again!`;
+        document.getElementById('final-player-score').textContent = state.player.score;
+        document.getElementById('final-ai-score').textContent = state.ai.score;
+
+        setTimeout(() => {
+          if (state.isMatchOver) {
+            document.getElementById('match-over-modal').classList.remove('hidden');
+          }
+        }, 1250);
+        return true;
+      }
+      return false;
+    }
+
+    function executeRevealAndClash(playerActionId, aiActionId) {
+      const outcome = resolveCombat(playerActionId, aiActionId);
+
+      // Record player action in history for AI tactical analysis
+      state.playerHistory.push(playerActionId);
+
+      // Apply resource gains & costs
+      applyActionResourceCostAndGain(state.player, playerActionId);
+      applyActionResourceCostAndGain(state.ai, aiActionId);
+
+      // Award point
+      if (outcome.winner === 'PLAYER') state.player.score += 1;
+      if (outcome.winner === 'AI') state.ai.score += 1;
+
+      // Play distinct non-masked audio SFX for both sides if both fire
+      const pFired = GUN_ACTIONS.includes(playerActionId);
+      const aFired = GUN_ACTIONS.includes(aiActionId);
+      if (pFired) sfx.playGunShot(playerActionId, -35);
+      if (aFired) setTimeout(() => sfx.playGunShot(aiActionId, 45), pFired ? 45 : 0);
+
+      if (outcome.clashType.includes('REFLECT') || outcome.clashType.includes('IMMUNE')) {
+        setTimeout(() => sfx.playShieldReflect(), 180);
+      } else if (outcome.winner === 'PLAYER' || outcome.winner === 'AI' || outcome.winner === 'TIE') {
+        setTimeout(() => sfx.playExplosion(), 220);
+      } else {
+        sfx.playReloadOrRestore();
+      }
+
+      // Trigger Canvas Clash Animation
+      arenaAnim.phase = 'CLASH';
+      arenaAnim.timer = performance.now();
+      arenaAnim.playerAction = playerActionId;
+      arenaAnim.aiAction = aiActionId;
+      arenaAnim.outcome = outcome;
+
+      // Update Reveal Readouts
+      document.getElementById('player-arena-lock').textContent = ACTIONS[playerActionId].shortName.toUpperCase();
+      document.getElementById('ai-arena-lock').textContent = ACTIONS[aiActionId].shortName.toUpperCase();
+      document.getElementById('arena-phase-pill').textContent = `ROUND ${state.round} CLASH`;
+      document.getElementById('player-reveal-label').textContent = ACTIONS[playerActionId].name;
+      document.getElementById('ai-reveal-label').textContent = ACTIONS[aiActionId].name;
+      document.getElementById('player-selected-badge').textContent = ACTIONS[playerActionId].shortName;
+      document.getElementById('ai-last-move-badge').textContent = ACTIONS[aiActionId].shortName;
+
+      // Update Outcome Banner
+      document.getElementById('outcome-headline').textContent = outcome.headline;
+      document.getElementById('outcome-subtext').textContent = outcome.subtext;
+      document.getElementById('outcome-icon').textContent =
+        outcome.winner === 'PLAYER' ? '🏆' : outcome.winner === 'AI' ? '💥' : outcome.winner === 'TIE' ? '⚔️' : '🛡️';
+
+      // Append Combat Log
+      state.logs.unshift({
+        round: state.round,
+        pMove: ACTIONS[playerActionId].shortName,
+        aMove: ACTIONS[aiActionId].shortName,
+        result: outcome.headline
+      });
+      document.getElementById('log-count').textContent = state.logs.length;
+      const logPanel = document.getElementById('combat-log-panel');
+      logPanel.innerHTML = state.logs.map(entry => `
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1.5">
+          <span class="text-cyan-400 font-bold">R${entry.round}</span>
+          <span class="text-emerald-300">P: ${entry.pMove}</span>
+          <span class="text-rose-300">AI: ${entry.aMove}</span>
+          <span class="text-slate-200">${entry.result}</span>
+        </div>
+      `).join('');
+
+      // Advance round & check match win condition
+      state.round += 1;
+      state.isCountingDown = false;
+      checkAndTriggerMatchEnd();
+      updateHudUI();
+    }
+
+    // =========================================================================
+    // SECTION H: EVENT LISTENERS, KEYBOARD SHORTCUTS & INITIALIZATION
+    // =========================================================================
+    function launchGameFromSplash() {
+      const splash = document.getElementById('splash-screen');
+      if (splash.classList.contains('hidden') || splash.classList.contains('pointer-events-none')) return;
+      sfx.init();
+      sfx.playLock();
+      splash.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => splash.classList.add('hidden'), 500);
+      resizeArenaCanvas();
+    }
+
+    document.getElementById('start-game-btn').addEventListener('click', launchGameFromSplash);
+
+    document.getElementById('toggle-goal-btn').addEventListener('click', (e) => {
+      state.targetScore = state.targetScore === 5 ? Infinity : 5;
+      e.currentTarget.textContent = state.targetScore === 5 ? '🏆 First to 5' : '♾️ Endless';
+      resetMatchState();
+    });
+
+    document.getElementById('reset-match-btn').addEventListener('click', () => {
+      sfx.playLock();
+      resetMatchState();
+    });
+
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+      sfx.playLock();
+      resetMatchState();
+    });
+
+    document.getElementById('toggle-sound-btn').addEventListener('click', (e) => {
+      sfx.enabled = !sfx.enabled;
+      e.currentTarget.textContent = sfx.enabled ? '🔊 SFX' : '🔇 MUTE';
+    });
+
+    document.getElementById('layout-small-btn').addEventListener('click', () => {
+      state.layoutMode = 'SMALL';
+      document.getElementById('layout-small-btn').className = 'px-2.5 py-1.5 rounded-lg font-semibold transition-colors bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 cursor-pointer';
+      document.getElementById('layout-medium-btn').className = 'px-2.5 py-1.5 rounded-lg font-semibold transition-colors text-slate-400 hover:text-white cursor-pointer';
+      document.getElementById('deck-mode-label').textContent = 'Small Bar Mode';
+      renderActionDeck();
+    });
+
+    document.getElementById('layout-medium-btn').addEventListener('click', () => {
+      state.layoutMode = 'MEDIUM';
+      document.getElementById('layout-medium-btn').className = 'px-2.5 py-1.5 rounded-lg font-semibold transition-colors bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 cursor-pointer';
+      document.getElementById('layout-small-btn').className = 'px-2.5 py-1.5 rounded-lg font-semibold transition-colors text-slate-400 hover:text-white cursor-pointer';
+      document.getElementById('deck-mode-label').textContent = 'Medium Bar Mode';
+      renderActionDeck();
+    });
+
+    document.getElementById('toggle-rules-btn').addEventListener('click', () => {
+      document.getElementById('rules-modal').classList.remove('hidden');
+    });
+
+    document.getElementById('close-rules-btn').addEventListener('click', () => {
+      document.getElementById('rules-modal').classList.add('hidden');
+    });
+
+    document.getElementById('toggle-history-btn').addEventListener('click', () => {
+      document.getElementById('combat-log-panel').classList.toggle('hidden');
+    });
+
+    // Global Keyboard Shortcuts (1-9, 0, -, = for all 12 moves; R to reset match)
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      const splashHidden = document.getElementById('splash-screen').classList.contains('hidden');
+      const rulesHidden = document.getElementById('rules-modal').classList.contains('hidden');
+      if (!splashHidden) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          launchGameFromSplash();
+        }
+        return;
+      }
+      if (!rulesHidden) return;
+
+      const key = e.key.toLowerCase();
+      if (key === 'r') {
+        sfx.playLock();
+        resetMatchState();
+        return;
+      }
+
+      const mappedAction = KEY_TO_ACTION[e.key];
+      if (mappedAction && !state.isCountingDown && !state.isMatchOver && canPerformAction(state.player, mappedAction)) {
+        startTurnCountdown(mappedAction);
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      clearActiveCountdown();
+    });
+
+    window.onload = function () {
+      resizeArenaCanvas();
+      updateHudUI();
+      requestAnimationFrame(renderArenaLoop);
+    };
+  </script>
+</body>
+</html>
